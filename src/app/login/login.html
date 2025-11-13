@@ -1,0 +1,51 @@
+<div class="login-container">
+  <div class="form-section">
+    <h2>Welcome Back</h2>
+
+    <form [formGroup]="loginForm" (ngSubmit)="submit()">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" placeholder="Enter your email" />
+        <i class="input-icon fas fa-envelope"></i>
+        <div class="error" *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
+          A valid email is required.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" type="password" formControlName="password" placeholder="Enter your password" />
+        <i class="input-icon fas fa-lock"></i>
+        <div class="error" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
+          Password required.
+        </div>
+      </div>
+
+      <div class="error" *ngIf="errorMessage" style="margin-bottom: 20px;">
+        {{ errorMessage }}
+      </div>
+
+      <button type="submit">Login</button>
+    </form>
+
+    <!-- User registration footer -->
+    <div class="form-footer">
+      Don't have an account? <a href="/register">Sign Up</a>
+    </div>
+
+    <!-- Admin switch footer -->
+    <div class="form-footer">
+      <a href="/admin-login">Switch to Admin</a>
+    </div>
+  </div>
+
+  <div class="image-section">
+    <div style="color: white; text-align: center; padding: 20px; z-index: 2; position: relative;">
+      <h2 style="color: white; margin-bottom: 20px;">HealthScanQR</h2>
+      <p style="margin-bottom: 20px;">One Quick Scan. That’s All It Takes.</p>
+      <div style="font-size: 80px;">
+        <i class="fas fa-user-circle"></i>
+      </div>
+    </div>
+  </div>
+</div>

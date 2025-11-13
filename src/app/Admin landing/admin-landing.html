@@ -1,0 +1,654 @@
+<!-- admin-landing.html -->
+<div class="admin-landing">
+  <!-- Header -->
+<header class="admin-header">
+  <div class="header-content">
+    <div class="brand">
+      <div class="brand-logo">
+        <img src="./healthscanqr1.png" alt="HealthScanQR Logo" 
+             onerror="this.onerror=null; this.src='https://via.placeholder.com/60/ffffff/dc143c?text=HSQR'; this.style.backgroundColor='transparent'">
+      </div>
+      <div class="brand-text">
+        <h1>HealthScanQR Admin</h1>
+        <div class="tagline">Medical Information Management System</div>
+      </div>
+    </div>
+    <div class="admin-actions">
+      <span class="admin-welcome">
+        <i class="fas fa-user-shield"></i>
+        Welcome, {{ adminName }}
+      </span>
+      <button class="btn-logout" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+        <span class="logout-text">Logout</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Navigation Tabs with Hamburger Menu -->
+<nav class="admin-tabs" id="adminTabs">
+  <!-- Hamburger Menu Button - Placed first on the left -->
+  <button class="hamburger-menu" id="hamburgerMenu" (click)="toggleHamburgerMenu()">
+    <div class="hamburger-line"></div>
+    <div class="hamburger-line"></div>
+    <div class="hamburger-line"></div>
+  </button>
+
+  <!-- All tabs will auto-close the hamburger menu when clicked -->
+  <div class="tab" [class.active]="activeTab === 'scanner'" (click)="switchTab('scanner')">
+    <i class="fas fa-qrcode"></i>
+    QR Scanner
+  </div>
+  <div class="tab" [class.active]="activeTab === 'edit'" (click)="switchTab('edit')" [class.disabled]="!isEditing">
+    <i class="fas fa-edit"></i>
+    Edit Medical Info
+  </div>
+  <div class="tab" [class.active]="activeTab === 'users'" (click)="switchTab('users')">
+    <i class="fas fa-users"></i>
+    User Management
+  </div>
+  <div class="tab" [class.active]="activeTab === 'logs'" (click)="switchTab('logs')">
+    <i class="fas fa-clipboard-list"></i>
+    Activity Logs
+  </div>
+</nav>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <!-- Scanner Tab -->
+    <div class="tab-content" [class.active]="activeTab === 'scanner'">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <i class="fas fa-qrcode"></i>
+            Admin QR Scanner
+          </h2>
+          <span id="scanStatus" class="status-indicator"
+                [class.status-scanning]="scanStatusClass === 'status-scanning'"
+                [class.status-success]="scanStatusClass === 'status-success'"
+                [class.status-error]="scanStatusClass === 'status-error'"
+                *ngIf="scanStatus">{{ scanStatus }}</span>
+        </div>
+        
+        <p class="scanner-description">
+          Scan a medical QR code to view and edit patient information. 
+          <span class="mobile-only">Hold device steady for best results.</span>
+        </p>
+
+        <!-- Camera container -->
+        <div class="camera-section">
+          <div class="camera-container" [class.active]="isScanning">
+            <div class="camera-placeholder" *ngIf="!isScanning">
+              <div class="camera-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3 4V1h2v3h3v2H5v3H3V6H0V4h3zm3 6V7h3V4h7l1.83 2H21c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V10h3zm7 9c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-3.2-5c0 1.77 1.43 3.2 3.2 3.2s3.2-1.43 3.2-3.2-1.43-3.2-3.2-3.2-3.2 1.43-3.2 3.2z"/>
+                </svg>
+              </div>
+              <h3>Camera Ready</h3>
+              <p>Click "Start Camera" to begin scanning</p>
+            </div>
+            <video #videoElement id="video" autoplay playsinline [style.display]="isScanning ? 'block' : 'none'"></video>
+            <canvas #canvasElement id="canvas" style="display: none;"></canvas>
+            
+            <!-- Scan overlay -->
+            <div class="scan-overlay" [style.display]="isScanning ? 'block' : 'none'">
+              <div class="scan-frame">
+                <div class="scan-corner top-left"></div>
+                <div class="scan-corner top-right"></div>
+                <div class="scan-corner bottom-left"></div>
+                <div class="scan-corner bottom-right"></div>
+                <div class="scan-line"></div>
+              </div>
+              <div class="scan-instruction">Position QR code within the frame</div>
+            </div>
+          </div>
+
+          <div class="camera-controls">
+            <button *ngIf="!isScanning" (click)="startCamera()" class="camera-btn primary">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 4V1h2v3h3v2H5v3H3V6H0V4h3zm3 6V7h3V4h7l1.83 2H21c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V10h3zm7 9c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-3.2-5c0 1.77 1.43 3.2 3.2 3.2s3.2-1.43 3.2-3.2-1.43-3.2-3.2-3.2-3.2 1.43-3.2 3.2z"/>
+              </svg>
+              Start Camera
+            </button>
+            <button *ngIf="isScanning" (click)="stopCamera()" class="camera-btn destruct">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+              </svg>
+              Stop Camera
+            </button>
+          </div>
+        </div>
+
+        <!-- Upload Photo Section -->
+        <div class="section-divider">
+          <span>or</span>
+        </div>
+
+        <div class="upload-section">
+          <div class="upload-container">
+            <h3>Upload Photo to Scan</h3>
+            <input type="file" id="photoUpload" accept="image/*" (change)="onPhotoUpload($event)" style="display: none;">
+            <button class="upload-btn" (click)="triggerPhotoUpload()">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+              </svg>
+              <span class="desktop-text">Select Photo</span>
+              <span class="mobile-text">Upload</span>
+            </button>
+            <img #uploadPreview class="upload-preview" style="display: none;">
+          </div>
+        </div>
+
+        <!-- Scan Result Display -->
+        <div id="scanResult" class="scan-result" *ngIf="scanResultVisible && scannedData">
+          <h3>Scan Result</h3>
+          
+          <!-- Profile Photo Display with Change Option -->
+          <div class="profile-photo-container">
+            <img [src]="scannedData.profile_photo" alt="Profile Photo" class="profile-photo">
+            <button class="btn-change-profile" (click)="changeScannedUserProfile()" title="Change Profile Photo">
+              <i class="fas fa-camera"></i>
+              Change Photo
+            </button>
+          </div>
+          
+          <div class="scan-data-grid">
+            <div class="scan-data-label">Name:</div>
+            <div class="scan-data-value">{{ scannedData.full_name || 'Not provided' }}</div>
+
+            <div class="scan-data-label">Date of Birth:</div>
+            <div class="scan-data-value">{{ scannedData.dob || 'Not provided' }}</div>
+
+            <div class="scan-data-label">Blood Type:</div>
+            <div class="scan-data-value">{{ scannedData.blood_type || 'Not provided' }}</div>
+
+            <div class="scan-data-label">Allergies:</div>
+            <div class="scan-data-value">{{ scannedData.allergies || 'None' }}</div>
+
+            <div class="scan-data-label">Medications:</div>
+            <div class="scan-data-value">{{ scannedData.medications || 'None' }}</div>
+
+            <div class="scan-data-label">Conditions:</div>
+            <div class="scan-data-value">{{ scannedData.conditions || 'None' }}</div>
+
+            <div class="scan-data-label">Address:</div>
+            <div class="scan-data-value">{{ scannedData.address || 'Not provided' }}</div>
+
+            <div class="scan-data-label">Emergency Contact:</div>
+            <div class="scan-data-value">{{ scannedData.emergency_contact || 'Not provided' }}</div>
+
+            <div class="scan-data-label">Last Updated:</div>
+            <div class="scan-data-value">{{ scannedData.lastUpdated ? formatLastUpdated(scannedData.lastUpdated) : 'Not provided' }}</div>
+          </div>
+          
+          <div class="actions">
+            <button (click)="populateEditForm(scannedData); switchTab('edit')" class="primary">
+              <i class="fas fa-edit"></i>
+              Edit Information
+            </button>
+            <button (click)="changeScannedUserProfile()" class="secondary">
+              <i class="fas fa-camera"></i>
+              Change Profile Photo
+            </button>
+            <button (click)="resetScanner()" class="secondary">
+              <i class="fas fa-redo"></i>
+              Scan Another
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Tab -->
+    <div class="tab-content" [class.active]="activeTab === 'edit'">
+      <div class="card" *ngIf="isEditing">
+        <div class="card-header">
+          <h2 class="card-title">
+            <i class="fas fa-edit"></i>
+            Edit Medical Information
+          </h2>
+        </div>
+        <p class="scanner-description">Editing medical information for: <strong>{{ scannedData?.full_name }}</strong></p>
+
+        <form [formGroup]="editForm" class="form-grid">
+          <div class="form-section">
+            <h3 class="form-section-title">Personal Information</h3>
+            <div *ngIf="scannedData.profile_photo" class="profile-photo-container">
+              <img [src]="scannedData.profile_photo" alt="Profile Photo" class="profile-photo">
+              <button class="btn-change-profile" (click)="changeScannedUserProfile()" title="Change Profile Photo">
+                <i class="fas fa-camera"></i>
+                Change Photo
+              </button>
+            </div>
+            <div class="form-group">
+              <label for="full_name">Full Name</label>
+              <input type="text" id="full_name" formControlName="full_name" required>
+            </div>
+
+            <div class="form-group">
+              <label for="dob">Date of Birth</label>
+              <input type="date" id="dob" formControlName="dob" required>
+            </div>
+
+            <div class="form-group">
+              <label for="blood_type">Blood Type</label>
+              <select id="blood_type" formControlName="blood_type" required>
+                <option value="">Select Blood Type</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="address">Address</label>
+              <textarea id="address" formControlName="address" required></textarea>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="form-section-title">Medical Information</h3>
+
+            <div class="form-group">
+              <label for="allergies">Allergies</label>
+              <textarea id="allergies" formControlName="allergies" placeholder="List any allergies separated by commas"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="medications">Medications</label>
+              <textarea id="medications" formControlName="medications" placeholder="List current medications and dosages"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="conditions">Medical Conditions</label>
+              <textarea id="conditions" formControlName="conditions" placeholder="List any medical conditions"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="emergency_contact">Emergency Contact</label>
+              <input type="text" id="emergency_contact" formControlName="emergency_contact" required placeholder="Name and phone number">
+            </div>
+          </div>
+        </form>
+
+        <div class="actions">
+          <button (click)="saveChanges()" [disabled]="editForm.invalid" class="primary">
+            <i class="fas fa-save"></i>
+            Save Changes
+          </button>
+          <button (click)="cancelEdit()" class="secondary">
+            <i class="fas fa-times"></i>
+            Cancel
+          </button>
+        </div>
+      </div>
+
+      <div class="card" *ngIf="!isEditing">
+        <div class="no-data">
+          <h3>Scan QR Code First</h3>
+          <p>Please scan a medical QR code to enable editing of patient information.</p>
+          <div class="action-buttons">
+            <button (click)="switchTab('scanner')" class="primary large">
+              <i class="fas fa-qrcode"></i>
+              Go to Scanner
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Users Management Tab -->
+    <div class="tab-content" [class.active]="activeTab === 'users'">
+      <div class="card">
+        <div class="logs-header">
+          <h2 class="card-title">
+            <i class="fas fa-users"></i>
+            User Management
+          </h2>
+          <div class="logs-actions">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input type="text" placeholder="Search users..." [(ngModel)]="userSearchTerm" (input)="onSearchInput()">
+            </div>
+            <button (click)="exportUsers()" class="secondary">
+              <i class="fas fa-download"></i>
+              Export CSV
+            </button>
+            <button (click)="loadUsers()" class="secondary">
+              <i class="fas fa-sync-alt"></i>
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- User Management Tabs -->
+        <div class="admin-tabs user-management-tabs">
+          <div class="tab" [class.active]="userManagementTab === 'pending'" (click)="switchUserManagementTab('pending')">
+            <i class="fas fa-clock"></i>
+            Pending Approval
+            <span class="user-count-badge" *ngIf="pendingUsers.length > 0">{{pendingUsers.length}}</span>
+          </div>
+          <div class="tab" [class.active]="userManagementTab === 'approved'" (click)="switchUserManagementTab('approved')">
+            <i class="fas fa-check-circle"></i>
+            Approved Users
+            <span class="user-count-badge" *ngIf="approvedUsers.length > 0">{{approvedUsers.length}}</span>
+          </div>
+        </div>
+
+        <!-- PENDING USERS TAB - COMPLETELY SEPARATE -->
+        <div class="users-tab-content" *ngIf="userManagementTab === 'pending'">
+          <div class="users-container">
+            <div class="users-list">
+              <!-- ONLY PENDING USERS - NO APPROVED USERS MIXED IN -->
+              <div *ngIf="pendingUsers.length > 0; else noPendingUsers">
+                <div class="user-item" 
+                     *ngFor="let user of pendingUsers" 
+                     [class.selected]="selectedUser?.user_id === user.user_id"
+                     (click)="selectUser(user)">
+                  
+                  <div class="user-avatar" 
+                       [class.has-photo]="getProfilePhoto(user)" 
+                       [class.no-photo]="!getProfilePhoto(user)">
+                    <img *ngIf="getProfilePhoto(user)" 
+                         [src]="getProfilePhoto(user)" 
+                         alt="Profile Photo"
+                         (error)="handleImageError($event, user)"
+                         class="profile-image">
+                    <div class="initials" *ngIf="!getProfilePhoto(user)">
+                      {{getUserInitials(user)}}
+                    </div>
+                  </div>
+                  
+                  <div class="user-content">
+                    <div class="user-name">{{ user.full_name || 'Unnamed User' }}</div>
+                    <div class="user-meta">
+                      <span class="user-email">{{ user.email || 'No email' }}</span>
+                    </div>
+                    <div class="user-status">
+                      <span class="status-badge status-pending">
+                        <i class="fas fa-clock"></i>
+                        Pending Approval
+                      </span>
+                      <span class="last-updated" *ngIf="user.lastUpdated">
+                        Updated: {{ formatLastUpdated(user.lastUpdated) }}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div class="user-actions">
+                    <button class="btn-view" title="View Details" (click)="viewUserDetails(user); $event.stopPropagation()">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn-approve" title="Approve User" (click)="approveUser(user); $event.stopPropagation()">
+                      <i class="fas fa-check"></i>
+                    </button>
+                    <button class="btn-delete" title="Delete User" (click)="deleteUser(user); $event.stopPropagation()">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <ng-template #noPendingUsers>
+                <div class="no-users">
+                  <i class="fas fa-users"></i>
+                  <h3>No Pending Users</h3>
+                  <p>All users are approved or no users require approval at this time.</p>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+
+        <!-- APPROVED USERS TAB - COMPLETELY SEPARATE -->
+        <div class="users-tab-content" *ngIf="userManagementTab === 'approved'">
+          <div class="users-container">
+            <div class="users-list">
+              <!-- ONLY APPROVED USERS - NO PENDING USERS MIXED IN -->
+              <div *ngIf="approvedUsers.length > 0; else noApprovedUsers">
+                <div class="user-item" 
+                     *ngFor="let user of approvedUsers" 
+                     [class.selected]="selectedUser?.user_id === user.user_id"
+                     (click)="selectUser(user)">
+                  
+                  <div class="user-avatar" 
+                       [class.has-photo]="getProfilePhoto(user)" 
+                       [class.no-photo]="!getProfilePhoto(user)">
+                    <img *ngIf="getProfilePhoto(user)" 
+                         [src]="getProfilePhoto(user)" 
+                         alt="Profile Photo"
+                         (error)="handleImageError($event, user)"
+                         class="profile-image">
+                    <div class="initials" *ngIf="!getProfilePhoto(user)">
+                      {{getUserInitials(user)}}
+                    </div>
+                  </div>
+                  
+                  <div class="user-content">
+                    <div class="user-name">{{ user.full_name || 'Unnamed User' }}</div>
+                    <div class="user-meta">
+                      <span class="user-email">{{ user.email || 'No email' }}</span>
+                    </div>
+                    <div class="user-status">
+                      <span class="status-badge status-approved">
+                        <i class="fas fa-check-circle"></i>
+                        Approved
+                      </span>
+                      <span class="last-updated" *ngIf="user.lastUpdated">
+                        Updated: {{ formatLastUpdated(user.lastUpdated) }}
+                      </span>
+                      <span class="last-updated" *ngIf="user.approved_at">
+                        Approved: {{ formatTimestamp(user.approved_at) }}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div class="user-actions">
+                    <button class="btn-view" title="View Details" (click)="viewUserDetails(user); $event.stopPropagation()">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn-unapprove" title="Unapprove User" (click)="unapproveUser(user); $event.stopPropagation()">
+                      <i class="fas fa-times"></i>
+                    </button>
+                    <button class="btn-delete" title="Delete User" (click)="deleteUser(user); $event.stopPropagation()">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <ng-template #noApprovedUsers>
+                <div class="no-users">
+                  <i class="fas fa-check-circle"></i>
+                  <h3>No Approved Users</h3>
+                  <p>No users have been approved yet. Check the pending tab for users awaiting approval.</p>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Details Section -->
+        <div id="userDetailsSection" class="user-details" *ngIf="showUserDetails && selectedUser">
+          <div class="details-header">
+            <h3 class="details-title">User Details</h3>
+            <button class="btn-close-details" (click)="closeUserDetails()" title="Close Details">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          
+          <div class="user-profile-header">
+            <div class="user-profile-avatar" 
+                 [class.has-photo]="getProfilePhoto(selectedUser)" 
+                 [class.no-photo]="!getProfilePhoto(selectedUser)">
+              <img *ngIf="getProfilePhoto(selectedUser)" 
+                   [src]="getProfilePhoto(selectedUser)" 
+                   alt="Profile Photo"
+                   (error)="handleImageError($event, selectedUser)"
+                   class="profile-image">
+              <div class="initials" *ngIf="!getProfilePhoto(selectedUser)">
+                {{getUserInitials(selectedUser)}}
+              </div>
+            </div>
+            <div class="user-profile-info">
+              <div class="user-profile-name">{{ selectedUser.full_name || 'Not provided' }}</div>
+              <div class="user-profile-email">{{ selectedUser.email || 'Not provided' }}</div>
+              <div class="status-badge" [class]="getStatusBadgeClass(selectedUser)">
+                <i class="fas" [class.fa-check-circle]="selectedUser.approved" [class.fa-clock]="!selectedUser.approved"></i>
+                {{ selectedUser.approved ? 'Approved' : 'Pending Approval' }}
+              </div>
+            </div>
+          </div>
+
+          <div class="details-grid">
+            <div class="detail-item">
+              <label>Full Name</label>
+              <span>{{ selectedUser.full_name || 'Not provided' }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Email</label>
+              <span>{{ selectedUser.email || 'Not provided' }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Status</label>
+              <span class="status-badge" [class]="getStatusBadgeClass(selectedUser)">
+                {{ selectedUser.approved ? 'Approved' : 'Pending Approval' }}
+              </span>
+            </div>
+            <div class="detail-item" *ngIf="selectedUser.approved">
+              <label>Approved By</label>
+              <span>{{ selectedUser.approved_by || 'Administrator' }}</span>
+            </div>
+            <div class="detail-item" *ngIf="selectedUser.approved && selectedUser.approved_at">
+              <label>Approved At</label>
+              <span>{{ formatTimestamp(selectedUser.approved_at) }}</span>
+            </div>
+            <div class="detail-item" *ngIf="selectedUser.created_at">
+              <label>Created At</label>
+              <span>{{ formatTimestamp(selectedUser.created_at) }}</span>
+            </div>
+            <div class="detail-item" *ngIf="selectedUser.lastUpdated">
+              <label>Last Updated</label>
+              <span>{{ formatLastUpdated(selectedUser.lastUpdated) }}</span>
+            </div>
+          </div>
+          
+          <div class="user-actions-full">
+            <button *ngIf="!selectedUser.approved" 
+                    class="primary" 
+                    (click)="approveUser(selectedUser)"
+                    [disabled]="isUserActionLoading">
+              <i class="fas fa-user-check"></i>
+              Approve Medical Info
+            </button>
+            <button *ngIf="selectedUser.approved" 
+                    class="secondary" 
+                    (click)="unapproveUser(selectedUser)"
+                    [disabled]="isUserActionLoading">
+              <i class="fas fa-user-times"></i>
+              Unapprove Medical Info
+            </button>
+            <button class="destruct" 
+                    (click)="deleteUser(selectedUser)"
+                    [disabled]="isUserActionLoading">
+              <i class="fas fa-user-slash"></i>
+              Delete User
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logs Tab -->
+    <div class="tab-content" [class.active]="activeTab === 'logs'">
+      <div class="card">
+        <div class="logs-header">
+          <h2 class="card-title">
+            <i class="fas fa-clipboard-list"></i>
+            Admin Activity Logs
+          </h2>
+          <div class="logs-actions">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input type="text" placeholder="Search logs..." [(ngModel)]="searchTerm" (input)="filterLogs()">
+            </div>
+            <button (click)="exportLogs()" class="secondary" [disabled]="filteredLogs.length === 0">
+              <i class="fas fa-download"></i>
+              Export CSV
+            </button>
+            <button (click)="loadActivityLogs()" class="secondary">
+              <i class="fas fa-sync-alt" [class.fa-spin]="logsLoading"></i>
+              Refresh
+            </button>
+            <button (click)="clearLogs()" class="destruct" [disabled]="activityLogs.length === 0">
+              <i class="fas fa-trash"></i>
+              Clear Logs
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="logs-loading" *ngIf="logsLoading">
+          <i class="fas fa-spinner"></i>
+          <span>Loading activity logs...</span>
+        </div>
+
+        <!-- Error State -->
+        <div class="logs-error" *ngIf="logsError && !logsLoading">
+          <div class="error-message">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Unable to Load Logs</h3>
+            <p>{{ logsError }}</p>
+            <button (click)="loadActivityLogs()" class="primary">
+              <i class="fas fa-redo"></i>
+              Try Again
+            </button>
+          </div>
+        </div>
+
+        <div class="logs-container" *ngIf="!logsLoading && !logsError">
+          <div class="logs-list" *ngIf="filteredLogs.length > 0">
+            <div class="log-item" *ngFor="let log of filteredLogs" [class]="'log-' + log.action.toLowerCase()">
+              <div class="log-icon">
+                <i class="fas" [class.fa-search]="log.action === 'SCAN'" 
+                   [class.fa-edit]="log.action === 'UPDATE'"
+                   [class.fa-trash]="log.action === 'DELETE'"
+                   [class.fa-check]="log.action === 'APPROVE'"
+                   [class.fa-times]="log.action === 'UNAPPROVE'"
+                   [class.fa-camera]="log.action === 'PROFILE_UPDATE'"
+                   [class.fa-clipboard-list]="!log.action"></i>
+              </div>
+              <div class="log-content">
+                <div class="log-description">{{ log.description || 'No description' }}</div>
+                <div class="log-meta">
+                  <span class="log-admin">{{ log.admin_name || 'System' }}</span>
+                  <span class="log-timestamp">{{ formatTimestamp(log.timestamp) }}</span>
+                </div>
+              </div>
+              <div class="log-badge" [class]="'badge-' + log.action.toLowerCase()">
+                {{ log.action || 'UNKNOWN' }}
+              </div>
+            </div>
+          </div>
+
+          <div class="no-logs" *ngIf="filteredLogs.length === 0 && !logsLoading && !logsError">
+            <i class="fas fa-clipboard"></i>
+            <h3>No Activity Logs Found</h3>
+            <p *ngIf="searchTerm">No logs match your search criteria.</p>
+            <p *ngIf="!searchTerm">No activity logs recorded yet. Activities will appear here as you use the system.</p>
+            <button (click)="loadActivityLogs()" class="primary">
+              <i class="fas fa-sync-alt"></i>
+              Check Again
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

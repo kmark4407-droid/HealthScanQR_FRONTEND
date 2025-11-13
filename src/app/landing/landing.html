@@ -1,0 +1,131 @@
+<div class="wrap">
+  <!-- Header -->
+  <header class="admin-header">
+    <div class="header-content">
+      <div class="brand">
+        <div class="brand-logo">
+          <img src="./healthscanqr1.png" alt="HealthScanQR Logo" 
+               onerror="this.onerror=null; this.src='https://via.placeholder.com/60/ffffff/3b82f6?text=HSQR'; this.style.backgroundColor='transparent'">
+        </div>
+        <div class="brand-text">
+          <h1>HealthScanQR</h1>
+          <div class="tagline">Your Emergency Medical ID</div>
+        </div>
+      </div>
+      <div class="admin-actions">
+        <span class="admin-welcome">Welcome, {{ userName }}</span>
+        <button class="btn-logout" (click)="logout()">
+          <i class="fas fa-sign-out-alt"></i>
+          <span class="logout-text">Logout</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Rest of your HTML remains the same -->
+  <div class="tab-content active">
+    <div class="card">
+      <h2 class="card-title">Your Emergency Medical ID</h2>
+
+      <div class="medical-card">
+        <div class="medical-info-section">
+          <div class="id">
+            <div class="avatar">
+              <img #profilePreview src="https://via.placeholder.com/200" alt="Profile Preview">
+            </div>
+            <div>
+              <h2>{{ medicalForm.get('full_name')?.value || '' }}</h2>
+              <small>Emergency Medical Information</small>
+            </div>
+          </div>
+
+          <div class="medical-info">
+            <div class="info-row">
+              <div class="info-icon">📅</div>
+              <div class="info-content">
+                <div class="info-label">Date of Birth</div>
+                <div class="info-value">{{ formattedDob || '' }}</div>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-icon">🩸</div>
+              <div class="info-content">
+                <div class="info-label">Blood Type</div>
+                <div class="info-value">{{ medicalForm.get('blood_type')?.value || 'O+' }}</div>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-icon">⚠️</div>
+              <div class="info-content">
+                <div class="info-label">Allergies</div>
+                <div class="info-value">{{ medicalForm.get('allergies')?.value || '' }}</div>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-icon">💊</div>
+              <div class="info-content">
+                <div class="info-label">Medications</div>
+                <div class="info-value">{{ medicalForm.get('medications')?.value || '' }}</div>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-icon">🏥</div>
+              <div class="info-content">
+                <div class="info-label">Conditions</div>
+                <div class="info-value">{{ medicalForm.get('conditions')?.value || '' }}</div>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-icon">🏠</div>
+              <div class="info-content">
+                <div class="info-label">Address</div>
+                <div class="info-value">{{ medicalForm.get('address')?.value || '' }}</div>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-icon">📞</div>
+              <div class="info-content">
+                <div class="info-label">Emergency Contact</div>
+                <div class="info-value">{{ medicalForm.get('emergency_contact')?.value || '' }}</div>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-icon">🔄</div>
+              <div class="info-content">
+                <div class="info-label">Last Updated</div>
+                <div class="info-value">{{ formatLastUpdated(lastUpdated) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="qr-section">
+          <div class="qr-container">
+            <canvas #generatedQR width="200" height="200"></canvas>
+          </div>
+          <p class="qrHint">Scan this QR code in case of emergency to access medical information</p>
+          <div class="last-updated">Last updated: {{ formatLastUpdated(lastUpdated) }}</div>
+        </div>
+      </div>
+
+      <!-- Enhanced ID Card Actions -->
+      <div class="id-card-actions">
+        <button class="id-card-btn print" (click)="printMedicalID()">
+          <i class="fas fa-print"></i>
+          Print Medical ID
+        </button>
+        <button class="id-card-btn save" (click)="saveQRCodeAsImage()">
+          <i class="fas fa-qrcode"></i>
+          Save QR Code Image
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

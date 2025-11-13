@@ -1,0 +1,160 @@
+<div class="register-container">
+  <div class="form-section">
+    <h2>Create Your Account</h2>
+
+    <form [formGroup]="registerForm" (ngSubmit)="submit()">
+      <div class="form-group">
+        <label for="full_name">Full Name</label>
+        <input id="full_name" type="text" formControlName="full_name" placeholder="Enter your full name" />
+        <i class="input-icon fas fa-user"></i>
+        <div class="error" *ngIf="registerForm.get('full_name')?.touched && registerForm.get('full_name')?.invalid">
+          Full name is required.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" placeholder="Enter your email" />
+        <i class="input-icon fas fa-envelope"></i>
+        <div class="error" *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid">
+          A valid email is required.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input id="username" type="text" formControlName="username" placeholder="Choose a username" />
+        <i class="input-icon fas fa-at"></i>
+        <div class="error" *ngIf="registerForm.get('username')?.touched && registerForm.get('username')?.invalid">
+          Username is required.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Create a strong password" />
+        <i class="input-icon fas fa-lock"></i>
+        <i class="password-toggle fas" 
+           [class.fa-eye]="!showPassword" 
+           [class.fa-eye-slash]="showPassword"
+           (click)="togglePasswordVisibility()"></i>
+        
+        <!-- Password Strength Indicator -->
+        <div class="password-strength" *ngIf="registerForm.get('password')?.value">
+          <div class="strength-meter" 
+               [style.width]="getPasswordStrength() + '%'"
+               [style.background]="getPasswordStrengthColor()"></div>
+        </div>
+        
+        <div class="password-requirements">
+          <small>Password must contain:</small>
+          <ul>
+            <li [class.valid]="hasMinLength()">At least 8 characters</li>
+            <li [class.valid]="hasLowerCase()">One lowercase letter</li>
+            <li [class.valid]="hasUpperCase()">One uppercase letter</li>
+            <li [class.valid]="hasNumber()">One number</li>
+            <li [class.valid]="hasSpecialChar()">One special character (@$!%*?&)</li>
+          </ul>
+        </div>
+
+        <div class="error" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid">
+          Password must be at least 8 characters and include uppercase, lowercase, number, and special character.
+        </div>
+      </div>
+
+      <div class="form-group terms-group">
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="acceptTerms" />
+          <span class="checkmark"></span>
+          <span class="terms-text">
+            I agree to the <span class="terms-link" (click)="showTermsCard = true">Terms and Conditions</span> and <span class="terms-link" (click)="showPrivacyCard = true">Privacy Policy</span>
+          </span>
+        </label>
+        <div class="error" *ngIf="registerForm.get('acceptTerms')?.touched && registerForm.get('acceptTerms')?.invalid">
+          You must accept the terms and conditions.
+        </div>
+      </div>
+
+      <button type="submit" [disabled]="registerForm.invalid">Register</button>
+    </form>
+
+    <div class="form-footer">
+      Already have an account? <a href="/login">Sign In</a>
+    </div>
+  </div>
+
+  <div class="image-section">
+    <div class="image-content">
+      <h2>Join Our Community</h2>
+      <p>Access exclusive resources and connect with professionals worldwide.</p>
+      <div class="rocket-icon">
+        <i class="fas fa-rocket"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Terms and Conditions Card -->
+  <div class="terms-card-overlay" *ngIf="showTermsCard" (click)="showTermsCard = false">
+    <div class="terms-card" (click)="$event.stopPropagation()">
+      <div class="terms-card-header">
+        <h3>Terms and Conditions</h3>
+        <button class="terms-card-close" (click)="showTermsCard = false">&times;</button>
+      </div>
+      <div class="terms-card-content">
+        <h4>User Agreement</h4>
+        <p>By creating an account, you agree to the following terms:</p>
+        <ul>
+          <li>You are responsible for maintaining the confidentiality of your account</li>
+          <li>You must be at least 13 years old to use this service</li>
+          <li>You agree not to misuse the service or help others do so</li>
+          <li>We reserve the right to terminate accounts that violate our policies</li>
+          <li>Content you post must comply with applicable laws and regulations</li>
+        </ul>
+        
+        <h4>Service Terms</h4>
+        <p>Our service is provided "as is" without warranties of any kind. We may modify these terms at any time with notice.</p>
+        
+        <p><strong>Last updated:</strong> January 2024</p>
+      </div>
+      <div class="terms-card-footer">
+        <button class="terms-card-button" (click)="showTermsCard = false">I Understand</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Privacy Policy Card -->
+  <div class="terms-card-overlay" *ngIf="showPrivacyCard" (click)="showPrivacyCard = false">
+    <div class="terms-card" (click)="$event.stopPropagation()">
+      <div class="terms-card-header">
+        <h3>Privacy Policy</h3>
+        <button class="terms-card-close" (click)="showPrivacyCard = false">&times;</button>
+      </div>
+      <div class="terms-card-content">
+        <h4>Data Collection</h4>
+        <p>We collect information to provide better services to our users:</p>
+        <ul>
+          <li><strong>Personal Information:</strong> Name, email, and username for account creation</li>
+          <li><strong>Usage Data:</strong> How you interact with our services</li>
+          <li><strong>Technical Data:</strong> Browser type, IP address, and device information</li>
+        </ul>
+        
+        <h4>Data Usage</h4>
+        <p>We use your data to:</p>
+        <ul>
+          <li>Create and maintain your account</li>
+          <li>Provide customer support</li>
+          <li>Improve our services</li>
+          <li>Communicate important updates</li>
+        </ul>
+        
+        <h4>Data Protection</h4>
+        <p>We implement security measures to protect your personal information. Your data is stored securely and never sold to third parties.</p>
+        
+        <p><strong>Last updated:</strong> January 2024</p>
+      </div>
+      <div class="terms-card-footer">
+        <button class="terms-card-button" (click)="showPrivacyCard = false">I Understand</button>
+      </div>
+    </div>
+  </div>
+</div>

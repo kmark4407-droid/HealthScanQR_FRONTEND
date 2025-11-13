@@ -1,0 +1,211 @@
+<div class="medical-app-container">
+  <!-- Sidebar Navigation -->
+  <nav class="medical-sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo">
+        <img src="./healthscanqr1.png" alt="HealthScanQR Logo" 
+             onerror="this.onerror=null; this.src='https://via.placeholder.com/60/ffffff/3b82f6?text=HSQR'; this.style.backgroundColor='transparent'">
+      </div>
+      <span class="sidebar-app-name">HealthScanQR</span>
+    </div>
+    
+    <div class="sidebar-user">
+      <div class="user-avatar">
+        <span class="avatar-icon">👤</span>
+      </div>
+      <div class="user-info">
+        <span class="user-name">Hello, Patient</span>
+        <span class="user-role">HealthCare</span>
+      </div>
+    </div>
+    
+    <div class="sidebar-nav">
+      <button class="nav-item" (click)="goToDashboard()">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Dashboard</span>
+      </button>
+      <button class="nav-item active" (click)="scrollToSection('personal-info')">
+        <span class="nav-icon">🩺</span>
+        <span class="nav-label">Personal Info</span>
+      </button>
+      <button class="nav-item" (click)="scrollToSection('medical-info')">
+        <span class="nav-icon">💊</span>
+        <span class="nav-label">Medical Info</span>
+      </button>
+      <button class="nav-item" (click)="toggleSettings()" title="Accessibility Settings">
+        <span class="nav-icon">⚙️</span>
+        <span class="nav-label">Settings</span>
+      </button>
+      <button class="nav-item" (click)="exitApp()">
+        <span class="nav-icon">🚪</span>
+        <span class="nav-label">Exit</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Settings Overlay and Panel -->
+  <div class="settings-overlay" [class.active]="showSettings" (click)="toggleSettings()"></div>
+  
+  <!-- Settings Panel -->
+  <div class="settings-panel" [class.active]="showSettings">
+    <div class="settings-header">
+      <h3>Accessibility Settings</h3>
+      <button class="close-settings" (click)="toggleSettings()" title="Close settings">×</button>
+    </div>
+    <div class="settings-options">
+      <div class="setting-option">
+        <label class="switch">
+          <input type="checkbox" (change)="toggleDyslexiaFont($event)" [checked]="dyslexiaFontEnabled">
+          <span class="slider round"></span>
+        </label>
+        <span class="setting-label">Dyslexia-Friendly Font</span>
+      </div>
+      <div class="setting-option">
+        <label class="switch">
+          <input type="checkbox" (change)="toggleLargeFont($event)" [checked]="largeFontEnabled">
+          <span class="slider round"></span>
+        </label>
+        <span class="setting-label">Large Font Size</span>
+      </div>
+      <div class="setting-option">
+        <label class="switch">
+          <input type="checkbox" (change)="toggleGrayscale($event)" [checked]="grayscaleEnabled">
+          <span class="slider round"></span>
+        </label>
+        <span class="setting-label">Grayscale Mode</span>
+      </div>
+      <div class="setting-option">
+        <label class="switch">
+          <input type="checkbox" (change)="toggleHighContrast($event)" [checked]="highContrastEnabled">
+          <span class="slider round"></span>
+        </label>
+        <span class="setting-label">High Contrast</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="medical-main-content">
+    <div class="medical-profile-container">
+      <div class="background-overlay"></div>
+      
+      <div class="medical-profile-card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <span class="emoji">🩺</span> Update Your Medical Profile
+          </h2>
+          <p class="card-subtitle">Keep your medical information up to date for better healthcare</p>
+        </div>
+        
+        <div *ngIf="showSuccess" class="success-message">
+          <i class="success-icon">✓</i>
+          Your information has been updated successfully!
+        </div>
+
+        <!-- Warning Message for Incomplete Form -->
+        <div *ngIf="showWarning" class="warning-message">
+          <i class="warning-icon">⚠️</i>
+          Please fill in all required fields before submitting the form.
+        </div>
+        
+        <form [formGroup]="updateForm" (ngSubmit)="submit()" enctype="multipart/form-data" class="medical-form">
+          <div class="form-section" id="personal-info">
+            <h3 class="section-title">Personal Information</h3>
+            <div class="form-grid">
+              <!-- Profile Photo Upload -->
+              <div class="form-group full-width">
+                <label class="form-label">Profile Photo <span class="required">*</span></label>
+                <div class="file-input-container">
+                  <input type="file" (change)="onFileSelected($event)" accept="image/*" id="profilePhoto" />
+                  <label for="profilePhoto" class="file-input-label">
+                    <span class="upload-icon">📁</span> 
+                    {{selectedFile ? 'Change profile picture' : 'Choose a profile picture'}}
+                  </label>
+                </div>
+                <div *ngIf="previewUrl" class="preview">
+                  <img [src]="previewUrl" alt="Profile Preview" />
+                </div>
+                <div *ngIf="updateForm.get('photo')?.invalid && updateForm.get('photo')?.touched" class="error-message">
+                  <i class="error-icon">⚠️</i> Profile photo is required
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Full Name <span class="required">*</span></label>
+                <input type="text" formControlName="full_name" placeholder="Enter your full name" class="form-input" />
+                <div *ngIf="updateForm.get('full_name')?.invalid && updateForm.get('full_name')?.touched" class="error-message">
+                  <i class="error-icon">⚠️</i> Full name is required
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Date of Birth <span class="required">*</span></label>
+                <input type="date" formControlName="dob" class="form-input" />
+                <div *ngIf="updateForm.get('dob')?.invalid && updateForm.get('dob')?.touched" class="error-message">
+                  <i class="error-icon">⚠️</i> Date of birth is required
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Blood Type <span class="required">*</span></label>
+                <select formControlName="blood_type" class="form-input">
+                  <option value="">Select your blood type</option>
+                  <option *ngFor="let type of ['A+','A-','B+','B-','AB+','AB-','O+','O-']" [value]="type">
+                    {{ type }}
+                  </option>
+                </select>
+                <div *ngIf="updateForm.get('blood_type')?.invalid && updateForm.get('blood_type')?.touched" class="error-message">
+                  <i class="error-icon">⚠️</i> Blood type is required
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Address <span class="required">*</span></label>
+                <input type="text" formControlName="address" placeholder="Enter your address" class="form-input" />
+                <div *ngIf="updateForm.get('address')?.invalid && updateForm.get('address')?.touched" class="error-message">
+                  <i class="error-icon">⚠️</i> Address is required
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section" id="medical-info">
+            <h3 class="section-title">Medical Information</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Allergies</label>
+                <input type="text" formControlName="allergies" placeholder="List any allergies (separate with commas)" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Current Medications</label>
+                <input type="text" formControlName="medications" placeholder="List current medications (separate with commas)" class="form-input" />
+              </div>
+
+              <div class="form-group full-width">
+                <label class="form-label">Medical Conditions</label>
+                <input type="text" formControlName="conditions" placeholder="List medical conditions (separate with commas)" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Emergency Contact <span class="required">*</span></label>
+                <input type="text" formControlName="emergency_contact" placeholder="Enter emergency contact number" class="form-input" />
+                <div *ngIf="updateForm.get('emergency_contact')?.invalid && updateForm.get('emergency_contact')?.touched" class="error-message">
+                  <i class="error-icon">⚠️</i> Emergency contact is required
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" [disabled]="updateForm.invalid" class="submit-button">
+              <span class="button-icon">💾</span> 
+              {{isSubmitting ? 'Saving...' : 'Save & Continue'}}
+              <span class="button-shine"></span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>

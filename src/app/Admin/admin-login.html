@@ -1,0 +1,45 @@
+<div class="login-container">
+  <div class="form-section">
+    <h2>Admin Access</h2>
+
+    <form [formGroup]="loginForm" (ngSubmit)="submit()">
+      <div class="form-group">
+        <label for="email">Admin Email</label>
+        <input id="email" type="email" formControlName="email" placeholder="Enter admin email" />
+        <i class="input-icon fas fa-envelope"></i>
+        <div class="error" *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
+          Valid admin email is required.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Admin Password</label>
+        <input id="password" type="password" formControlName="password" placeholder="Enter admin password" />
+        <i class="input-icon fas fa-lock"></i>
+        <div class="error" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
+          Admin password required.
+        </div>
+      </div>
+
+      <div class="error" *ngIf="errorMessage" style="margin-bottom: 20px;">
+        {{ errorMessage }}
+      </div>
+
+      <button type="submit">Admin Login</button>
+    </form>
+
+    <div class="form-footer">
+      Regular user? <a href="/login">User Login</a>
+    </div>
+  </div>
+
+  <div class="image-section">
+    <div style="color: white; text-align: center; padding: 20px; z-index: 2; position: relative;">
+      <h2 style="color: white; margin-bottom: 20px;">HealthScanQR Admin</h2>
+      <p style="margin-bottom: 20px;">Secure Administrative Access Portal</p>
+      <div style="font-size: 80px;">
+        <i class="fas fa-shield-alt"></i>
+      </div>
+    </div>
+  </div>
+</div>
