@@ -76,12 +76,38 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.loadMedicalData();
+    console.log('🏠 Landing component initialized');
+    
+    // ✅ CHECK IF USER SHOULD BE ON LANDING PAGE
+    this.checkAccess();
     
     // Auto-refresh data every 30 seconds to catch admin updates
     this.autoRefreshInterval = setInterval(() => {
       this.refreshMedicalData();
     }, 30000);
+  }
+
+  // ✅ NEW METHOD: Check if user should be on landing page
+  private checkAccess(): void {
+    const userId = localStorage.getItem('user_id');
+    const hasUpdated = localStorage.getItem('hasUpdated');
+    
+    console.log('🔍 Landing access check:', { userId, hasUpdated });
+
+    if (!userId) {
+      console.log('❌ No user ID, redirecting to login');
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    if (hasUpdated !== 'true') {
+      console.log('📝 User not updated yet, redirecting to update-info');
+      this.router.navigate(['/update-info']);
+      return;
+    }
+
+    console.log('✅ User has updated, loading medical data');
+    this.loadMedicalData();
   }
 
   ngOnDestroy(): void {
@@ -591,6 +617,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   logout(): void {
     localStorage.removeItem('user_id');
     localStorage.removeItem('medicalInfoLastUpdated');
+    localStorage.removeItem('hasUpdated'); // ✅ Clear the update flag on logout
     this.router.navigate(['/login']);
   }
 }
