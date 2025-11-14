@@ -27,11 +27,10 @@
             "styles": [
               "src/styles.css"
             ],
-            // ✅ ADD THIS SECTION:
             "fileReplacements": [
               {
-                "replace": "src/environments/environment.ts",
-                "with": "src/environments/environment.prod.ts"
+                "replace": "src/Environments/environment.ts",
+                "with": "src/Environments/environment.prod.ts"
               }
             ]
           },
@@ -50,11 +49,10 @@
                 }
               ],
               "outputHashing": "all",
-              // ✅ ALSO ADD FILE REPLACEMENTS HERE:
               "fileReplacements": [
                 {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.prod.ts"
+                  "replace": "src/Environments/environment.ts",
+                  "with": "src/Environments/environment.prod.ts"
                 }
               ]
             },
