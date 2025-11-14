@@ -26,6 +26,13 @@
             ],
             "styles": [
               "src/styles.css"
+            ],
+            // ✅ ADD THIS SECTION:
+            "fileReplacements": [
+              {
+                "replace": "src/environments/environment.ts",
+                "with": "src/environments/environment.prod.ts"
+              }
             ]
           },
           "configurations": {
@@ -42,7 +49,14 @@
                   "maximumError": "100kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              // ✅ ALSO ADD FILE REPLACEMENTS HERE:
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ]
             },
             "development": {
               "optimization": false,
