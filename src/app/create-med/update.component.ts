@@ -370,6 +370,12 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
 
         // ✅ Mark user as having completed update
         localStorage.setItem('hasUpdated', 'true');
+        
+        // ✅ Also store the form data in localStorage as backup
+        localStorage.setItem('medicalFormData', JSON.stringify(this.updateForm.value));
+        
+        // ✅ Store timestamp for last updated
+        localStorage.setItem('medicalInfoLastUpdated', new Date().toISOString());
 
         setTimeout(() => {
           console.log('➡️ Redirecting to landing page');
