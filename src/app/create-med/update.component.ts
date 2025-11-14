@@ -47,18 +47,20 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
   }
 
   ngOnInit() {
-    console.log('🔄 Update component initialized - DEBUG MODE');
-    console.log('📍 Current URL:', window.location.href);
-    console.log('🔑 User ID in localStorage:', localStorage.getItem('user_id'));
-    console.log('✅ hasUpdated flag:', localStorage.getItem('hasUpdated'));
+    console.log('🔄 Update component initialized');
+    console.log('🔑 User ID:', localStorage.getItem('user_id'));
+    console.log('✅ hasUpdated:', localStorage.getItem('hasUpdated'));
     
-    // ✅ TEMPORARY: Skip all checks and go directly to landing for testing
-    console.log('🚨 TEMPORARY: Skipping to landing page for testing');
-    localStorage.setItem('hasUpdated', 'true');
-    this.router.navigate(['/landing']);
-    return;
-    
-    // Comment out the above 3 lines after testing
+    // ✅ Check if user already completed update
+    const hasUpdated = localStorage.getItem('hasUpdated');
+    if (hasUpdated === 'true') {
+      console.log('✅ User already updated, redirecting to landing');
+      this.router.navigate(['/landing']);
+      return;
+    }
+
+    // ✅ User needs to fill the form, stay on update page
+    console.log('📝 User needs to fill medical info, staying on update page');
     
     // Load saved accessibility settings
     this.loadAccessibilitySettings();
@@ -239,17 +241,15 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
         const value = this.updateForm.value[key];
         if (value !== null && value !== undefined) {
           formData.append(key, value.toString());
-          console.log(`📦 Added to formData: ${key} = ${value}`);
         }
       }
     });
 
     if (this.selectedFile) {
       formData.append('photo', this.selectedFile);
-      console.log('📸 Photo added to formData');
     }
 
-    console.log('🌐 Making API call to:', `${environment.apiUrl}/medical/update`);
+    console.log('🌐 Making API call to medical/update');
     
     this.http.post(`${environment.apiUrl}/medical/update`, formData).subscribe({
       next: (res: any) => {
@@ -266,16 +266,8 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
         }, 1500);
       },
       error: (err) => {
-        console.error('❌ ERROR saving medical info - FULL DETAILS:', {
-          status: err.status,
-          statusText: err.statusText,
-          message: err.message,
-          error: err.error,
-          url: err.url,
-          headers: err.headers
-        });
-        
-        alert(`❌ Failed to save information. Check console for details.`);
+        console.error('❌ ERROR saving medical info:', err);
+        alert('❌ Failed to save information. Please try again.');
         this.isSubmitting = false;
       }
     });
