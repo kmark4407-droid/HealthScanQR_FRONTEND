@@ -120,11 +120,15 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   loadMedicalData(): void {
     const userId = localStorage.getItem('user_id');
     if (userId) {
+      console.log('🔍 Loading medical data for user:', userId);
+      
       this.http.get(`${environment.apiUrl}/medical/${userId}?t=${new Date().getTime()}`).subscribe({
         next: (res: any) => {
+          console.log('📦 Medical API response:', res);
+          
           // ✅ REVISED: Handle both cases: data exists or doesn't exist
           if (res && res.exists) {
-            console.log('Medical data found:', res);
+            console.log('✅ Medical data found:', res);
             
             // Handle date properly to prevent timezone shifting
             if (res.dob) {
@@ -159,7 +163,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
             this.generateQRCode();
           } else {
             // ✅ REVISED: No medical data exists yet
-            console.log('No medical data found for user');
+            console.log('❌ No medical data found for user');
             this.userName = 'User';
             this.lastUpdated = 'Never';
             this.generateQRCode();
@@ -167,13 +171,18 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
         },
         error: (err) => {
           console.error('❌ Error fetching medical info:', err);
+          console.log('🔧 Error details:', err.status, err.message);
+          
           // On error, try to use stored timestamp
           const storedTimestamp = localStorage.getItem('medicalInfoLastUpdated');
           this.lastUpdated = storedTimestamp || 'Never';
-          this.generateQRCode();
+          
+          // Try fallback method
+          this.loadFromLocalStorage();
         }
       });
     } else {
+      console.log('❌ No user ID found');
       // For demo user, use stored timestamp or set to 'Never'
       const storedTimestamp = localStorage.getItem('medicalInfoLastUpdated');
       this.lastUpdated = storedTimestamp || 'Never';
@@ -185,6 +194,36 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
         this.generateQRCode();
       }, 500);
     }
+  }
+
+  // ✅ ADD THIS METHOD: Load data from localStorage as fallback
+  private loadFromLocalStorage(): void {
+    console.log('📝 Loading from localStorage fallback');
+    
+    // Try to get stored medical data from form submission
+    const storedFormData = localStorage.getItem('medicalFormData');
+    if (storedFormData) {
+      const data = JSON.parse(storedFormData);
+      this.medicalForm.patchValue(data);
+      
+      if (data.dob) {
+        this.formattedDob = this.formatDateForDisplay(data.dob);
+      }
+      
+      if (data.full_name) {
+        this.userName = data.full_name;
+      }
+      
+      this.lastUpdated = localStorage.getItem('medicalInfoLastUpdated') || 'Never';
+      console.log('✅ Loaded data from localStorage:', data);
+    } else {
+      // No data available
+      console.log('❌ No medical data available in localStorage');
+      this.userName = 'User';
+      this.lastUpdated = 'Never';
+    }
+    
+    this.generateQRCode();
   }
 
   // Handle lastUpdated timestamp from various possible fields
@@ -213,13 +252,13 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!isNaN(date.getTime())) {
         this.lastUpdated = foundTimestamp;
         localStorage.setItem('medicalInfoLastUpdated', this.lastUpdated);
-        console.log('Found valid timestamp:', this.lastUpdated);
+        console.log('✅ Found valid timestamp:', this.lastUpdated);
       } else {
-        console.warn('Invalid timestamp found:', foundTimestamp);
+        console.warn('⚠️ Invalid timestamp found:', foundTimestamp);
         this.lastUpdated = 'Never';
       }
     } else {
-      console.log('No timestamp found in response, checking localStorage...');
+      console.log('📝 No timestamp found in response, checking localStorage...');
       // No timestamp in response, check localStorage
       const storedTimestamp = localStorage.getItem('medicalInfoLastUpdated');
       if (storedTimestamp) {
@@ -235,6 +274,8 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     if (userId) {
       this.http.get(`${environment.apiUrl}/medical/${userId}?t=${new Date().getTime()}`).subscribe({
         next: (res: any) => {
+          console.log('🔄 Medical data refresh response:', res);
+          
           // ✅ REVISED: Handle the new response format
           if (res && res.exists) {
             if (res.dob) {
@@ -264,7 +305,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         },
         error: (err) => {
-          console.error('Error refreshing medical data:', err);
+          console.error('❌ Error refreshing medical data:', err);
         }
       });
     }
@@ -337,6 +378,8 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
           light: '#ffffff'
         }
       });
+      
+      console.log('✅ QR code generated successfully');
     } catch (err) {
       console.error('❌ QR code generation failed:', err);
     }
