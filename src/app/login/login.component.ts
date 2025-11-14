@@ -33,27 +33,19 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('🔐 Login Component Initialized');
-    
-    // Clear any previous auth data
+    console.log('🔐 Login Component - No Alerts Version');
     this.clearAuthData();
   }
 
-  // ✅ Clear all authentication data
   private clearAuthData(): void {
-    console.log('🧹 Clearing previous auth data');
     localStorage.removeItem('loggedIn');
     localStorage.removeItem('token');
     localStorage.removeItem('user_id');
     localStorage.removeItem('hasUpdated');
-    localStorage.removeItem('medicalInfoLastUpdated');
   }
 
   submit(): void {
-    console.log('🔄 Login form submitted');
-
     if (this.loginForm.invalid) {
-      console.log('❌ Form invalid');
       this.markFormGroupTouched();
       return;
     }
@@ -61,67 +53,30 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    console.log('🌐 Making login API call...');
-
     this.auth.login(this.loginForm.value).subscribe({
       next: (res: any) => {
-        console.log('✅ LOGIN SUCCESS:', res);
+        console.log('✅ Login successful');
         
-        // ✅ Store authentication data
         localStorage.setItem('loggedIn', 'true');
         localStorage.setItem('token', res.token);
         
         if (res.user && res.user.id) {
           localStorage.setItem('user_id', res.user.id.toString());
-          console.log('👤 User ID stored:', res.user.id);
-        } else {
-          console.error('❌ No user data in response');
-          this.handleLoginError('Invalid response from server');
-          return;
         }
 
-        // 🚨 TEMPORARY FIX: SKIP MEDICAL CHECK - GO DIRECTLY TO UPDATE
-        console.log('🚨 TEMPORARY: Skipping medical check, going directly to update-info');
-        localStorage.setItem('hasUpdated', 'false'); // Force update page
+        // 🚨 COMPLETELY SKIP MEDICAL CHECK - NO ALERTS
+        console.log('➡️ Going to update-info (medical check skipped)');
+        localStorage.setItem('hasUpdated', 'false');
         this.router.navigate(['/update-info']);
-        
-        /* 
-        // Original medical check code (commented out for now)
-        const userId = localStorage.getItem('user_id');
-        console.log('🔍 Checking medical data for user:', userId);
-
-        this.http.get(`${environment.apiUrl}/medical/${userId}`).subscribe({
-          next: (medicalRes: any) => {
-            console.log('✅ Medical check response:', medicalRes);
-            
-            if (medicalRes && medicalRes.exists) {
-              console.log('🎉 Medical info exists, going to landing');
-              localStorage.setItem('hasUpdated', 'true');
-              this.router.navigate(['/landing']);
-            } else {
-              console.log('ℹ️ No medical info, going to update-info');
-              localStorage.setItem('hasUpdated', 'false');
-              this.router.navigate(['/update-info']);
-            }
-          },
-          error: (err) => {
-            console.error('❌ Medical check failed:', err);
-            // Even if medical check fails, go to update page
-            console.log('⚠️ Medical check failed, going to update-info anyway');
-            localStorage.setItem('hasUpdated', 'false');
-            this.router.navigate(['/update-info']);
-          }
-        });
-        */
       },
       error: (err) => {
-        console.error('❌ LOGIN ERROR:', err);
-        this.handleLoginError(err.error?.message || 'Login failed. Please try again.');
+        console.error('❌ Login failed:', err);
+        this.isLoading = false;
+        this.errorMessage = err.error?.message || 'Login failed. Please try again.';
       }
     });
   }
 
-  // ✅ Mark all form fields as touched to show validation errors
   private markFormGroupTouched() {
     Object.keys(this.loginForm.controls).forEach(key => {
       const control = this.loginForm.get(key);
@@ -129,24 +84,14 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  // ✅ Handle login errors
-  private handleLoginError(message: string): void {
-    this.errorMessage = message;
-    this.isLoading = false;
-    console.error('🚫 Login failed:', message);
-  }
-
-  // ✅ Demo login for testing
   useDemoAccount(): void {
-    console.log('🎮 Using demo account');
     this.loginForm.patchValue({
-      email: 'demo@healthscan.com',
-      password: 'demo123'
+      email: 'test@example.com',
+      password: 'password123'
     });
     this.submit();
   }
 
-  // ✅ Navigate to register
   goToRegister(): void {
     this.router.navigate(['/register']);
   }
