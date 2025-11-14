@@ -2,7 +2,7 @@ import { Component, AfterViewInit, OnInit, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule, HttpErrorResponse } from '@angular/common/http';
 import { environment } from '../../Environments/environment';
 
 @Component({
@@ -212,43 +212,84 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
     }
   }
 
-  // ✅ TEST METHOD: Check if backend is reachable
+  // ✅ IMPROVED: Test backend connection with POST
   testBackendConnection() {
-    console.log('🧪 Testing backend connection...');
-    this.http.get(`${environment.apiUrl}/medical/test`).subscribe({
+    console.log('🧪 Testing backend POST connection...');
+    
+    // Test with a simple POST request
+    const testData = { test: 'connection', timestamp: new Date().toISOString() };
+    
+    this.http.post(`${environment.apiUrl}/medical/test-post`, testData).subscribe({
       next: (res: any) => {
-        console.log('✅ Backend test successful:', res);
-        alert('✅ Backend connection is working!');
+        console.log('✅ Backend POST test successful:', res);
+        alert('✅ Backend POST connection is working! Medical routes are properly configured.');
       },
-      error: (err) => {
-        console.error('❌ Backend test failed:', err);
-        alert('❌ Cannot connect to backend. Please check if server is running.');
+      error: (err: HttpErrorResponse) => {
+        console.error('❌ Backend POST test failed:', err);
+        this.handleError(err, 'Backend connection test');
       }
     });
   }
 
-  // ✅ TEST METHOD: Debug user ID
+  // ✅ IMPROVED: Debug user ID with better error handling
   debugUserId() {
     const user_id = localStorage.getItem('user_id');
     console.log('🔍 User ID Debug:', user_id);
-    console.log('🔍 User ID type:', typeof user_id);
-    console.log('🔍 Parsed user ID:', parseInt(user_id || '0'));
     
-    if (user_id) {
-      this.http.post(`${environment.apiUrl}/medical/debug-user-id`, { user_id }).subscribe({
-        next: (res: any) => {
-          console.log('✅ User ID debug result:', res);
-          alert(`User ID Debug: ${JSON.stringify(res, null, 2)}`);
-        },
-        error: (err) => {
-          console.error('❌ User ID debug failed:', err);
-        }
-      });
-    } else {
-      alert('❌ No user_id found in localStorage');
+    if (!user_id) {
+      alert('❌ No user_id found in localStorage. Please log in again.');
+      this.router.navigate(['/login']);
+      return;
     }
+
+    const parsedUserId = parseInt(user_id);
+    console.log('🔍 Parsed user ID:', parsedUserId, 'Is valid:', !isNaN(parsedUserId));
+
+    if (isNaN(parsedUserId)) {
+      alert('⚠️ Invalid user ID format. Please log in again.');
+      return;
+    }
+
+    // Test if user exists by making a simple request
+    const testData = { user_id: user_id, test: 'user_debug' };
+    
+    this.http.post(`${environment.apiUrl}/medical/test-post`, testData).subscribe({
+      next: (res: any) => {
+        console.log('✅ User ID debug successful:', res);
+        alert(`✅ User ID is valid and routes are working!\nUser ID: ${user_id}\nParsed: ${parsedUserId}`);
+      },
+      error: (err: HttpErrorResponse) => {
+        console.error('❌ User ID debug failed:', err);
+        this.handleError(err, 'User ID debug');
+      }
+    });
   }
 
+  // ✅ NEW: Enhanced error handler
+  private handleError(err: HttpErrorResponse, context: string) {
+    console.error(`❌ ${context} error:`, err);
+    
+    let errorMessage = `Failed during ${context}. Please try again.`;
+    
+    if (err.status === 0) {
+      errorMessage = `Cannot connect to server during ${context}. Please check:\n• Your internet connection\n• If the backend server is running\n• CORS configuration`;
+    } else if (err.status === 400) {
+      errorMessage = err.error?.message || `Invalid request during ${context}.`;
+      if (err.error?.missing) {
+        errorMessage += `\nMissing fields: ${err.error.missing.join(', ')}`;
+      }
+    } else if (err.status === 404) {
+      errorMessage = `Endpoint not found during ${context}. The server may not have the required routes.`;
+    } else if (err.status === 500) {
+      errorMessage = err.error?.message || `Server error during ${context}. Please try again later.`;
+    } else if (err.status === 413) {
+      errorMessage = 'File too large. Please select a smaller image.';
+    }
+    
+    alert(`❌ ${errorMessage}`);
+  }
+
+  // ✅ IMPROVED: Submit method with better error handling
   submit() {
     console.log('🔄 Submit method called');
     console.log('🌐 API Base URL:', environment.apiUrl);
@@ -259,9 +300,6 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
         const control = this.updateForm.get(key);
         if (control?.errors) {
           console.log(`  ${key}:`, control.errors);
-        }
-        if (control?.invalid) {
-          console.log(`  ${key} is invalid, value:`, control.value);
         }
       });
       
@@ -283,7 +321,6 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
     
     const user_id = localStorage.getItem('user_id');
     console.log('🔑 User ID for submission:', user_id);
-    console.log('🔑 User ID type:', typeof user_id);
     
     if (!user_id) {
       alert('⚠️ User not logged in properly. Please log in again.');
@@ -312,22 +349,15 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
         const value = this.updateForm.value[key];
         if (value !== null && value !== undefined) {
           formData.append(key, value.toString());
-          console.log(`  ${key}:`, value);
         }
       }
     });
 
     if (this.selectedFile) {
       formData.append('photo', this.selectedFile);
-      console.log('📸 File attached:', this.selectedFile.name, 'Size:', this.selectedFile.size);
+      console.log('📸 File attached:', this.selectedFile.name);
     } else {
-      console.log('❌ No file selected - this may cause validation issues');
-    }
-
-    // Log FormData contents for debugging
-    console.log('📦 FormData entries:');
-    for (let pair of (formData as any).entries()) {
-      console.log(`  ${pair[0]}:`, pair[1]);
+      console.log('⚠️ No file selected - form requires photo');
     }
 
     console.log('🌐 Making API call to:', `${environment.apiUrl}/medical/update`);
@@ -346,35 +376,13 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
           this.router.navigate(['/landing']);
         }, 1500);
       },
-      error: (err) => {
-        console.error('❌ DETAILED ERROR SAVING MEDICAL INFO:');
-        console.error('Error object:', err);
-        console.error('Error status:', err.status);
-        console.error('Error status text:', err.statusText);
-        console.error('Error message:', err.message);
-        console.error('Error name:', err.name);
-        console.error('Error response:', err.error);
-        
-        let errorMessage = 'Failed to save information. Please try again.';
-        
-        if (err.status === 0) {
-          errorMessage = 'Cannot connect to server. Please check:\n• Your internet connection\n• If the backend server is running\n• CORS configuration';
-        } else if (err.status === 400) {
-          errorMessage = err.error?.message || 'Invalid data provided. Please check all fields.';
-          if (err.error?.missing) {
-            errorMessage += `\nMissing fields: ${err.error.missing.join(', ')}`;
-          }
-        } else if (err.status === 500) {
-          errorMessage = err.error?.message || 'Server error. Please try again later.';
-        } else if (err.status === 413) {
-          errorMessage = 'File too large. Please select a smaller image.';
-        }
-        
-        alert(`❌ ${errorMessage}`);
+      error: (err: HttpErrorResponse) => {
+        this.handleError(err, 'medical information submission');
         this.isSubmitting = false;
       },
       complete: () => {
         console.log('✅ API call completed');
+        this.isSubmitting = false;
       }
     });
   }
@@ -401,22 +409,41 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
   // ✅ Method to check form validation state
   checkFormValidity() {
     console.log('🔍 Form validation check:');
-    console.log('Form valid:', this.updateForm.valid);
-    console.log('Form invalid:', this.updateForm.invalid);
-    console.log('Form pristine:', this.updateForm.pristine);
-    console.log('Form dirty:', this.updateForm.dirty);
-    console.log('Form touched:', this.updateForm.touched);
-    
     Object.keys(this.updateForm.controls).forEach(key => {
       const control = this.updateForm.get(key);
       console.log(`${key}:`, {
         valid: control?.valid,
         invalid: control?.invalid,
         errors: control?.errors,
-        value: control?.value,
-        touched: control?.touched,
-        dirty: control?.dirty
+        value: control?.value
       });
+    });
+  }
+
+  // ✅ NEW: Test the actual update endpoint with sample data
+  testUpdateEndpoint() {
+    console.log('🧪 Testing update endpoint with sample data...');
+    
+    const testFormData = new FormData();
+    testFormData.append('user_id', localStorage.getItem('user_id') || '1');
+    testFormData.append('full_name', 'Test User');
+    testFormData.append('dob', '1990-01-01');
+    testFormData.append('blood_type', 'O+');
+    testFormData.append('address', 'Test Address');
+    testFormData.append('emergency_contact', 'Test Contact');
+    testFormData.append('allergies', 'None');
+    testFormData.append('medications', 'None');
+    testFormData.append('conditions', 'None');
+
+    this.http.post(`${environment.apiUrl}/medical/update`, testFormData).subscribe({
+      next: (res: any) => {
+        console.log('✅ Update endpoint test successful:', res);
+        alert('✅ Update endpoint is working! The form should submit successfully.');
+      },
+      error: (err: HttpErrorResponse) => {
+        console.error('❌ Update endpoint test failed:', err);
+        this.handleError(err, 'update endpoint test');
+      }
     });
   }
 }
