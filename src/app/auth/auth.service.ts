@@ -20,17 +20,35 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/login`, data);
   }
 
+  // ✅ ADD MISSING METHODS
+  adminLogin(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/admin/login`, data);
+  }
+
+  logout(): void {
+    // Clear all authentication data
+    localStorage.removeItem('loggedIn');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('hasUpdated');
+    localStorage.removeItem('medicalInfoLastUpdated');
+    localStorage.removeItem('adminLoggedIn');
+    console.log('✅ User logged out');
+  }
+
   saveToken(token: any) {
     localStorage.setItem('token', token);
   }
 
-  // ✅ ADD THIS MISSING METHOD
   isAuthenticated(): boolean {
     const token = localStorage.getItem('token');
     const userId = localStorage.getItem('user_id');
-    
-    console.log('🔐 Auth check - token:', !!token, 'user_id:', userId);
-    
-    return !!(token && userId); // Returns true if both exist
+    return !!(token && userId);
+  }
+
+  // ✅ ADD THIS METHOD for admin guard
+  isAdminAuthenticated(): boolean {
+    const adminLoggedIn = localStorage.getItem('adminLoggedIn');
+    return adminLoggedIn === 'true';
   }
 }
