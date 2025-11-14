@@ -33,7 +33,7 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('🔐 Login Component - No Alerts Version');
+    console.log('🔐 Login Component - Fixed Version');
     this.clearAuthData();
   }
 
@@ -56,6 +56,7 @@ export class LoginComponent implements OnInit {
     this.auth.login(this.loginForm.value).subscribe({
       next: (res: any) => {
         console.log('✅ Login successful');
+        console.log('📦 Login response:', res);
         
         localStorage.setItem('loggedIn', 'true');
         localStorage.setItem('token', res.token);
@@ -64,10 +65,16 @@ export class LoginComponent implements OnInit {
           localStorage.setItem('user_id', res.user.id.toString());
         }
 
-        // 🚨 COMPLETELY SKIP MEDICAL CHECK - NO ALERTS
-        console.log('➡️ Going to update-info (medical check skipped)');
-        localStorage.setItem('hasUpdated', 'false');
-        this.router.navigate(['/update-info']);
+        // ✅ FIXED: Check if user has medical info from backend response
+        if (res.hasMedicalInfo) {
+          console.log('✅ User has medical info, redirecting to landing');
+          localStorage.setItem('hasUpdated', 'true');
+          this.router.navigate(['/landing']);
+        } else {
+          console.log('📝 User needs to fill medical info, redirecting to update-info');
+          localStorage.setItem('hasUpdated', 'false');
+          this.router.navigate(['/update-info']);
+        }
       },
       error: (err) => {
         console.error('❌ Login failed:', err);
