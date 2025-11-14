@@ -154,9 +154,9 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
               this.userName = res.full_name;
             }
 
-            // ✅ SIMPLIFIED: Use the absolute URL directly from backend
-            if (res.photo_url) {
-              console.log('📸 Profile photo URL from backend:', res.photo_url);
+            // ✅ FIXED: Handle base64 images directly from database
+            if (res.photo_url && res.photo_url.startsWith('data:')) {
+              console.log('📸 Base64 profile image found');
               this.profilePhotoUrl = res.photo_url;
               
               // Update profile preview image
@@ -165,19 +165,35 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
                   const img = this.profilePreview.nativeElement;
                   img.src = this.profilePhotoUrl;
                   img.onerror = () => {
-                    console.error('❌ Failed to load profile image:', this.profilePhotoUrl);
-                    img.src = 'https://via.placeholder.com/200?text=No+Photo';
+                    console.error('❌ Failed to load base64 profile image');
+                    // Use data URL fallback instead of external URL
+                    img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YzZjRmNiIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5YzljOWMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIwLjM1ZW0iPk5vIFByb2ZpbGUgUGhvdG88L3RleHQ+PC9zdmc+';
                   };
                   img.onload = () => {
-                    console.log('✅ Profile image loaded successfully');
+                    console.log('✅ Base64 profile image loaded successfully');
+                  };
+                }
+              }, 100);
+            } else if (res.photo_url) {
+              console.log('📸 External profile photo URL:', res.photo_url);
+              this.profilePhotoUrl = res.photo_url;
+              
+              setTimeout(() => {
+                if (this.profilePreview) {
+                  const img = this.profilePreview.nativeElement;
+                  img.src = this.profilePhotoUrl;
+                  img.onerror = () => {
+                    console.error('❌ Failed to load external profile image:', this.profilePhotoUrl);
+                    // Use data URL fallback instead of external URL
+                    img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YzZjRmNiIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5YzljOWMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIwLjM1ZW0iPk5vIFByb2ZpbGUgUGhvdG88L3RleHQ+PC9zdmc+';
                   };
                 }
               }, 100);
             } else {
               console.log('❌ No photo_url in response');
-              // Use placeholder if no photo
+              // Use data URL fallback
               if (this.profilePreview) {
-                this.profilePreview.nativeElement.src = 'https://via.placeholder.com/200?text=No+Photo';
+                this.profilePreview.nativeElement.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YzZjRmNiIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5YzljOWMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIwLjM1ZW0iPk5vIFByb2ZpbGUgUGhvdG88L3RleHQ+PC9zdmc+';
               }
             }
 
@@ -249,6 +265,11 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
       console.log('❌ No medical data available in localStorage');
       this.userName = 'User';
       this.lastUpdated = 'Never';
+    }
+    
+    // Set default profile image
+    if (this.profilePreview) {
+      this.profilePreview.nativeElement.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YzZjRmNiIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5YzljOWMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIwLjM1ZW0iPk5vIFByb2ZpbGUgUGhvdG88L3RleHQ+PC9zdmc+';
     }
     
     this.generateQRCode();
@@ -329,7 +350,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
               this.userName = res.full_name;
             }
 
-            // ✅ SIMPLIFIED: Update profile photo using absolute URL from backend
+            // ✅ FIXED: Update profile photo using base64 or external URL
             if (res.photo_url) {
               console.log('🔄 Updated profile photo URL:', res.photo_url);
               this.profilePhotoUrl = res.photo_url;
