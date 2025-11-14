@@ -33,25 +33,10 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('🔐 Login Component Initialized - DEBUG MODE');
-    console.log('📍 Current environment:', environment);
-    console.log('🌐 API URL:', environment.apiUrl);
+    console.log('🔐 Login Component Initialized');
     
     // Clear any previous auth data
     this.clearAuthData();
-
-    const inputs: NodeListOf<HTMLInputElement> = this.el.nativeElement.querySelectorAll('input');
-    inputs.forEach(input => {
-      this.renderer.listen(input, 'focus', () => {
-        const label = input.parentElement?.querySelector('label');
-        if (label) this.renderer.setStyle(label, 'color', '#4b6cb7');
-      });
-
-      this.renderer.listen(input, 'blur', () => {
-        const label = input.parentElement?.querySelector('label');
-        if (label) this.renderer.setStyle(label, 'color', '#34495e');
-      });
-    });
   }
 
   // ✅ Clear all authentication data
@@ -66,131 +51,81 @@ export class LoginComponent implements OnInit {
 
   submit(): void {
     console.log('🔄 Login form submitted');
-    console.log('📧 Form values:', this.loginForm.value);
 
     if (this.loginForm.invalid) {
-      console.log('❌ Form invalid - marking errors');
-      Object.keys(this.loginForm.controls).forEach(field => {
-        const control = this.loginForm.get(field);
-        const input: HTMLElement | null = this.el.nativeElement.querySelector(`[formControlName="${field}"]`);
-        if (control && control.invalid && input) {
-          this.renderer.setStyle(input, 'borderColor', '#e74c3c');
-          console.log(`❌ Field ${field} is invalid:`, control.errors);
-        }
-      });
+      console.log('❌ Form invalid');
+      this.markFormGroupTouched();
       return;
-    }
-
-    console.log('✅ Form is valid, proceeding with login');
-
-    const button: HTMLButtonElement | null = this.el.nativeElement.querySelector('button');
-    if (button) {
-      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-      button.disabled = true;
     }
 
     this.isLoading = true;
     this.errorMessage = '';
 
-    console.log('🌐 Making login API call to:', `${environment.apiUrl}/auth/login`);
+    console.log('🌐 Making login API call...');
 
     this.auth.login(this.loginForm.value).subscribe({
       next: (res: any) => {
-        console.log('✅ LOGIN SUCCESS - Full response:', res);
+        console.log('✅ LOGIN SUCCESS:', res);
         
-        if (button) {
-          button.innerHTML = '<i class="fas fa-check"></i> Success!';
-          this.renderer.setStyle(button, 'background', '#2ecc71');
-        }
-
         // ✅ Store authentication data
         localStorage.setItem('loggedIn', 'true');
         localStorage.setItem('token', res.token);
         
-        // ✅ Check if user data exists in response
         if (res.user && res.user.id) {
           localStorage.setItem('user_id', res.user.id.toString());
           console.log('👤 User ID stored:', res.user.id);
-          
-          // ✅ Store additional user info if available
-          if (res.user.full_name) {
-            localStorage.setItem('user_name', res.user.full_name);
-          }
-          if (res.user.email) {
-            localStorage.setItem('user_email', res.user.email);
-          }
         } else {
-          console.error('❌ No user data in login response:', res);
-          this.handleLoginError('Invalid response from server - no user data');
+          console.error('❌ No user data in response');
+          this.handleLoginError('Invalid response from server');
           return;
         }
 
-        console.log('💾 localStorage after login:', {
-          loggedIn: localStorage.getItem('loggedIn'),
-          user_id: localStorage.getItem('user_id'),
-          token: localStorage.getItem('token'),
-          user_name: localStorage.getItem('user_name')
-        });
-
+        // 🚨 TEMPORARY FIX: SKIP MEDICAL CHECK - GO DIRECTLY TO UPDATE
+        console.log('🚨 TEMPORARY: Skipping medical check, going directly to update-info');
+        localStorage.setItem('hasUpdated', 'false'); // Force update page
+        this.router.navigate(['/update-info']);
+        
+        /* 
+        // Original medical check code (commented out for now)
         const userId = localStorage.getItem('user_id');
         console.log('🔍 Checking medical data for user:', userId);
 
-        if (!userId) {
-          console.error('❌ No user_id found after login');
-          this.handleLoginError('Authentication failed - no user ID');
-          return;
-        }
-
-        // ✅ Check if user already has medical info
-        const medicalCheckUrl = `${environment.apiUrl}/medical/${userId}`;
-        console.log('🌐 Making medical check API call to:', medicalCheckUrl);
-
-        this.http.get(medicalCheckUrl).subscribe({
+        this.http.get(`${environment.apiUrl}/medical/${userId}`).subscribe({
           next: (medicalRes: any) => {
-            console.log('✅ MEDICAL CHECK SUCCESS - Full response:', medicalRes);
+            console.log('✅ Medical check response:', medicalRes);
             
             if (medicalRes && medicalRes.exists) {
-              console.log('🎉 Medical info EXISTS, redirecting to landing');
-              localStorage.setItem('hasUpdated', 'true');
-              this.router.navigate(['/landing']);
-            } else if (medicalRes && Object.keys(medicalRes).length > 0) {
-              // Handle old response format (without exists property)
-              console.log('🎉 Medical info EXISTS (old format), redirecting to landing');
+              console.log('🎉 Medical info exists, going to landing');
               localStorage.setItem('hasUpdated', 'true');
               this.router.navigate(['/landing']);
             } else {
-              console.log('ℹ️ No medical info found, redirecting to update-info');
+              console.log('ℹ️ No medical info, going to update-info');
               localStorage.setItem('hasUpdated', 'false');
               this.router.navigate(['/update-info']);
             }
           },
           error: (err) => {
-            console.error('❌ MEDICAL CHECK ERROR - Full details:', {
-              status: err.status,
-              statusText: err.statusText,
-              message: err.message,
-              error: err.error,
-              url: err.url
-            });
-
-            // ✅ Even if medical check fails, continue to update page
-            console.log('⚠️ Medical check failed, but continuing to update-info');
+            console.error('❌ Medical check failed:', err);
+            // Even if medical check fails, go to update page
+            console.log('⚠️ Medical check failed, going to update-info anyway');
             localStorage.setItem('hasUpdated', 'false');
             this.router.navigate(['/update-info']);
           }
         });
+        */
       },
       error: (err) => {
-        console.error('❌ LOGIN ERROR - Full details:', {
-          status: err.status,
-          statusText: err.statusText,
-          message: err.message,
-          error: err.error,
-          url: err.url
-        });
-
+        console.error('❌ LOGIN ERROR:', err);
         this.handleLoginError(err.error?.message || 'Login failed. Please try again.');
       }
+    });
+  }
+
+  // ✅ Mark all form fields as touched to show validation errors
+  private markFormGroupTouched() {
+    Object.keys(this.loginForm.controls).forEach(key => {
+      const control = this.loginForm.get(key);
+      control?.markAsTouched();
     });
   }
 
@@ -198,14 +133,6 @@ export class LoginComponent implements OnInit {
   private handleLoginError(message: string): void {
     this.errorMessage = message;
     this.isLoading = false;
-
-    const button: HTMLButtonElement | null = this.el.nativeElement.querySelector('button');
-    if (button) {
-      button.innerHTML = 'Login';
-      button.disabled = false;
-      this.renderer.removeStyle(button, 'background');
-    }
-
     console.error('🚫 Login failed:', message);
   }
 
@@ -222,16 +149,5 @@ export class LoginComponent implements OnInit {
   // ✅ Navigate to register
   goToRegister(): void {
     this.router.navigate(['/register']);
-  }
-
-  // ✅ Debug function to check current state
-  debugState(): void {
-    console.log('🐛 DEBUG STATE:', {
-      formValid: this.loginForm.valid,
-      formValues: this.loginForm.value,
-      formErrors: this.loginForm.errors,
-      localStorage: { ...localStorage },
-      environment: environment
-    });
   }
 }
