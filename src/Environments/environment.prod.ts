@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://healthscanqrbackend-production.up.railway.app/api'  // your Render backend
+  apiUrl: 'https://healthscanqr-backend.onrender.com'  // your Render backend
 };
