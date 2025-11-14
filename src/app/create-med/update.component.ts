@@ -93,8 +93,18 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
     }
   }
 
+  // ✅ FIXED: Scroll to top when dashboard is clicked
   goToDashboard() {
-    this.router.navigate(['/dashboard']);
+    console.log('📊 Dashboard clicked - scrolling to top');
+    this.scrollToTop();
+  }
+
+  // ✅ NEW METHOD: Scroll to top of page
+  scrollToTop() {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   }
 
   scrollToSection(sectionId: string) {
