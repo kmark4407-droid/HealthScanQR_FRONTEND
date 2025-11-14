@@ -47,52 +47,21 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
   }
 
   ngOnInit() {
-    console.log('🔄 Update component initialized');
+    console.log('🔄 Update component initialized - DEBUG MODE');
+    console.log('📍 Current URL:', window.location.href);
+    console.log('🔑 User ID in localStorage:', localStorage.getItem('user_id'));
+    console.log('✅ hasUpdated flag:', localStorage.getItem('hasUpdated'));
     
-    // ✅ IMPROVED: Check if user already has medical data
-    this.checkExistingMedicalData();
+    // ✅ TEMPORARY: Skip all checks and go directly to landing for testing
+    console.log('🚨 TEMPORARY: Skipping to landing page for testing');
+    localStorage.setItem('hasUpdated', 'true');
+    this.router.navigate(['/landing']);
+    return;
+    
+    // Comment out the above 3 lines after testing
     
     // Load saved accessibility settings
     this.loadAccessibilitySettings();
-  }
-
-  // ✅ NEW METHOD: Check if user already has medical data
-  private checkExistingMedicalData(): void {
-    const userId = localStorage.getItem('user_id');
-    const hasUpdated = localStorage.getItem('hasUpdated');
-    
-    console.log('🔍 Checking medical data:', { userId, hasUpdated });
-
-    if (hasUpdated === 'true') {
-      console.warn('⚠️ User already updated info. Redirecting to /landing');
-      this.router.navigate(['/landing']);
-      return;
-    }
-
-    if (userId) {
-      this.http.get(`${environment.apiUrl}/medical/${userId}`).subscribe({
-        next: (res: any) => {
-          console.log('📊 Medical check response:', res);
-          
-          if (res && res.exists) {
-            console.log('✅ User already has medical data, redirecting to landing');
-            localStorage.setItem('hasUpdated', 'true');
-            this.router.navigate(['/landing']);
-          } else {
-            console.log('ℹ️ No existing medical data, user needs to fill form');
-            // User stays on update page to fill form
-          }
-        },
-        error: (err) => {
-          console.error('❌ Error checking medical data:', err);
-          // Even if there's an error, let user continue to update page
-          console.log('⚠️ Medical check failed, but allowing user to continue');
-        }
-      });
-    } else {
-      console.error('❌ No user_id found in localStorage');
-      this.router.navigate(['/login']);
-    }
   }
 
   ngAfterViewInit() {
@@ -229,7 +198,10 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
   }
 
   submit() {
+    console.log('🔄 Submit method called');
+    
     if (this.updateForm.invalid) {
+      console.log('❌ Form invalid');
       this.showWarning = true;
 
       Object.keys(this.updateForm.controls).forEach(key => {
@@ -243,9 +215,13 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
       return;
     }
 
+    console.log('✅ Form valid, proceeding with submission');
     this.showWarning = false;
     this.isSubmitting = true;
+    
     const user_id = localStorage.getItem('user_id');
+    console.log('🔑 User ID for submission:', user_id);
+    
     if (!user_id) {
       alert('⚠️ User not logged in properly.');
       this.router.navigate(['/login']);
@@ -256,24 +232,28 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
     const formData = new FormData();
     formData.append('user_id', user_id);
 
+    console.log('📝 Form values:', this.updateForm.value);
+    
     Object.keys(this.updateForm.value).forEach(key => {
       if (key !== 'photo') {
         const value = this.updateForm.value[key];
         if (value !== null && value !== undefined) {
-          formData.append(key, value.toString()); // ✅ Ensure string values
+          formData.append(key, value.toString());
+          console.log(`📦 Added to formData: ${key} = ${value}`);
         }
       }
     });
 
     if (this.selectedFile) {
       formData.append('photo', this.selectedFile);
+      console.log('📸 Photo added to formData');
     }
 
-    console.log('🔄 Submitting medical data...');
+    console.log('🌐 Making API call to:', `${environment.apiUrl}/medical/update`);
     
     this.http.post(`${environment.apiUrl}/medical/update`, formData).subscribe({
       next: (res: any) => {
-        console.log('✅ Medical info saved:', res);
+        console.log('✅ Medical info saved successfully:', res);
         this.showSuccess = true;
         this.isSubmitting = false;
 
@@ -281,16 +261,21 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
         localStorage.setItem('hasUpdated', 'true');
 
         setTimeout(() => {
+          console.log('➡️ Redirecting to landing page');
           this.router.navigate(['/landing']);
         }, 1500);
       },
       error: (err) => {
-        console.error('❌ Error saving medical info:', {
+        console.error('❌ ERROR saving medical info - FULL DETAILS:', {
           status: err.status,
+          statusText: err.statusText,
           message: err.message,
-          error: err.error
+          error: err.error,
+          url: err.url,
+          headers: err.headers
         });
-        alert(`❌ Failed to save information: ${err.error?.message || err.message}`);
+        
+        alert(`❌ Failed to save information. Check console for details.`);
         this.isSubmitting = false;
       }
     });
@@ -306,9 +291,10 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
     }
   }
 
-  // ✅ NEW METHOD: Skip update and go directly to landing
+  // ✅ Skip update and go directly to landing
   skipUpdate() {
-    if (confirm('Are you sure you want to skip medical info setup? You can update it later.')) {
+    console.log('⏭️ Skip update called');
+    if (confirm('Skip medical info setup?')) {
       localStorage.setItem('hasUpdated', 'true');
       this.router.navigate(['/landing']);
     }
