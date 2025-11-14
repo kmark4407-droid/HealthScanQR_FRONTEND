@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import QRCode from 'qrcode';
 import { CommonModule } from '@angular/common';
-import { environment } from '../Environments/environment.prod';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-landing',
