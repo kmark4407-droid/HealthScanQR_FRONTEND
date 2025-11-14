@@ -96,8 +96,9 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     if (userId) {
       this.http.get(`${environment.apiUrl}/medical/${userId}?t=${new Date().getTime()}`).subscribe({
         next: (res: any) => {
-          if (res) {
-            console.log('Medical data response:', res);
+          // ✅ REVISED: Handle both cases: data exists or doesn't exist
+          if (res && res.exists) {
+            console.log('Medical data found:', res);
             
             // Handle date properly to prevent timezone shifting
             if (res.dob) {
@@ -118,7 +119,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
 
             // If backend returns photo_url, update profile images
             if (res.photo_url) {
-              this.profilePhotoUrl = `${environment.apiUrl}${res.photo_url}`;;
+              this.profilePhotoUrl = `${environment.apiUrl}${res.photo_url}`;
               setTimeout(() => {
                 if (this.profilePreview) {
                   this.profilePreview.nativeElement.src = this.profilePhotoUrl;
@@ -129,6 +130,12 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
             // Handle lastUpdated timestamp
             this.handleLastUpdatedTimestamp(res);
             
+            this.generateQRCode();
+          } else {
+            // ✅ REVISED: No medical data exists yet
+            console.log('No medical data found for user');
+            this.userName = 'User';
+            this.lastUpdated = 'Never';
             this.generateQRCode();
           }
         },
@@ -202,7 +209,8 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     if (userId) {
       this.http.get(`${environment.apiUrl}/medical/${userId}?t=${new Date().getTime()}`).subscribe({
         next: (res: any) => {
-          if (res) {
+          // ✅ REVISED: Handle the new response format
+          if (res && res.exists) {
             if (res.dob) {
               const normalized = this.normalizeDateString(res.dob);
               this.medicalForm.patchValue({...res, dob: normalized});
@@ -221,7 +229,9 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
 
             if (res.photo_url) {
               this.profilePhotoUrl = `${environment.apiUrl}${res.photo_url}`;
-              this.profilePreview.nativeElement.src = this.profilePhotoUrl;
+              if (this.profilePreview) {
+                this.profilePreview.nativeElement.src = this.profilePhotoUrl;
+              }
             }
 
             this.generateQRCode();
@@ -584,4 +594,3 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 }
-
