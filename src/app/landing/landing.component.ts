@@ -130,16 +130,23 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
           if (res && res.exists) {
             console.log('✅ Medical data found:', res);
             
+            // ✅ IMPROVED: Patch all form data properly
+            this.medicalForm.patchValue({
+              full_name: res.full_name || '',
+              dob: res.dob || '',
+              blood_type: res.blood_type || '',
+              address: res.address || '',
+              allergies: res.allergies || '',
+              medications: res.medications || '',
+              conditions: res.conditions || '',
+              emergency_contact: res.emergency_contact || ''
+            });
+
             // Handle date properly to prevent timezone shifting
             if (res.dob) {
               const normalized = this.normalizeDateString(res.dob);
-              this.medicalForm.patchValue({...res, dob: normalized});
+              this.medicalForm.patchValue({ dob: normalized });
               this.formattedDob = this.formatDateForDisplay(normalized);
-            } else {
-              this.medicalForm.patchValue(res);
-              if (this.medicalForm.get('dob')?.value) {
-                this.formattedDob = this.formatDateForDisplay(this.medicalForm.get('dob')?.value);
-              }
             }
 
             // Update user name for welcome message
@@ -147,14 +154,36 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
               this.userName = res.full_name;
             }
 
-            // If backend returns photo_url, update profile images
+            // ✅ IMPROVED: Handle profile photo URL properly
             if (res.photo_url) {
-              this.profilePhotoUrl = `${environment.apiUrl}${res.photo_url}`;
+              console.log('📸 Profile photo URL found:', res.photo_url);
+              
+              // Handle different URL formats
+              if (res.photo_url.startsWith('http')) {
+                this.profilePhotoUrl = res.photo_url;
+              } else if (res.photo_url.startsWith('/uploads/')) {
+                this.profilePhotoUrl = `${environment.apiUrl.replace('/api', '')}${res.photo_url}`;
+              } else if (res.photo_url.startsWith('uploads/')) {
+                this.profilePhotoUrl = `${environment.apiUrl.replace('/api', '')}/${res.photo_url}`;
+              } else {
+                this.profilePhotoUrl = `${environment.apiUrl.replace('/api', '')}/uploads/${res.photo_url}`;
+              }
+              
+              console.log('🖼️ Final profile photo URL:', this.profilePhotoUrl);
+              
+              // Update profile preview image
               setTimeout(() => {
-                if (this.profilePreview) {
+                if (this.profilePreview && this.profilePhotoUrl) {
                   this.profilePreview.nativeElement.src = this.profilePhotoUrl;
+                  console.log('✅ Profile image updated in DOM');
                 }
-              }, 0);
+              }, 100);
+            } else {
+              console.log('❌ No photo_url in response');
+              // Use placeholder if no photo
+              if (this.profilePreview) {
+                this.profilePreview.nativeElement.src = 'https://via.placeholder.com/200?text=No+Photo';
+              }
             }
 
             // Handle lastUpdated timestamp
@@ -166,56 +195,60 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
             console.log('❌ No medical data found for user');
             this.userName = 'User';
             this.lastUpdated = 'Never';
-            this.generateQRCode();
+            
+            // Try to load from localStorage as fallback
+            this.loadFromLocalStorage();
           }
         },
         error: (err) => {
           console.error('❌ Error fetching medical info:', err);
           console.log('🔧 Error details:', err.status, err.message);
           
-          // On error, try to use stored timestamp
-          const storedTimestamp = localStorage.getItem('medicalInfoLastUpdated');
-          this.lastUpdated = storedTimestamp || 'Never';
-          
-          // Try fallback method
+          // On error, try to use stored data from localStorage
           this.loadFromLocalStorage();
         }
       });
     } else {
       console.log('❌ No user ID found');
-      // For demo user, use stored timestamp or set to 'Never'
-      const storedTimestamp = localStorage.getItem('medicalInfoLastUpdated');
-      this.lastUpdated = storedTimestamp || 'Never';
-      
-      // Set default formatted date
-      this.formattedDob = this.formatDateForDisplay('1990-01-15');
-      
-      setTimeout(() => {
-        this.generateQRCode();
-      }, 500);
+      this.loadFromLocalStorage();
     }
   }
 
-  // ✅ ADD THIS METHOD: Load data from localStorage as fallback
+  // ✅ IMPROVED: Load data from localStorage as fallback
   private loadFromLocalStorage(): void {
     console.log('📝 Loading from localStorage fallback');
     
     // Try to get stored medical data from form submission
     const storedFormData = localStorage.getItem('medicalFormData');
     if (storedFormData) {
-      const data = JSON.parse(storedFormData);
-      this.medicalForm.patchValue(data);
-      
-      if (data.dob) {
-        this.formattedDob = this.formatDateForDisplay(data.dob);
+      try {
+        const data = JSON.parse(storedFormData);
+        console.log('📦 Loaded data from localStorage:', data);
+        
+        this.medicalForm.patchValue({
+          full_name: data.full_name || '',
+          dob: data.dob || '',
+          blood_type: data.blood_type || '',
+          address: data.address || '',
+          allergies: data.allergies || '',
+          medications: data.medications || '',
+          conditions: data.conditions || '',
+          emergency_contact: data.emergency_contact || ''
+        });
+        
+        if (data.dob) {
+          this.formattedDob = this.formatDateForDisplay(data.dob);
+        }
+        
+        if (data.full_name) {
+          this.userName = data.full_name;
+        }
+        
+        this.lastUpdated = localStorage.getItem('medicalInfoLastUpdated') || 'Never';
+        console.log('✅ Loaded data from localStorage successfully');
+      } catch (e) {
+        console.error('❌ Error parsing localStorage data:', e);
       }
-      
-      if (data.full_name) {
-        this.userName = data.full_name;
-      }
-      
-      this.lastUpdated = localStorage.getItem('medicalInfoLastUpdated') || 'Never';
-      console.log('✅ Loaded data from localStorage:', data);
     } else {
       // No data available
       console.log('❌ No medical data available in localStorage');
@@ -234,7 +267,8 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
       'updated_at',
       'updatedAt',
       'timestamp',
-      'lastModified'
+      'lastModified',
+      'created_at'
     ];
     
     let foundTimestamp = null;
@@ -278,12 +312,21 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
           
           // ✅ REVISED: Handle the new response format
           if (res && res.exists) {
+            this.medicalForm.patchValue({
+              full_name: res.full_name || '',
+              dob: res.dob || '',
+              blood_type: res.blood_type || '',
+              address: res.address || '',
+              allergies: res.allergies || '',
+              medications: res.medications || '',
+              conditions: res.conditions || '',
+              emergency_contact: res.emergency_contact || ''
+            });
+
             if (res.dob) {
               const normalized = this.normalizeDateString(res.dob);
-              this.medicalForm.patchValue({...res, dob: normalized});
+              this.medicalForm.patchValue({ dob: normalized });
               this.formattedDob = this.formatDateForDisplay(normalized);
-            } else {
-              this.medicalForm.patchValue(res);
             }
 
             // Update user name for welcome message
@@ -291,15 +334,23 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
               this.userName = res.full_name;
             }
 
-            // Update timestamp when server provides data
-            this.handleLastUpdatedTimestamp(res);
-
+            // Update profile photo if available
             if (res.photo_url) {
-              this.profilePhotoUrl = `${environment.apiUrl}${res.photo_url}`;
+              if (res.photo_url.startsWith('http')) {
+                this.profilePhotoUrl = res.photo_url;
+              } else if (res.photo_url.startsWith('/uploads/')) {
+                this.profilePhotoUrl = `${environment.apiUrl.replace('/api', '')}${res.photo_url}`;
+              } else {
+                this.profilePhotoUrl = `${environment.apiUrl.replace('/api', '')}/uploads/${res.photo_url}`;
+              }
+              
               if (this.profilePreview) {
                 this.profilePreview.nativeElement.src = this.profilePhotoUrl;
               }
             }
+
+            // Update timestamp when server provides data
+            this.handleLastUpdatedTimestamp(res);
 
             this.generateQRCode();
           }
