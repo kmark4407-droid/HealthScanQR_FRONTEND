@@ -154,28 +154,23 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
               this.userName = res.full_name;
             }
 
-            // ✅ IMPROVED: Handle profile photo URL properly
+            // ✅ SIMPLIFIED: Use the absolute URL directly from backend
             if (res.photo_url) {
-              console.log('📸 Profile photo URL found:', res.photo_url);
-              
-              // Handle different URL formats
-              if (res.photo_url.startsWith('http')) {
-                this.profilePhotoUrl = res.photo_url;
-              } else if (res.photo_url.startsWith('/uploads/')) {
-                this.profilePhotoUrl = `${environment.apiUrl.replace('/api', '')}${res.photo_url}`;
-              } else if (res.photo_url.startsWith('uploads/')) {
-                this.profilePhotoUrl = `${environment.apiUrl.replace('/api', '')}/${res.photo_url}`;
-              } else {
-                this.profilePhotoUrl = `${environment.apiUrl.replace('/api', '')}/uploads/${res.photo_url}`;
-              }
-              
-              console.log('🖼️ Final profile photo URL:', this.profilePhotoUrl);
+              console.log('📸 Profile photo URL from backend:', res.photo_url);
+              this.profilePhotoUrl = res.photo_url;
               
               // Update profile preview image
               setTimeout(() => {
-                if (this.profilePreview && this.profilePhotoUrl) {
-                  this.profilePreview.nativeElement.src = this.profilePhotoUrl;
-                  console.log('✅ Profile image updated in DOM');
+                if (this.profilePreview) {
+                  const img = this.profilePreview.nativeElement;
+                  img.src = this.profilePhotoUrl;
+                  img.onerror = () => {
+                    console.error('❌ Failed to load profile image:', this.profilePhotoUrl);
+                    img.src = 'https://via.placeholder.com/200?text=No+Photo';
+                  };
+                  img.onload = () => {
+                    console.log('✅ Profile image loaded successfully');
+                  };
                 }
               }, 100);
             } else {
@@ -334,16 +329,10 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
               this.userName = res.full_name;
             }
 
-            // Update profile photo if available
+            // ✅ SIMPLIFIED: Update profile photo using absolute URL from backend
             if (res.photo_url) {
-              if (res.photo_url.startsWith('http')) {
-                this.profilePhotoUrl = res.photo_url;
-              } else if (res.photo_url.startsWith('/uploads/')) {
-                this.profilePhotoUrl = `${environment.apiUrl.replace('/api', '')}${res.photo_url}`;
-              } else {
-                this.profilePhotoUrl = `${environment.apiUrl.replace('/api', '')}/uploads/${res.photo_url}`;
-              }
-              
+              console.log('🔄 Updated profile photo URL:', res.photo_url);
+              this.profilePhotoUrl = res.photo_url;
               if (this.profilePreview) {
                 this.profilePreview.nativeElement.src = this.profilePhotoUrl;
               }
