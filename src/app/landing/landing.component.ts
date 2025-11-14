@@ -37,10 +37,6 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   // Auto-refresh interval
   private autoRefreshInterval: any;
 
-  // Logo for ID card
-  private logoImage: HTMLImageElement | null = null;
-  private logoLoaded: boolean = false;
-
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
@@ -56,23 +52,6 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
       conditions: [''],
       emergency_contact: ['', Validators.required]
     });
-
-    // Preload logo
-    this.preloadLogo();
-  }
-
-  private preloadLogo(): void {
-    this.logoImage = new Image();
-    this.logoImage.crossOrigin = 'anonymous';
-    this.logoImage.onload = () => {
-      this.logoLoaded = true;
-      console.log('Logo loaded successfully');
-    };
-    this.logoImage.onerror = () => {
-      console.warn('Logo failed to load, using fallback');
-      this.logoLoaded = false;
-    };
-    this.logoImage.src = './healthscanqr1.png';
   }
 
   ngOnInit(): void {
@@ -154,7 +133,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
               this.userName = res.full_name;
             }
 
-            // ✅ FIXED: Handle base64 images directly from database
+            // ✅ SIMPLIFIED: Handle base64 images directly from database
             if (res.photo_url && res.photo_url.startsWith('data:')) {
               console.log('📸 Base64 profile image found');
               this.profilePhotoUrl = res.photo_url;
@@ -166,8 +145,8 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
                   img.src = this.profilePhotoUrl;
                   img.onerror = () => {
                     console.error('❌ Failed to load base64 profile image');
-                    // Use data URL fallback instead of external URL
-                    img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YzZjRmNiIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5YzljOWMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIwLjM1ZW0iPk5vIFByb2ZpbGUgUGhvdG88L3RleHQ+PC9zdmc+';
+                    // Use embedded SVG fallback
+                    img.src = this.getDefaultAvatar();
                   };
                   img.onload = () => {
                     console.log('✅ Base64 profile image loaded successfully');
@@ -175,7 +154,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
                 }
               }, 100);
             } else if (res.photo_url) {
-              console.log('📸 External profile photo URL:', res.photo_url);
+              console.log('📸 External profile photo URL (legacy):', res.photo_url);
               this.profilePhotoUrl = res.photo_url;
               
               setTimeout(() => {
@@ -184,16 +163,17 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
                   img.src = this.profilePhotoUrl;
                   img.onerror = () => {
                     console.error('❌ Failed to load external profile image:', this.profilePhotoUrl);
-                    // Use data URL fallback instead of external URL
-                    img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YzZjRmNiIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5YzljOWMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIwLjM1ZW0iPk5vIFByb2ZpbGUgUGhvdG88L3RleHQ+PC9zdmc+';
+                    // Use embedded SVG fallback
+                    img.src = this.getDefaultAvatar();
                   };
                 }
               }, 100);
             } else {
               console.log('❌ No photo_url in response');
-              // Use data URL fallback
+              // Use embedded SVG fallback
+              this.profilePhotoUrl = this.getDefaultAvatar();
               if (this.profilePreview) {
-                this.profilePreview.nativeElement.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YzZjRmNiIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5YzljOWMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIwLjM1ZW0iPk5vIFByb2ZpbGUgUGhvdG88L3RleHQ+PC9zdmc+';
+                this.profilePreview.nativeElement.src = this.profilePhotoUrl;
               }
             }
 
@@ -207,6 +187,12 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
             this.userName = 'User';
             this.lastUpdated = 'Never';
             
+            // Set default profile image
+            this.profilePhotoUrl = this.getDefaultAvatar();
+            if (this.profilePreview) {
+              this.profilePreview.nativeElement.src = this.profilePhotoUrl;
+            }
+            
             // Try to load from localStorage as fallback
             this.loadFromLocalStorage();
           }
@@ -215,14 +201,30 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
           console.error('❌ Error fetching medical info:', err);
           console.log('🔧 Error details:', err.status, err.message);
           
+          // Set default profile image on error
+          this.profilePhotoUrl = this.getDefaultAvatar();
+          if (this.profilePreview) {
+            this.profilePreview.nativeElement.src = this.profilePhotoUrl;
+          }
+          
           // On error, try to use stored data from localStorage
           this.loadFromLocalStorage();
         }
       });
     } else {
       console.log('❌ No user ID found');
+      // Set default profile image
+      this.profilePhotoUrl = this.getDefaultAvatar();
+      if (this.profilePreview) {
+        this.profilePreview.nativeElement.src = this.profilePhotoUrl;
+      }
       this.loadFromLocalStorage();
     }
+  }
+
+  // ✅ Get default avatar (embedded SVG - no external dependencies)
+  private getDefaultAvatar(): string {
+    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YzZjRmNiIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjgwIiByPSI0MCIgZmlsbD0iI2RkZGRkZCIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjU1IiByPSIyNSIgZmlsbD0iI2RkZGRkZCIvPjx0ZXh0IHg9IjEwMCIgeT0iMTQwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5YzljOWMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk5vIFBob3RvPC90ZXh0Pjwvc3ZnPg==';
   }
 
   // ✅ IMPROVED: Load data from localStorage as fallback
@@ -265,11 +267,6 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
       console.log('❌ No medical data available in localStorage');
       this.userName = 'User';
       this.lastUpdated = 'Never';
-    }
-    
-    // Set default profile image
-    if (this.profilePreview) {
-      this.profilePreview.nativeElement.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YzZjRmNiIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5YzljOWMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIwLjM1ZW0iPk5vIFByb2ZpbGUgUGhvdG88L3RleHQ+PC9zdmc+';
     }
     
     this.generateQRCode();
@@ -350,9 +347,9 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
               this.userName = res.full_name;
             }
 
-            // ✅ FIXED: Update profile photo using base64 or external URL
+            // ✅ FIXED: Update profile photo using base64 from backend
             if (res.photo_url) {
-              console.log('🔄 Updated profile photo URL:', res.photo_url);
+              console.log('🔄 Updated profile photo URL:', res.photo_url.substring(0, 50) + '...');
               this.profilePhotoUrl = res.photo_url;
               if (this.profilePreview) {
                 this.profilePreview.nativeElement.src = this.profilePhotoUrl;
