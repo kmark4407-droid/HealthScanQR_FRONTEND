@@ -144,9 +144,12 @@
         <div id="scanResult" class="scan-result" *ngIf="scanResultVisible && scannedData">
           <h3>Scan Result</h3>
           
-          <!-- Profile Photo Display with Change Option -->
+          <!-- FIXED: Profile Photo Display with Change Option -->
           <div class="profile-photo-container">
-            <img [src]="scannedData.profile_photo" alt="Profile Photo" class="profile-photo">
+            <img [src]="getProfilePhoto(scannedData)" 
+                 alt="Profile Photo" 
+                 class="profile-photo"
+                 (error)="handleImageError($event, scannedData)">
             <button class="btn-change-profile" (click)="changeScannedUserProfile()" title="Change Profile Photo">
               <i class="fas fa-camera"></i>
               Change Photo
@@ -200,7 +203,7 @@
       </div>
     </div>
 
-    <!-- Edit Tab -->
+    <!-- Edit Tab - FIXED PROFILE PHOTO SECTION -->
     <div class="tab-content" [class.active]="activeTab === 'edit'">
       <div class="card" *ngIf="isEditing">
         <div class="card-header">
@@ -214,13 +217,22 @@
         <form [formGroup]="editForm" class="form-grid">
           <div class="form-section">
             <h3 class="form-section-title">Personal Information</h3>
-            <div *ngIf="scannedData.profile_photo" class="profile-photo-container">
-              <img [src]="scannedData.profile_photo" alt="Profile Photo" class="profile-photo">
-              <button class="btn-change-profile" (click)="changeScannedUserProfile()" title="Change Profile Photo">
+            
+            <!-- FIXED: Profile Photo Section in Edit Tab -->
+            <div class="profile-photo-container edit-profile-photo">
+              <img [src]="getProfilePhoto(scannedData)" 
+                   alt="Profile Photo" 
+                   class="profile-photo"
+                   (error)="handleImageError($event, scannedData)">
+              <button type="button" 
+                      class="btn-change-profile" 
+                      (click)="changeEditTabProfile()" 
+                      title="Change Profile Photo">
                 <i class="fas fa-camera"></i>
                 Change Photo
               </button>
             </div>
+            
             <div class="form-group">
               <label for="full_name">Full Name</label>
               <input type="text" id="full_name" formControlName="full_name" required>
