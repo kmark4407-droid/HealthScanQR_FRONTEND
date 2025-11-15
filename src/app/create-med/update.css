@@ -5,6 +5,8 @@
   display: flex;
   font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
   flex-direction: column;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 /* Sidebar Navigation */
@@ -19,6 +21,14 @@
   position: relative;
   z-index: 100;
   transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.sidebar-header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .sidebar-brand {
@@ -26,9 +36,8 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 0.75rem;
-  padding: 0 0.5rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 1rem;
+  padding: 0;
+  margin-bottom: 0;
 }
 
 .brand-content {
@@ -81,6 +90,15 @@
   letter-spacing: 0.2px;
 }
 
+/* Hamburger Container - Below brand and aligned left */
+.hamburger-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0;
+  width: 100%;
+}
+
 /* Enhanced Hamburger Menu Button */
 .hamburger-menu {
   display: none;
@@ -95,8 +113,7 @@
   position: relative;
   transition: all 0.3s ease;
   border-radius: 4px;
-  margin-left: 0.5rem;
-  flex-shrink: 0;
+  margin-left: 0;
 }
 
 .hamburger-menu:hover {
@@ -131,6 +148,7 @@
   flex-direction: column;
   flex: 1;
   transition: all 0.3s ease;
+  width: 100%;
 }
 
 /* Enhanced Sidebar User Section */
@@ -144,6 +162,8 @@
   background: rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
   flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .user-avatar {
@@ -194,6 +214,7 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
   transition: all 0.3s ease;
+  width: 100%;
 }
 
 .sidebar-nav::-webkit-scrollbar {
@@ -268,6 +289,7 @@
   max-height: 80vh;
   overflow-y: auto;
   border: 1px solid rgba(255, 255, 255, 0.3);
+  box-sizing: border-box;
 }
 
 .settings-panel.active {
@@ -564,6 +586,8 @@ input:checked + .slider:before {
   transition: filter 0.3s ease;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .medical-profile-container {
@@ -576,6 +600,8 @@ input:checked + .slider:before {
   position: relative;
   overflow: hidden;
   transition: filter 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .background-overlay {
@@ -600,6 +626,7 @@ input:checked + .slider:before {
   z-index: 1;
   transition: filter 0.3s ease;
   margin: 1rem 0;
+  box-sizing: border-box;
 }
 
 .card-header {
@@ -646,6 +673,7 @@ input:checked + .slider:before {
 
 .medical-form {
   padding: 1.5rem;
+  box-sizing: border-box;
 }
 
 .form-section {
@@ -731,6 +759,7 @@ input:checked + .slider:before {
   width: 100%;
   border-radius: 10px;
   transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
 .file-input-container:hover {
@@ -761,6 +790,7 @@ input:checked + .slider:before {
   transition: all 0.3s ease;
   text-align: center;
   flex-wrap: wrap;
+  box-sizing: border-box;
 }
 
 .file-input-label:hover {
@@ -827,6 +857,7 @@ input:checked + .slider:before {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  box-sizing: border-box;
 }
 
 .button-shine {
@@ -948,8 +979,8 @@ input.ng-invalid.ng-touched, select.ng-invalid.ng-touched {
 
 /* Enhanced Mobile Responsiveness */
 @media (max-width: 480px) {
-  .sidebar-brand {
-    padding: 0 0.25rem 0.75rem;
+  .sidebar-header {
+    gap: 0.75rem;
   }
   
   .sidebar-app-name {
@@ -1003,10 +1034,6 @@ input.ng-invalid.ng-touched, select.ng-invalid.ng-touched {
   
   .nav-label {
     font-size: 0.7rem;
-  }
-  
-  .sidebar-brand {
-    gap: 0.5rem;
   }
   
   /* Enhanced Mobile Settings */
@@ -1224,6 +1251,7 @@ body.mobile-menu-open {
     margin-left: 240px;
     min-height: 100vh;
     overflow-y: auto;
+    width: calc(100% - 240px);
   }
   
   .medical-profile-container {
@@ -1303,6 +1331,7 @@ body.mobile-menu-open {
   
   .medical-main-content {
     margin-left: 280px;
+    width: calc(100% - 280px);
   }
   
   .sidebar-app-name {
