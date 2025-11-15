@@ -1,4 +1,3 @@
-
 import { Component, AfterViewInit, OnInit, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -22,7 +21,7 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
   isSubmitting = false;
   showSettings = false;
   largeFontEnabled = false;
-  mobileMenuOpen = false; // NEW: Mobile menu state
+  mobileMenuOpen = false;
   private appContainer: HTMLElement | null = null;
 
   // Accessibility settings state
@@ -50,9 +49,6 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
 
   ngOnInit() {
     console.log('🔄 Update component initialized');
-    console.log('🔑 User ID:', localStorage.getItem('user_id'));
-    console.log('✅ hasUpdated:', localStorage.getItem('hasUpdated'));
-    console.log('🌐 API URL:', environment.apiUrl);
     
     // ✅ Check if user already completed update
     const hasUpdated = localStorage.getItem('hasUpdated');
@@ -74,7 +70,7 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
     this.applyAccessibilitySettings();
   }
 
-  // ENHANCED: Toggle mobile menu with better UX
+  // FIXED: Toggle mobile menu with better UX
   toggleMobileMenu() {
     this.mobileMenuOpen = !this.mobileMenuOpen;
     
@@ -233,12 +229,7 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
     }
   }
 
-  exitApp() {
-    if (confirm('Are you sure you want to exit?')) {
-      this.router.navigate(['/login']);
-    }
-    this.closeMobileMenu();
-  }
+  // REMOVED: exitApp method since we don't need exit buttons anymore
 
   onFileSelected(event: any): void {
     const file = event.target.files[0];
@@ -253,83 +244,6 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
       
       console.log('📸 File selected:', file.name, 'Size:', file.size, 'Type:', file.type);
     }
-  }
-
-  // ✅ IMPROVED: Test backend connection with POST
-  testBackendConnection() {
-    console.log('🧪 Testing backend POST connection...');
-    
-    // Test with a simple POST request
-    const testData = { test: 'connection', timestamp: new Date().toISOString() };
-    
-    this.http.post(`${environment.apiUrl}/medical/test-post`, testData).subscribe({
-      next: (res: any) => {
-        console.log('✅ Backend POST test successful:', res);
-        alert('✅ Backend POST connection is working! Medical routes are properly configured.');
-      },
-      error: (err: HttpErrorResponse) => {
-        console.error('❌ Backend POST test failed:', err);
-        this.handleError(err, 'Backend connection test');
-      }
-    });
-  }
-
-  // ✅ IMPROVED: Debug user ID with better error handling
-  debugUserId() {
-    const user_id = localStorage.getItem('user_id');
-    console.log('🔍 User ID Debug:', user_id);
-    
-    if (!user_id) {
-      alert('❌ No user_id found in localStorage. Please log in again.');
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    const parsedUserId = parseInt(user_id);
-    console.log('🔍 Parsed user ID:', parsedUserId, 'Is valid:', !isNaN(parsedUserId));
-
-    if (isNaN(parsedUserId)) {
-      alert('⚠️ Invalid user ID format. Please log in again.');
-      return;
-    }
-
-    // Test if user exists by making a simple request
-    const testData = { user_id: user_id, test: 'user_debug' };
-    
-    this.http.post(`${environment.apiUrl}/medical/test-post`, testData).subscribe({
-      next: (res: any) => {
-        console.log('✅ User ID debug successful:', res);
-        alert(`✅ User ID is valid and routes are working!\nUser ID: ${user_id}\nParsed: ${parsedUserId}`);
-      },
-      error: (err: HttpErrorResponse) => {
-        console.error('❌ User ID debug failed:', err);
-        this.handleError(err, 'User ID debug');
-      }
-    });
-  }
-
-  // ✅ NEW: Enhanced error handler
-  private handleError(err: HttpErrorResponse, context: string) {
-    console.error(`❌ ${context} error:`, err);
-    
-    let errorMessage = `Failed during ${context}. Please try again.`;
-    
-    if (err.status === 0) {
-      errorMessage = `Cannot connect to server during ${context}. Please check:\n• Your internet connection\n• If the backend server is running\n• CORS configuration`;
-    } else if (err.status === 400) {
-      errorMessage = err.error?.message || `Invalid request during ${context}.`;
-      if (err.error?.missing) {
-        errorMessage += `\nMissing fields: ${err.error.missing.join(', ')}`;
-      }
-    } else if (err.status === 404) {
-      errorMessage = `Endpoint not found during ${context}. The server may not have the required routes.`;
-    } else if (err.status === 500) {
-      errorMessage = err.error?.message || `Server error during ${context}. Please try again later.`;
-    } else if (err.status === 413) {
-      errorMessage = 'File too large. Please select a smaller image.';
-    }
-    
-    alert(`❌ ${errorMessage}`);
   }
 
   // ✅ IMPROVED: Submit method with better error handling
@@ -426,11 +340,8 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
         }, 1500);
       },
       error: (err: HttpErrorResponse) => {
-        this.handleError(err, 'medical information submission');
-        this.isSubmitting = false;
-      },
-      complete: () => {
-        console.log('✅ API call completed');
+        console.error('❌ Submission error:', err);
+        alert('❌ Failed to save medical information. Please try again.');
         this.isSubmitting = false;
       }
     });
@@ -444,55 +355,5 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
         block: 'center'
       });
     }
-  }
-
-  // ✅ Skip update and go directly to landing
-  skipUpdate() {
-    console.log('⏭️ Skip update called');
-    if (confirm('Are you sure you want to skip medical info setup? You can add it later from your profile.')) {
-      localStorage.setItem('hasUpdated', 'true');
-      this.router.navigate(['/landing']);
-    }
-  }
-
-  // ✅ Method to check form validation state
-  checkFormValidity() {
-    console.log('🔍 Form validation check:');
-    Object.keys(this.updateForm.controls).forEach(key => {
-      const control = this.updateForm.get(key);
-      console.log(`${key}:`, {
-        valid: control?.valid,
-        invalid: control?.invalid,
-        errors: control?.errors,
-        value: control?.value
-      });
-    });
-  }
-
-  // ✅ NEW: Test the actual update endpoint with sample data
-  testUpdateEndpoint() {
-    console.log('🧪 Testing update endpoint with sample data...');
-    
-    const testFormData = new FormData();
-    testFormData.append('user_id', localStorage.getItem('user_id') || '1');
-    testFormData.append('full_name', 'Test User');
-    testFormData.append('dob', '1990-01-01');
-    testFormData.append('blood_type', 'O+');
-    testFormData.append('address', 'Test Address');
-    testFormData.append('emergency_contact', 'Test Contact');
-    testFormData.append('allergies', 'None');
-    testFormData.append('medications', 'None');
-    testFormData.append('conditions', 'None');
-
-    this.http.post(`${environment.apiUrl}/medical/update`, testFormData).subscribe({
-      next: (res: any) => {
-        console.log('✅ Update endpoint test successful:', res);
-        alert('✅ Update endpoint is working! The form should submit successfully.');
-      },
-      error: (err: HttpErrorResponse) => {
-        console.error('❌ Update endpoint test failed:', err);
-        this.handleError(err, 'update endpoint test');
-      }
-    });
   }
 }
