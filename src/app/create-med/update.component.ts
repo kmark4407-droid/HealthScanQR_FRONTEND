@@ -112,7 +112,7 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
   goToDashboard() {
     console.log('📊 Dashboard clicked - scrolling to top');
     this.scrollToTop();
-    this.toggleMobileMenu();
+    this.closeMobileMenu();
   }
 
   // ✅ NEW METHOD: Scroll to top of page
@@ -128,12 +128,19 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    this.toggleMobileMenu();
+    this.closeMobileMenu();
+  }
+
+  // ✅ NEW METHOD: Close mobile menu
+  closeMobileMenu() {
+    if (this.mobileMenuOpen) {
+      this.toggleMobileMenu();
+    }
   }
 
   toggleSettings() {
     this.showSettings = !this.showSettings;
-    this.toggleMobileMenu();
+    this.closeMobileMenu();
   }
 
   // Enhanced accessibility toggle functions
