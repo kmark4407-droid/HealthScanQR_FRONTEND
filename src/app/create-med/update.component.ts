@@ -70,51 +70,31 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
     this.applyAccessibilitySettings();
   }
 
-  // FIXED: Toggle mobile menu with better UX
+  // SIMPLIFIED: Toggle mobile menu
   toggleMobileMenu() {
     this.mobileMenuOpen = !this.mobileMenuOpen;
     
-    // Prevent body scroll when mobile menu is open
+    // Toggle body scroll
     if (this.mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
       document.body.classList.add('mobile-menu-open');
     } else {
-      document.body.style.overflow = '';
       document.body.classList.remove('mobile-menu-open');
-    }
-  }
-
-  // Close mobile menu when clicking on nav items
-  closeMobileMenu() {
-    if (this.mobileMenuOpen) {
-      this.toggleMobileMenu();
     }
   }
 
   // Enhanced click outside handler
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
-    const settingsPanel = document.querySelector('.settings-panel');
-    const settingsButton = document.querySelector('.nav-item[title="Accessibility Settings"]');
+    const sidebarContent = document.querySelector('.sidebar-content');
     const hamburgerButton = document.querySelector('.hamburger-menu');
-    const sidebarNav = document.querySelector('.sidebar-nav');
     
     // Close mobile menu when clicking outside
     if (this.mobileMenuOpen && 
-        sidebarNav && 
-        !sidebarNav.contains(event.target as Node) &&
+        sidebarContent && 
+        !sidebarContent.contains(event.target as Node) &&
         hamburgerButton &&
         !hamburgerButton.contains(event.target as Node)) {
       this.toggleMobileMenu();
-    }
-    
-    // Close settings when clicking outside
-    if (this.showSettings && 
-        settingsPanel && 
-        !settingsPanel.contains(event.target as Node) &&
-        settingsButton &&
-        !settingsButton.contains(event.target as Node)) {
-      this.toggleSettings();
     }
   }
 
@@ -132,7 +112,7 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
   goToDashboard() {
     console.log('📊 Dashboard clicked - scrolling to top');
     this.scrollToTop();
-    this.closeMobileMenu();
+    this.toggleMobileMenu();
   }
 
   // ✅ NEW METHOD: Scroll to top of page
@@ -148,20 +128,12 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    this.closeMobileMenu();
+    this.toggleMobileMenu();
   }
 
   toggleSettings() {
     this.showSettings = !this.showSettings;
-    
-    // Prevent body scroll when settings are open on mobile
-    if (this.showSettings) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    
-    this.closeMobileMenu();
+    this.toggleMobileMenu();
   }
 
   // Enhanced accessibility toggle functions
@@ -228,8 +200,6 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
       this.applyAccessibilityClass('high-contrast', this.highContrastEnabled);
     }
   }
-
-  // REMOVED: exitApp method since we don't need exit buttons anymore
 
   onFileSelected(event: any): void {
     const file = event.target.files[0];
