@@ -105,6 +105,14 @@
   transform: rotate(-45deg) translate(6px, -6px);
 }
 
+/* Combined Sidebar Content */
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  transition: all 0.3s ease;
+}
+
 /* Enhanced Sidebar User Section */
 .sidebar-user {
   display: flex;
@@ -220,7 +228,7 @@
   font-size: 0.8rem;
 }
 
-/* Enhanced Pop-out Settings Panel - FIXED */
+/* Enhanced Pop-out Settings Panel */
 .settings-panel {
   position: fixed;
   top: 50%;
@@ -534,8 +542,8 @@ input:checked + .slider:before {
   flex: 1;
   min-height: calc(100vh - 80px);
   transition: filter 0.3s ease;
-  overflow-y: auto; /* Enable scrolling */
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .medical-profile-container {
@@ -572,7 +580,6 @@ input:checked + .slider:before {
   z-index: 1;
   transition: filter 0.3s ease;
   margin: 1rem 0;
-  overflow-y: visible; /* Allow content to scroll */
 }
 
 .card-header {
@@ -619,7 +626,6 @@ input:checked + .slider:before {
 
 .medical-form {
   padding: 1.5rem;
-  overflow: visible; /* Allow form to be scrollable */
 }
 
 .form-section {
@@ -1114,26 +1120,14 @@ input.ng-invalid.ng-touched, select.ng-invalid.ng-touched {
   }
 }
 
-/* Prevent horizontal scroll on mobile */
-@media (max-width: 639px) {
-  .medical-sidebar {
-    overflow-x: hidden;
-  }
-  
-  .sidebar-nav {
-    -webkit-overflow-scrolling: touch;
-  }
-}
-
-/* Mobile Navigation Styles - FIXED */
+/* Mobile Navigation Styles - FIXED & SIMPLIFIED */
 @media (max-width: 639px) {
   .hamburger-menu {
     display: flex;
   }
   
-  .sidebar-nav {
+  .sidebar-content {
     display: none;
-    flex-direction: column;
     position: absolute;
     top: 100%;
     left: 0;
@@ -1149,10 +1143,16 @@ input.ng-invalid.ng-touched, select.ng-invalid.ng-touched {
     transition: all 0.3s ease;
   }
   
-  .sidebar-nav.active {
+  .sidebar-content.active {
     display: flex;
-    max-height: 400px;
+    max-height: 500px;
     overflow-y: auto;
+  }
+  
+  .sidebar-nav {
+    flex-direction: column;
+    overflow-x: visible;
+    padding-bottom: 0;
   }
   
   .nav-item {
@@ -1170,8 +1170,7 @@ input.ng-invalid.ng-touched, select.ng-invalid.ng-touched {
   }
 }
 
-/* Prevent body scroll when settings are open */
-body.settings-open,
+/* Prevent body scroll when mobile menu is open */
 body.mobile-menu-open {
   overflow: hidden;
 }
@@ -1192,13 +1191,19 @@ body.mobile-menu-open {
   .medical-main-content {
     margin-left: 240px;
     min-height: 100vh;
-    overflow-y: auto; /* Ensure scrolling works on desktop */
+    overflow-y: auto;
   }
   
   .medical-profile-container {
     min-height: 100vh;
     align-items: center;
     padding: 2rem;
+  }
+  
+  .sidebar-content {
+    display: flex !important;
+    position: static;
+    max-height: none !important;
   }
   
   .sidebar-nav {
