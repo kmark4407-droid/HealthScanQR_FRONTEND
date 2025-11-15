@@ -45,18 +45,9 @@
         <span class="nav-icon">⚙️</span>
         <span class="nav-label">Settings</span>
       </button>
-      <button class="nav-item" (click)="exitApp(); toggleMobileMenu()">
-        <span class="nav-icon">🚪</span>
-        <span class="nav-label">Exit</span>
-      </button>
     </div>
 
-    <div class="sidebar-footer" [class.mobile-visible]="mobileMenuOpen">
-      <button class="logout-button" (click)="exitApp(); toggleMobileMenu()">
-        <span class="logout-icon">🚪</span>
-        <span class="logout-label">Exit App</span>
-      </button>
-    </div>
+    <!-- REMOVED: Duplicate exit button in footer -->
   </nav>
 
   <!-- Settings Overlay and Panel -->
