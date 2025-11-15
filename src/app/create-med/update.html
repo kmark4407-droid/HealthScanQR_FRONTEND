@@ -17,37 +17,37 @@
       </button>
     </div>
     
-    <div class="sidebar-user">
-      <div class="user-avatar">
-        <span class="avatar-icon">👤</span>
+    <!-- Combined User and Navigation Section -->
+    <div class="sidebar-content" [class.active]="mobileMenuOpen">
+      <div class="sidebar-user">
+        <div class="user-avatar">
+          <span class="avatar-icon">👤</span>
+        </div>
+        <div class="user-info">
+          <span class="user-name">Hello, Patient</span>
+          <span class="user-role">HealthCare</span>
+        </div>
       </div>
-      <div class="user-info">
-        <span class="user-name">Hello, Patient</span>
-        <span class="user-role">HealthCare</span>
+      
+      <div class="sidebar-nav">
+        <button class="nav-item" (click)="goToDashboard(); toggleMobileMenu()">
+          <span class="nav-icon">📊</span>
+          <span class="nav-label">Dashboard</span>
+        </button>
+        <button class="nav-item active" (click)="scrollToSection('personal-info'); toggleMobileMenu()">
+          <span class="nav-icon">🩺</span>
+          <span class="nav-label">Personal Info</span>
+        </button>
+        <button class="nav-item" (click)="scrollToSection('medical-info'); toggleMobileMenu()">
+          <span class="nav-icon">💊</span>
+          <span class="nav-label">Medical Info</span>
+        </button>
+        <button class="nav-item" (click)="toggleSettings(); toggleMobileMenu()" title="Accessibility Settings">
+          <span class="nav-icon">⚙️</span>
+          <span class="nav-label">Settings</span>
+        </button>
       </div>
     </div>
-    
-    <div class="sidebar-nav" [class.active]="mobileMenuOpen">
-      <!-- ✅ RESTORED: Original dashboard button that scrolls to top -->
-      <button class="nav-item" (click)="goToDashboard(); toggleMobileMenu()">
-        <span class="nav-icon">📊</span>
-        <span class="nav-label">Dashboard</span>
-      </button>
-      <button class="nav-item active" (click)="scrollToSection('personal-info'); toggleMobileMenu()">
-        <span class="nav-icon">🩺</span>
-        <span class="nav-label">Personal Info</span>
-      </button>
-      <button class="nav-item" (click)="scrollToSection('medical-info'); toggleMobileMenu()">
-        <span class="nav-icon">💊</span>
-        <span class="nav-label">Medical Info</span>
-      </button>
-      <button class="nav-item" (click)="toggleSettings(); toggleMobileMenu()" title="Accessibility Settings">
-        <span class="nav-icon">⚙️</span>
-        <span class="nav-label">Settings</span>
-      </button>
-    </div>
-
-    <!-- REMOVED: Duplicate exit button in footer -->
   </nav>
 
   <!-- Settings Overlay and Panel -->
