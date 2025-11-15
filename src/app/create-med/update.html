@@ -2,11 +2,19 @@
   <!-- Sidebar Navigation -->
   <nav class="medical-sidebar">
     <div class="sidebar-brand">
-      <div class="brand-logo">
-        <img src="./healthscanqr1.png" alt="HealthScanQR Logo" 
-             onerror="this.onerror=null; this.src='https://via.placeholder.com/60/ffffff/3b82f6?text=HSQR'; this.style.backgroundColor='transparent'">
+      <div class="brand-content">
+        <div class="brand-logo">
+          <img src="./healthscanqr1.png" alt="HealthScanQR Logo" 
+               onerror="this.onerror=null; this.src='https://via.placeholder.com/60/ffffff/3b82f6?text=HSQR'; this.style.backgroundColor='transparent'">
+        </div>
+        <span class="sidebar-app-name">HealthScanQR</span>
       </div>
-      <span class="sidebar-app-name">HealthScanQR</span>
+      <!-- Hamburger Menu Button -->
+      <button class="hamburger-menu" (click)="toggleMobileMenu()" [class.active]="mobileMenuOpen">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
     </div>
     
     <div class="sidebar-user">
@@ -19,27 +27,34 @@
       </div>
     </div>
     
-    <div class="sidebar-nav">
+    <div class="sidebar-nav" [class.active]="mobileMenuOpen">
       <!-- ✅ RESTORED: Original dashboard button that scrolls to top -->
-      <button class="nav-item" (click)="goToDashboard()">
+      <button class="nav-item" (click)="goToDashboard(); toggleMobileMenu()">
         <span class="nav-icon">📊</span>
         <span class="nav-label">Dashboard</span>
       </button>
-      <button class="nav-item active" (click)="scrollToSection('personal-info')">
+      <button class="nav-item active" (click)="scrollToSection('personal-info'); toggleMobileMenu()">
         <span class="nav-icon">🩺</span>
         <span class="nav-label">Personal Info</span>
       </button>
-      <button class="nav-item" (click)="scrollToSection('medical-info')">
+      <button class="nav-item" (click)="scrollToSection('medical-info'); toggleMobileMenu()">
         <span class="nav-icon">💊</span>
         <span class="nav-label">Medical Info</span>
       </button>
-      <button class="nav-item" (click)="toggleSettings()" title="Accessibility Settings">
+      <button class="nav-item" (click)="toggleSettings(); toggleMobileMenu()" title="Accessibility Settings">
         <span class="nav-icon">⚙️</span>
         <span class="nav-label">Settings</span>
       </button>
-      <button class="nav-item" (click)="exitApp()">
+      <button class="nav-item" (click)="exitApp(); toggleMobileMenu()">
         <span class="nav-icon">🚪</span>
         <span class="nav-label">Exit</span>
+      </button>
+    </div>
+
+    <div class="sidebar-footer" [class.mobile-visible]="mobileMenuOpen">
+      <button class="logout-button" (click)="exitApp(); toggleMobileMenu()">
+        <span class="logout-icon">🚪</span>
+        <span class="logout-label">Exit App</span>
       </button>
     </div>
   </nav>
