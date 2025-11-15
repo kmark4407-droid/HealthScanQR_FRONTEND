@@ -7,7 +7,10 @@
           <img src="./healthscanqr1.png" alt="HealthScanQR Logo" 
                onerror="this.onerror=null; this.src='https://via.placeholder.com/60/ffffff/3b82f6?text=HSQR'; this.style.backgroundColor='transparent'">
         </div>
-        <span class="sidebar-app-name">HealthScanQR</span>
+        <div class="brand-text">
+          <span class="sidebar-app-name">HealthScanQR</span>
+          <span class="sidebar-app-tagline">Your Digital Health ID for Effortless Care Access</span>
+        </div>
       </div>
       <!-- Hamburger Menu Button - Below the brand -->
       <button class="hamburger-menu" (click)="toggleMobileMenu()" [class.active]="mobileMenuOpen">
@@ -30,19 +33,19 @@
       </div>
       
       <div class="sidebar-nav">
-        <button class="nav-item" (click)="goToDashboard(); toggleMobileMenu()">
+        <button class="nav-item" (click)="goToDashboard()">
           <span class="nav-icon">📊</span>
           <span class="nav-label">Dashboard</span>
         </button>
-        <button class="nav-item active" (click)="scrollToSection('personal-info'); toggleMobileMenu()">
+        <button class="nav-item active" (click)="scrollToSection('personal-info')">
           <span class="nav-icon">🩺</span>
           <span class="nav-label">Personal Info</span>
         </button>
-        <button class="nav-item" (click)="scrollToSection('medical-info'); toggleMobileMenu()">
+        <button class="nav-item" (click)="scrollToSection('medical-info')">
           <span class="nav-icon">💊</span>
           <span class="nav-label">Medical Info</span>
         </button>
-        <button class="nav-item" (click)="toggleSettings(); toggleMobileMenu()" title="Accessibility Settings">
+        <button class="nav-item" (click)="toggleSettings()" title="Accessibility Settings">
           <span class="nav-icon">⚙️</span>
           <span class="nav-label">Settings</span>
         </button>
