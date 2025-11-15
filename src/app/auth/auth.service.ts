@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../Environments/environment';
 
 @Injectable({
@@ -8,21 +8,30 @@ import { environment } from '../../Environments/environment';
 })
 export class AuthService {
 
-  private apiUrl = `${environment.apiUrl}/auth`;
+  private apiUrl = environment.apiUrl; // ✅ REMOVED /auth from base URL
 
   constructor(private http: HttpClient) {}
 
   register(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, data);
+    return this.http.post(`${this.apiUrl}/auth/register`, data);
   }
 
   login(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, data);
+    return this.http.post(`${this.apiUrl}/auth/login`, data);
   }
 
-  // ✅ ADD MISSING METHODS
+  // ✅ FIXED: Correct admin login endpoint
   adminLogin(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/admin/login`, data);
+    return this.http.post(`${this.apiUrl}/admin/admin-login`, data).pipe(
+      tap((response: any) => {
+        if (response.token && response.admin) {
+          localStorage.setItem('admin_token', response.token);
+          localStorage.setItem('admin_data', JSON.stringify(response.admin));
+          localStorage.setItem('adminLoggedIn', 'true');
+          console.log('✅ Admin login successful, data saved');
+        }
+      })
+    );
   }
 
   logout(): void {
@@ -33,6 +42,8 @@ export class AuthService {
     localStorage.removeItem('hasUpdated');
     localStorage.removeItem('medicalInfoLastUpdated');
     localStorage.removeItem('adminLoggedIn');
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_data');
     console.log('✅ User logged out');
   }
 
@@ -46,9 +57,21 @@ export class AuthService {
     return !!(token && userId);
   }
 
-  // ✅ ADD THIS METHOD for admin guard
+  // ✅ IMPROVED: Check both flag and token
   isAdminAuthenticated(): boolean {
     const adminLoggedIn = localStorage.getItem('adminLoggedIn');
-    return adminLoggedIn === 'true';
+    const adminToken = localStorage.getItem('admin_token');
+    return adminLoggedIn === 'true' && !!adminToken;
+  }
+
+  // ✅ NEW: Get admin data
+  getAdminData(): any {
+    const adminData = localStorage.getItem('admin_data');
+    return adminData ? JSON.parse(adminData) : null;
+  }
+
+  // ✅ NEW: Get admin token for API calls
+  getAdminToken(): string | null {
+    return localStorage.getItem('admin_token');
   }
 }
