@@ -39,7 +39,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   videoStream: MediaStream | null = null;
   scanningInterval: any;
 
-  // Logs variables - FIXED: Proper initialization
+  // Logs variables
   activityLogs: any[] = [];
   filteredLogs: any[] = [];
   searchTerm: string = '';
@@ -85,7 +85,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    // Get admin info from localStorage - FIXED: Use correct keys
+    // Get admin info from localStorage
     const adminData = localStorage.getItem('admin_data');
     if (adminData) {
       this.currentAdmin = JSON.parse(adminData);
@@ -186,18 +186,15 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // ==================== ACTIVITY LOGS METHODS - FIXED ====================
+  // ==================== ACTIVITY LOGS METHODS ====================
 
   loadActivityLogs(): void {
     this.logsLoading = true;
     this.logsError = '';
     
     console.log('🔄 Loading activity logs...');
-    console.log('🔑 Admin ID:', this.adminId);
 
-    // FIXED: Use simpler endpoint without query params first
     const url = `${environment.apiUrl}/admin/activity-logs`;
-    console.log('📡 Request URL:', url);
 
     this.http.get(url).subscribe({
       next: (res: any) => {
@@ -211,7 +208,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
           this.filteredLogs = [...this.activityLogs];
           console.log(`📊 Loaded ${this.activityLogs.length} activity logs`);
         } else if (res && Array.isArray(res)) {
-          // Handle direct array response
           this.activityLogs = res.map((log: any) => ({
             ...log,
             description: this.cleanLogDescription(log.description || '')
@@ -233,7 +229,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
         this.filteredLogs = [];
         this.logsLoading = false;
         
-        // Try alternative endpoint as fallback
         this.tryAlternativeLogsEndpoint();
       }
     });
@@ -258,7 +253,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       },
       error: (err) => {
         console.error('❌ Alternative endpoint also failed:', err);
-        // Create sample logs for demo purposes
         this.createSampleLogs();
       }
     });
@@ -342,12 +336,10 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     this.http.post(`${environment.apiUrl}/admin/log-activity`, logData).subscribe({
       next: (res: any) => {
         console.log('✅ Activity logged successfully:', res);
-        // Refresh logs to show the new entry
         setTimeout(() => this.loadActivityLogs(), 500);
       },
       error: (err) => {
         console.error('❌ Error logging activity:', err);
-        // Even if logging fails, continue with the operation
         console.log('📝 Activity recorded locally (log may not be saved)');
       }
     });
@@ -669,36 +661,47 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       .slice(0, 2);
   }
 
+  // ==================== PROFILE PHOTO METHODS - FIXED ====================
+
   getProfilePhoto(user: any): string {
     if (!user) return this.getPlaceholderImage(user);
     
     let photoPath = user.profile_photo;
     
+    // If it's already a base64 string, return it directly
     if (photoPath && photoPath.startsWith('data:image/')) {
       return photoPath;
     }
     
+    // If it's a URL, return it directly
     if (photoPath && photoPath.startsWith('http')) {
       return photoPath;
     }
     
-    if (photoPath && !photoPath.startsWith('data:image/')) {
-      // Convert file path to full URL
+    // If it's a file path, convert to full URL
+    if (photoPath && !photoPath.startsWith('data:image/') && !photoPath.startsWith('http')) {
       if (photoPath.startsWith('/uploads/')) {
         return `${environment.apiUrl}${photoPath}`;
       } else if (photoPath.startsWith('uploads/')) {
         return `${environment.apiUrl}/${photoPath}`;
+      } else if (photoPath.startsWith('/')) {
+        return `${environment.apiUrl}${photoPath}`;
+      } else {
+        return `${environment.apiUrl}/uploads/${photoPath}`;
       }
     }
     
+    // No photo available, return placeholder
     return this.getPlaceholderImage(user);
   }
 
+  // Generate placeholder image based on user initials
   getPlaceholderImage(user: any): string {
     const initials = this.getUserInitials(user);
     const backgroundColor = this.stringToColor(user?.email || user?.full_name || 'User');
     const textColor = this.getContrastColor(backgroundColor);
     
+    // Create a simple SVG as base64
     const svg = `
       <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
         <rect width="100%" height="100%" fill="${backgroundColor}"/>
@@ -712,6 +715,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     return 'data:image/svg+xml;base64,' + btoa(svg);
   }
 
+  // Helper: Generate consistent color from string
   stringToColor(str: string): string {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
@@ -727,6 +731,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     return colors[Math.abs(hash) % colors.length];
   }
 
+  // Helper: Get contrast color (black or white)
   getContrastColor(hexcolor: string): string {
     const r = parseInt(hexcolor.substr(1, 2), 16);
     const g = parseInt(hexcolor.substr(3, 2), 16);
@@ -735,13 +740,17 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     return (yiq >= 128) ? '#000000' : '#FFFFFF';
   }
 
+  // FIXED: Handle image errors by showing placeholder
   handleImageError(event: any, user: any): void {
     console.warn('Failed to load profile photo for user:', user?.full_name);
     
     const imgElement = event.target;
-    imgElement.src = this.getPlaceholderImage(user);
-    imgElement.onerror = null;
     
+    // Replace with placeholder
+    imgElement.src = this.getPlaceholderImage(user);
+    imgElement.onerror = null; // Prevent infinite loop
+    
+    // Ensure initials are visible in avatar
     const avatarContainer = imgElement.closest('.user-avatar') || imgElement.closest('.user-profile-avatar');
     if (avatarContainer) {
       const initialsElement = avatarContainer.querySelector('.initials');
@@ -751,8 +760,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // ==================== PROFILE PHOTO METHODS ====================
-
+  // FIXED: Change user profile with base64 support
   changeUserProfile(userId: string, photoFile: File): void {
     const reader = new FileReader();
     
@@ -760,6 +768,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       const base64Image = e.target.result;
       
       console.log('📸 Changing profile photo for user:', userId);
+      console.log('📁 Base64 image size:', base64Image.length);
 
       this.http.post(`${environment.apiUrl}/admin/change-user-profile-base64`, {
         user_id: userId,
@@ -769,6 +778,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
         next: (res: any) => {
           console.log('✅ Profile photo update response:', res);
           if (res.success) {
+            console.log('✅ Profile photo updated successfully');
             this.logActivity('PROFILE_UPDATE', `Changed profile photo for user ID: ${userId}`);
             alert('Profile photo updated successfully!');
             
@@ -784,9 +794,9 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
           let errorMessage = 'Failed to update profile photo. ';
           
           if (err.status === 0) {
-            errorMessage += 'Cannot connect to server.';
+            errorMessage += 'Cannot connect to server. Please check if the server is running.';
           } else if (err.status === 400) {
-            errorMessage += err.error?.message || 'Invalid request.';
+            errorMessage += err.error?.message || 'Invalid request. Please check the file format.';
           } else if (err.status === 413) {
             errorMessage += 'File too large. Please choose a smaller image.';
           } else if (err.error?.message) {
@@ -808,20 +818,24 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     reader.readAsDataURL(photoFile);
   }
 
+  // Update user photo in memory without reloading from server
   private updateUserPhotoInMemory(userId: string, base64Image: string): void {
-    // Update in all user arrays
+    // Update in users array
     this.users = this.users.map(user => 
       user.user_id === userId ? { ...user, profile_photo: base64Image } : user
     );
     
+    // Update in filteredUsers array
     this.filteredUsers = this.filteredUsers.map(user => 
       user.user_id === userId ? { ...user, profile_photo: base64Image } : user
     );
     
+    // Update in approvedUsers array
     this.approvedUsers = this.approvedUsers.map(user => 
       user.user_id === userId ? { ...user, profile_photo: base64Image } : user
     );
     
+    // Update in pendingUsers array
     this.pendingUsers = this.pendingUsers.map(user => 
       user.user_id === userId ? { ...user, profile_photo: base64Image } : user
     );
@@ -831,17 +845,49 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       this.selectedUser.profile_photo = base64Image;
     }
     
-    // Update scanned data if applicable
+    // FIXED: Update scanned data if applicable - this is crucial for edit tab
     if (this.scannedData && this.scannedData.user_id === userId) {
       this.scannedData.profile_photo = base64Image;
+      console.log('✅ Updated scanned data profile photo for edit tab');
     }
     
     console.log('✅ Updated profile photo in memory for user:', userId);
   }
 
+  // FIXED: Change profile photo for scanned user (edit tab)
   changeScannedUserProfile(): void {
     if (!this.scannedData || !this.scannedData.user_id) {
       alert('No user selected. Please scan a QR code first.');
+      return;
+    }
+
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (event: any) => {
+      const file = event.target.files[0];
+      if (file) {
+        // Validate file type and size
+        if (!file.type.startsWith('image/')) {
+          alert('Please select a valid image file (JPEG, PNG, etc.)');
+          return;
+        }
+        
+        if (file.size > 5 * 1024 * 1024) {
+          alert('Image file size must be less than 5MB');
+          return;
+        }
+        
+        this.changeUserProfile(this.scannedData.user_id, file);
+      }
+    };
+    input.click();
+  }
+
+  // FIXED: Change profile photo specifically for edit tab
+  changeEditTabProfile(): void {
+    if (!this.scannedData || !this.scannedData.user_id) {
+      alert('No user selected for editing. Please scan a QR code first.');
       return;
     }
 
@@ -1004,10 +1050,22 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     this.http.get(`${environment.apiUrl}/medical/${userId}`).subscribe({
       next: (res: any) => {
         if (res) {
+          // FIXED: Properly handle profile photo URL
+          let profilePhoto = '';
+          if (res.photo_url) {
+            if (res.photo_url.startsWith('data:image/')) {
+              profilePhoto = res.photo_url; // Already base64
+            } else if (res.photo_url.startsWith('http')) {
+              profilePhoto = res.photo_url; // Full URL
+            } else {
+              profilePhoto = `${environment.apiUrl}${res.photo_url}`; // Convert path to URL
+            }
+          }
+          
           let formattedData = {
             ...minimalData,
             ...res,
-            profile_photo: res.photo_url ? `${environment.apiUrl}${res.photo_url}` : minimalData.profile_photo
+            profile_photo: profilePhoto || minimalData.profile_photo
           };
           
           if (formattedData.dob) {
@@ -1142,6 +1200,13 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     
     this.originalData = { ...data };
     this.isEditing = true;
+    
+    console.log('✅ Edit form populated with data:', {
+      name: data.full_name,
+      user_id: data.user_id,
+      hasPhoto: !!data.profile_photo,
+      photoType: data.profile_photo ? (data.profile_photo.startsWith('data:') ? 'base64' : 'url') : 'none'
+    });
   }
 
   onPhotoUpload(event: any): void {
