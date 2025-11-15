@@ -290,7 +290,7 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
     console.log('🌐 Making API call to:', `${environment.apiUrl}/medical/update`);
     
     this.http.post(`${environment.apiUrl}/medical/update`, formData).subscribe({
-      next: (res: any) => {
+      next: (res: any) {
         console.log('✅ Medical info saved successfully:', res);
         this.showSuccess = true;
         this.isSubmitting = false;
