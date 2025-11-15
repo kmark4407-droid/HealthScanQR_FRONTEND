@@ -19,6 +19,7 @@ import { Router } from '@angular/router';
 export class AdminLoginComponent implements OnInit {
   loginForm: FormGroup;
   errorMessage = '';
+  isLoading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -35,8 +36,8 @@ export class AdminLoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Clear any existing user sessions when accessing admin login
-    if (this.auth.isAuthenticated()) {
+    // Clear any existing admin sessions when accessing admin login
+    if (this.auth.isAdminAuthenticated()) {
       this.auth.logout();
     }
 
@@ -73,9 +74,15 @@ export class AdminLoginComponent implements OnInit {
     }
 
     this.errorMessage = '';
+    this.isLoading = true;
+
+    console.log('🔄 Attempting admin login with:', this.loginForm.value);
 
     this.auth.adminLogin(this.loginForm.value).subscribe({
       next: (res: any) => {
+        this.isLoading = false;
+        console.log('✅ Admin login successful:', res);
+
         if (button) {
           button.innerHTML = '<i class="fas fa-check"></i> Access Granted!';
           this.renderer.setStyle(button, 'background', '#2ecc71');
@@ -83,10 +90,13 @@ export class AdminLoginComponent implements OnInit {
 
         // Redirect to admin dashboard
         setTimeout(() => {
-          this.router.navigateByUrl('/Admin');
+          this.router.navigate(['/Admin']);
         }, 1000);
       },
       error: (err: any) => {
+        this.isLoading = false;
+        console.error('❌ Admin login error:', err);
+
         if (button) {
           button.innerHTML = 'Admin Login';
           button.disabled = false;
@@ -94,7 +104,15 @@ export class AdminLoginComponent implements OnInit {
         }
         
         this.errorMessage = err.error?.message || 'Admin authentication failed. Please check your credentials.';
-        console.error('Admin login error:', err);
+        
+        // More specific error messages
+        if (err.status === 404) {
+          this.errorMessage = 'Admin endpoint not found. Please contact administrator.';
+        } else if (err.status === 401) {
+          this.errorMessage = 'Invalid admin credentials. Please check your email and password.';
+        } else if (err.status === 500) {
+          this.errorMessage = 'Server error. Please try again later.';
+        }
       }
     });
   }
