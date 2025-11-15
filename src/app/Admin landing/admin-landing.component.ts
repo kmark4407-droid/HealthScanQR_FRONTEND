@@ -39,7 +39,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   videoStream: MediaStream | null = null;
   scanningInterval: any;
 
-  // Logs variables - FIXED: Added proper initialization
+  // Logs variables - FIXED: Proper initialization
   activityLogs: any[] = [];
   filteredLogs: any[] = [];
   searchTerm: string = '';
@@ -85,18 +85,25 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    // Get admin info from localStorage
-    this.adminId = localStorage.getItem('admin_id') || '';
-    const storedName = localStorage.getItem('admin_name');
-    const storedAdmin = localStorage.getItem('current_admin');
-    
-    if (storedAdmin) {
-      this.currentAdmin = JSON.parse(storedAdmin);
+    // Get admin info from localStorage - FIXED: Use correct keys
+    const adminData = localStorage.getItem('admin_data');
+    if (adminData) {
+      this.currentAdmin = JSON.parse(adminData);
       this.adminName = this.currentAdmin.full_name || this.currentAdmin.email || 'Administrator';
-    } else if (storedName) {
-      this.adminName = storedName;
+      this.adminId = this.currentAdmin.id || '';
     }
     
+    // Set admin_id in localStorage for backend
+    if (this.adminId) {
+      localStorage.setItem('admin_id', this.adminId);
+    }
+    
+    console.log('🔄 Admin initialized:', { 
+      name: this.adminName, 
+      id: this.adminId,
+      adminData: this.currentAdmin 
+    });
+
     this.loadActivityLogs();
     this.loadUsers();
   }
@@ -127,8 +134,9 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     });
   }
 
+  // ==================== TAB NAVIGATION ====================
+
   closeHamburgerMenu(): void {
-    // Only close hamburger menu on mobile screens
     if (window.innerWidth <= 768) {
       const adminTabs = document.getElementById('adminTabs');
       const hamburgerMenu = document.getElementById('hamburgerMenu');
@@ -141,7 +149,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   }
 
   toggleHamburgerMenu(): void {
-    // Only toggle hamburger menu on mobile screens
     if (window.innerWidth <= 768) {
       const adminTabs = document.getElementById('adminTabs');
       const hamburgerMenu = document.getElementById('hamburgerMenu');
@@ -162,7 +169,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   switchTab(tabName: string): void {
     this.activeTab = tabName;
     
-    // Auto-close hamburger menu when a tab is selected (mobile only)
     if (window.innerWidth <= 768) {
       this.closeHamburgerMenu();
     }
@@ -180,7 +186,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // ==================== LOGS METHODS - FIXED ====================
+  // ==================== ACTIVITY LOGS METHODS - FIXED ====================
 
   loadActivityLogs(): void {
     this.logsLoading = true;
@@ -189,26 +195,26 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     console.log('🔄 Loading activity logs...');
     console.log('🔑 Admin ID:', this.adminId);
 
-    // Build the URL with query parameters
-    const url = `${environment.apiUrl}/admin/activity-logs?admin_id=${this.adminId}`;
+    // FIXED: Use simpler endpoint without query params first
+    const url = `${environment.apiUrl}/admin/activity-logs`;
     console.log('📡 Request URL:', url);
 
     this.http.get(url).subscribe({
       next: (res: any) => {
         console.log('✅ Activity logs response:', res);
         
-        if (res && res.logs) {
+        if (res && res.success && res.logs) {
           this.activityLogs = res.logs.map((log: any) => ({
             ...log,
-            description: this.removeUserIdFromDescription(log.description || '')
+            description: this.cleanLogDescription(log.description || '')
           }));
           this.filteredLogs = [...this.activityLogs];
           console.log(`📊 Loaded ${this.activityLogs.length} activity logs`);
         } else if (res && Array.isArray(res)) {
-          // Handle case where response is directly an array
+          // Handle direct array response
           this.activityLogs = res.map((log: any) => ({
             ...log,
-            description: this.removeUserIdFromDescription(log.description || '')
+            description: this.cleanLogDescription(log.description || '')
           }));
           this.filteredLogs = [...this.activityLogs];
           console.log(`📊 Loaded ${this.activityLogs.length} activity logs (direct array)`);
@@ -222,7 +228,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       },
       error: (err) => {
         console.error('❌ Error loading activity logs:', err);
-        this.logsError = this.getErrorMessage(err);
+        this.logsError = this.getLogsErrorMessage(err);
         this.activityLogs = [];
         this.filteredLogs = [];
         this.logsLoading = false;
@@ -240,26 +246,57 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       next: (res: any) => {
         console.log('✅ Alternative logs response:', res);
         
-        if (res && res.logs) {
+        if (res && res.success && res.logs) {
           this.activityLogs = res.logs.map((log: any) => ({
             ...log,
-            description: this.removeUserIdFromDescription(log.description || '')
+            description: this.cleanLogDescription(log.description || '')
           }));
           this.filteredLogs = [...this.activityLogs];
           console.log(`📊 Loaded ${this.activityLogs.length} logs from alternative endpoint`);
+          this.logsError = '';
         }
       },
       error: (err) => {
         console.error('❌ Alternative endpoint also failed:', err);
+        // Create sample logs for demo purposes
+        this.createSampleLogs();
       }
     });
   }
 
-  private getErrorMessage(error: any): string {
+  private createSampleLogs(): void {
+    console.log('📝 Creating sample logs for demo...');
+    
+    this.activityLogs = [
+      {
+        id: 1,
+        action: 'SYSTEM',
+        description: 'Activity logs system initialized',
+        admin_id: this.adminId || 1,
+        admin_name: 'System',
+        timestamp: new Date().toISOString(),
+        created_at: new Date().toISOString()
+      },
+      {
+        id: 2,
+        action: 'LOGIN',
+        description: `Admin ${this.adminName} logged in`,
+        admin_id: this.adminId || 1,
+        admin_name: this.adminName,
+        timestamp: new Date().toISOString(),
+        created_at: new Date().toISOString()
+      }
+    ];
+    this.filteredLogs = [...this.activityLogs];
+    this.logsError = 'Using demo logs - backend connection issue';
+    console.log(`📊 Created ${this.activityLogs.length} sample logs`);
+  }
+
+  private getLogsErrorMessage(error: any): string {
     if (error.status === 0) {
       return 'Cannot connect to server. Please check if the server is running.';
     } else if (error.status === 404) {
-      return 'Logs endpoint not found. The server might need to be updated.';
+      return 'Logs endpoint not found. The activity logs table might not be created yet.';
     } else if (error.status === 401) {
       return 'Authentication required. Please log in again.';
     } else if (error.error?.message) {
@@ -269,7 +306,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     }
   }
 
-  removeUserIdFromDescription(description: string): string {
+  cleanLogDescription(description: string): string {
     if (!description) return '';
     
     return description
@@ -287,12 +324,12 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   logActivity(action: string, description: string, changes: string = ''): void {
     let cleanChanges = changes;
     if (changes) {
-      cleanChanges = this.removeUserIdFromDescription(changes);
+      cleanChanges = this.cleanLogDescription(changes);
     }
     
-    let cleanDescription = this.removeUserIdFromDescription(description);
+    let cleanDescription = this.cleanLogDescription(description);
     
-    const log = {
+    const logData = {
       action,
       description: cleanChanges ? `${cleanDescription} - Changed: ${cleanChanges}` : cleanDescription,
       admin_id: this.adminId,
@@ -300,18 +337,18 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       timestamp: new Date().toISOString()
     };
 
-    console.log('📝 Logging activity:', log);
+    console.log('📝 Logging activity:', logData);
 
-    this.http.post(`${environment.apiUrl}/admin/log-activity`, log).subscribe({
+    this.http.post(`${environment.apiUrl}/admin/log-activity`, logData).subscribe({
       next: (res: any) => {
-        console.log('✅ Activity logged successfully');
-        // Reload logs to show the new entry
-        this.loadActivityLogs();
+        console.log('✅ Activity logged successfully:', res);
+        // Refresh logs to show the new entry
+        setTimeout(() => this.loadActivityLogs(), 500);
       },
       error: (err) => {
         console.error('❌ Error logging activity:', err);
-        // Even if logging fails, we can still reload the existing logs
-        this.loadActivityLogs();
+        // Even if logging fails, continue with the operation
+        console.log('📝 Activity recorded locally (log may not be saved)');
       }
     });
   }
@@ -334,9 +371,10 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     if (confirm('Are you sure you want to clear all activity logs? This action cannot be undone.')) {
       this.http.delete(`${environment.apiUrl}/admin/clear-logs`).subscribe({
         next: (res: any) => {
-          console.log('✅ Logs cleared successfully');
+          console.log('✅ Logs cleared successfully:', res);
           this.activityLogs = [];
           this.filteredLogs = [];
+          this.logActivity('SYSTEM', 'Cleared all activity logs');
           alert('Activity logs cleared successfully');
         },
         error: (err) => {
@@ -353,7 +391,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const csvContent = this.convertToCSV(this.filteredLogs);
+    const csvContent = this.convertLogsToCSV(this.filteredLogs);
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -365,7 +403,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     window.URL.revokeObjectURL(url);
   }
 
-  convertToCSV(logs: any[]): string {
+  convertLogsToCSV(logs: any[]): string {
     const headers = ['Timestamp', 'Action', 'Description', 'Admin'];
     const rows = logs.map(log => [
       new Date(log.timestamp).toLocaleString(),
@@ -388,7 +426,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // ==================== USER MANAGEMENT METHODS - FIXED ====================
+  // ==================== USER MANAGEMENT METHODS ====================
 
   switchUserManagementTab(tabName: string): void {
     this.userManagementTab = tabName;
@@ -396,7 +434,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     this.showUserDetails = false;
     
     console.log(`🔄 Switched to ${tabName} tab`);
-    console.log(`📊 Approved users: ${this.approvedUsers.length}, Pending users: ${this.pendingUsers.length}`);
   }
 
   loadUsers(): void {
@@ -405,10 +442,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
         this.users = res.users || [];
         console.log('📊 Loaded users:', this.users.length);
         
-        // Initialize filteredUsers with all users
         this.filteredUsers = [...this.users];
-        
-        // FIXED: Properly separate approved and pending users
         this.separateUsersByApproval();
       },
       error: (err) => {
@@ -418,23 +452,17 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // NEW METHOD: Properly separate users by approval status
   private separateUsersByApproval(): void {
-    // Clear both arrays first
     this.approvedUsers = [];
     this.pendingUsers = [];
     
-    // Use filteredUsers for the current view, or all users if no filter
     const usersToSeparate = this.filteredUsers.length > 0 ? this.filteredUsers : this.users;
     
-    // Separate users based on approval status
     usersToSeparate.forEach(user => {
       if (user) {
-        // Check if user is explicitly approved (true)
         if (user.approved === true) {
           this.approvedUsers.push(user);
         } else {
-          // Anything else (false, null, undefined, etc.) goes to pending
           this.pendingUsers.push(user);
         }
       }
@@ -443,20 +471,15 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     console.log('🔄 Separated users - Approved:', this.approvedUsers.length, 'Pending:', this.pendingUsers.length);
   }
 
-  // FIXED: Search functionality for user management
   filterUsers(): void {
-    // Get the search term and trim it
     const term = this.userSearchTerm ? this.userSearchTerm.toLowerCase().trim() : '';
     
     if (!term) {
-      // If no search term, show all users
       this.filteredUsers = [...this.users];
     } else {
-      // Filter users based on search term
       this.filteredUsers = this.users.filter(user => {
         if (!user) return false;
         
-        // Check various fields for matches
         const nameMatch = user.full_name && user.full_name.toLowerCase().includes(term);
         const emailMatch = user.email && user.email.toLowerCase().includes(term);
         const bloodTypeMatch = user.blood_type && user.blood_type.toLowerCase().includes(term);
@@ -466,14 +489,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       });
     }
     
-    console.log('🔍 Search results:', {
-      searchTerm: this.userSearchTerm,
-      totalUsers: this.users.length,
-      filteredUsers: this.filteredUsers.length,
-      filteredUsersList: this.filteredUsers.map(u => u.full_name)
-    });
-    
-    // After filtering, re-separate the users for the tabs
     this.separateUsersByApproval();
   }
 
@@ -485,11 +500,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     this.searchTimeout = setTimeout(() => {
       this.filterUsers();
     }, 300);
-  }
-
-  clearSearch(): void {
-    this.userSearchTerm = '';
-    this.filterUsers();
   }
 
   selectUser(user: any): void {
@@ -511,7 +521,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
           user.approved = true;
           user.approved_at = new Date().toISOString();
           user.approved_by = this.adminName;
-          this.separateUsersByApproval(); // Re-separate to move user to approved list
+          this.separateUsersByApproval();
           this.logActivity('APPROVE', `Approved medical information for: ${user.full_name}`);
           alert('User medical information approved successfully!');
         } else {
@@ -542,7 +552,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
           user.approved = false;
           user.approved_at = null;
           user.approved_by = null;
-          this.separateUsersByApproval(); // Re-separate to move user to pending list
+          this.separateUsersByApproval();
           this.logActivity('UNAPPROVE', `Unapproved medical information for: ${user.full_name}`);
           alert('User medical information unapproved successfully!');
         } else {
@@ -564,9 +574,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     }
 
     this.isUserActionLoading = true;
-    this.http.post(`${environment.apiUrl}/admin/delete-user`, {
-      user_id: user.user_id,
-      admin_id: this.adminId
+    this.http.delete(`${environment.apiUrl}/admin/delete-user/${user.user_id}`, {
+      body: { admin_id: this.adminId }
     }).subscribe({
       next: (res: any) => {
         if (res.success) {
@@ -650,11 +659,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     return 'status-pending';
   }
 
-  getStatusText(user: any): string {
-    if (user.approved === true) return 'Approved';
-    return 'Pending Approval';
-  }
-
   getUserInitials(user: any): string {
     if (!user.full_name) return 'U';
     return user.full_name
@@ -666,40 +670,80 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   }
 
   getProfilePhoto(user: any): string {
-    if (!user) return '';
+    if (!user) return this.getPlaceholderImage(user);
     
     let photoPath = user.profile_photo;
     
-    if (photoPath && photoPath !== 'https://via.placeholder.com/200?text=No+Photo') {
-      if (photoPath.startsWith('http')) {
-        return photoPath;
-      }
-      
-      const cleanPhotoPath = photoPath.trim();
-      
-      if (cleanPhotoPath.startsWith('/uploads/')) {
-        return `${environment.apiUrl}${cleanPhotoPath}`;
-      } else if (cleanPhotoPath.startsWith('uploads/')) {
-        return `${environment.apiUrl}/${cleanPhotoPath}`;
-      } else if (cleanPhotoPath.startsWith('/')) {
-        return `${environment.apiUrl}${cleanPhotoPath}`;
-      } else {
-        return `${environment.apiUrl}/uploads/${cleanPhotoPath}`;
+    if (photoPath && photoPath.startsWith('data:image/')) {
+      return photoPath;
+    }
+    
+    if (photoPath && photoPath.startsWith('http')) {
+      return photoPath;
+    }
+    
+    if (photoPath && !photoPath.startsWith('data:image/')) {
+      // Convert file path to full URL
+      if (photoPath.startsWith('/uploads/')) {
+        return `${environment.apiUrl}${photoPath}`;
+      } else if (photoPath.startsWith('uploads/')) {
+        return `${environment.apiUrl}/${photoPath}`;
       }
     }
     
-    return '';
+    return this.getPlaceholderImage(user);
+  }
+
+  getPlaceholderImage(user: any): string {
+    const initials = this.getUserInitials(user);
+    const backgroundColor = this.stringToColor(user?.email || user?.full_name || 'User');
+    const textColor = this.getContrastColor(backgroundColor);
+    
+    const svg = `
+      <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100%" height="100%" fill="${backgroundColor}"/>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" 
+              font-family="Arial, sans-serif" font-size="80" fill="${textColor}">
+          ${initials}
+        </text>
+      </svg>
+    `;
+    
+    return 'data:image/svg+xml;base64,' + btoa(svg);
+  }
+
+  stringToColor(str: string): string {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    const colors = [
+      '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+      '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
+      '#F8C471', '#82E0AA', '#F1948A', '#85C1E9', '#D7BDE2'
+    ];
+    
+    return colors[Math.abs(hash) % colors.length];
+  }
+
+  getContrastColor(hexcolor: string): string {
+    const r = parseInt(hexcolor.substr(1, 2), 16);
+    const g = parseInt(hexcolor.substr(3, 2), 16);
+    const b = parseInt(hexcolor.substr(5, 2), 16);
+    const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    return (yiq >= 128) ? '#000000' : '#FFFFFF';
   }
 
   handleImageError(event: any, user: any): void {
     console.warn('Failed to load profile photo for user:', user?.full_name);
     
     const imgElement = event.target;
-    const avatarContainer = imgElement.closest('.user-avatar') || imgElement.closest('.user-profile-avatar');
+    imgElement.src = this.getPlaceholderImage(user);
+    imgElement.onerror = null;
     
+    const avatarContainer = imgElement.closest('.user-avatar') || imgElement.closest('.user-profile-avatar');
     if (avatarContainer) {
-      imgElement.style.display = 'none';
-      
       const initialsElement = avatarContainer.querySelector('.initials');
       if (initialsElement) {
         initialsElement.style.display = 'flex';
@@ -707,89 +751,92 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // Debug method to check user status
-  debugUserStatus(): void {
-    console.log('=== USER STATUS DEBUG ===');
-    console.log('Total users:', this.users.length);
-    
-    const approvedCount = this.users.filter(u => u && u.approved === true).length;
-    const pendingCount = this.users.filter(u => u && u.approved !== true).length;
-    
-    console.log('Approved users:', approvedCount);
-    console.log('Pending users:', pendingCount);
-    
-    // Log all users with their approval status
-    this.users.forEach((user, index) => {
-      console.log(`User ${index}:`, {
-        name: user.full_name,
-        email: user.email,
-        approved: user.approved,
-        approvedType: typeof user.approved
-      });
-    });
-    
-    console.log('Current tab:', this.userManagementTab);
-    console.log('Approved users array:', this.approvedUsers.length);
-    console.log('Pending users array:', this.pendingUsers.length);
-  }
-
-  // ==================== PROFILE PHOTO METHODS - FIXED ====================
+  // ==================== PROFILE PHOTO METHODS ====================
 
   changeUserProfile(userId: string, photoFile: File): void {
-    const formData = new FormData();
-    formData.append('user_id', userId);
-    formData.append('profile_photo', photoFile);
+    const reader = new FileReader();
+    
+    reader.onload = (e: any) => {
+      const base64Image = e.target.result;
+      
+      console.log('📸 Changing profile photo for user:', userId);
 
-    console.log('📸 Changing profile photo for user:', userId);
-    console.log('📁 File details:', {
-      name: photoFile.name,
-      type: photoFile.type,
-      size: photoFile.size
-    });
-
-    this.http.post(`${environment.apiUrl}/admin/change-user-profile`, formData).subscribe({
-      next: (res: any) => {
-        console.log('✅ Profile photo update response:', res);
-        if (res.success) {
-          console.log('✅ Profile photo updated successfully');
-          this.logActivity('PROFILE_UPDATE', `Changed profile photo for user ID: ${userId}`);
-          alert('Profile photo updated successfully!');
+      this.http.post(`${environment.apiUrl}/admin/change-user-profile-base64`, {
+        user_id: userId,
+        profile_photo: base64Image,
+        filename: photoFile.name
+      }).subscribe({
+        next: (res: any) => {
+          console.log('✅ Profile photo update response:', res);
+          if (res.success) {
+            this.logActivity('PROFILE_UPDATE', `Changed profile photo for user ID: ${userId}`);
+            alert('Profile photo updated successfully!');
+            
+            // Update the user data with the new base64 image
+            this.updateUserPhotoInMemory(userId, base64Image);
+            
+          } else {
+            alert('Failed to update profile photo: ' + (res.message || 'Unknown error'));
+          }
+        },
+        error: (err) => {
+          console.error('❌ Error updating profile photo:', err);
+          let errorMessage = 'Failed to update profile photo. ';
           
-          // Refresh user data
-          this.loadUsers();
-          
-          // If we're currently viewing this user's details, update them
-          if (this.selectedUser && this.selectedUser.user_id === userId) {
-            this.selectedUser.profile_photo = res.new_photo_url;
+          if (err.status === 0) {
+            errorMessage += 'Cannot connect to server.';
+          } else if (err.status === 400) {
+            errorMessage += err.error?.message || 'Invalid request.';
+          } else if (err.status === 413) {
+            errorMessage += 'File too large. Please choose a smaller image.';
+          } else if (err.error?.message) {
+            errorMessage += err.error.message;
+          } else {
+            errorMessage += 'Please try again.';
           }
           
-          // Update scanned data if it's the same user
-          if (this.scannedData && this.scannedData.user_id === userId) {
-            this.scannedData.profile_photo = res.new_photo_url;
-          }
-        } else {
-          alert('Failed to update profile photo: ' + (res.message || 'Unknown error'));
+          alert(errorMessage);
         }
-      },
-      error: (err) => {
-        console.error('❌ Error updating profile photo:', err);
-        let errorMessage = 'Failed to update profile photo. ';
-        
-        if (err.status === 0) {
-          errorMessage += 'Cannot connect to server. Please check if the server is running.';
-        } else if (err.status === 400) {
-          errorMessage += err.error?.message || 'Invalid request. Please check the file format.';
-        } else if (err.status === 413) {
-          errorMessage += 'File too large. Please choose a smaller image.';
-        } else if (err.error?.message) {
-          errorMessage += err.error.message;
-        } else {
-          errorMessage += 'Please try again.';
-        }
-        
-        alert(errorMessage);
-      }
-    });
+      });
+    };
+    
+    reader.onerror = (error) => {
+      console.error('❌ Error reading file:', error);
+      alert('Error reading the selected file. Please try another image.');
+    };
+    
+    reader.readAsDataURL(photoFile);
+  }
+
+  private updateUserPhotoInMemory(userId: string, base64Image: string): void {
+    // Update in all user arrays
+    this.users = this.users.map(user => 
+      user.user_id === userId ? { ...user, profile_photo: base64Image } : user
+    );
+    
+    this.filteredUsers = this.filteredUsers.map(user => 
+      user.user_id === userId ? { ...user, profile_photo: base64Image } : user
+    );
+    
+    this.approvedUsers = this.approvedUsers.map(user => 
+      user.user_id === userId ? { ...user, profile_photo: base64Image } : user
+    );
+    
+    this.pendingUsers = this.pendingUsers.map(user => 
+      user.user_id === userId ? { ...user, profile_photo: base64Image } : user
+    );
+    
+    // Update selected user if applicable
+    if (this.selectedUser && this.selectedUser.user_id === userId) {
+      this.selectedUser.profile_photo = base64Image;
+    }
+    
+    // Update scanned data if applicable
+    if (this.scannedData && this.scannedData.user_id === userId) {
+      this.scannedData.profile_photo = base64Image;
+    }
+    
+    console.log('✅ Updated profile photo in memory for user:', userId);
   }
 
   changeScannedUserProfile(): void {
@@ -804,13 +851,12 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     input.onchange = (event: any) => {
       const file = event.target.files[0];
       if (file) {
-        // Validate file type and size
         if (!file.type.startsWith('image/')) {
           alert('Please select a valid image file (JPEG, PNG, etc.)');
           return;
         }
         
-        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        if (file.size > 5 * 1024 * 1024) {
           alert('Image file size must be less than 5MB');
           return;
         }
@@ -1219,7 +1265,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       admin_id: this.adminId
     };
 
-    this.http.post(`${environment.apiUrl}/admin/update-medical`, payload).subscribe({
+    this.http.put(`${environment.apiUrl}/admin/update-medical/${updateData.user_id}`, payload).subscribe({
       next: (res: any) => {
         const isSuccess = this.checkUpdateSuccess(res);
         
@@ -1376,9 +1422,9 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
 
   logout(): void {
     localStorage.removeItem('adminLoggedIn');
-    localStorage.removeItem('adminToken');
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_data');
     localStorage.removeItem('admin_id');
-    localStorage.removeItem('admin_role');
     localStorage.removeItem('admin_name');
     localStorage.removeItem('current_admin');
     this.router.navigate(['/admin-login']);
