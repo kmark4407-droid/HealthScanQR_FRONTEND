@@ -35,6 +35,20 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     console.log('🔐 Login Component - Fixed Version');
     this.clearAuthData();
+
+    // Add focus/blur effects for labels
+    const inputs: NodeListOf<HTMLInputElement> = this.el.nativeElement.querySelectorAll('input');
+    inputs.forEach(input => {
+      this.renderer.listen(input, 'focus', () => {
+        const label = input.parentElement?.querySelector('label');
+        if (label) this.renderer.setStyle(label, 'color', '#4b6cb7');
+      });
+
+      this.renderer.listen(input, 'blur', () => {
+        const label = input.parentElement?.querySelector('label');
+        if (label) this.renderer.setStyle(label, 'color', '#34495e');
+      });
+    });
   }
 
   private clearAuthData(): void {
@@ -47,7 +61,23 @@ export class LoginComponent implements OnInit {
   submit(): void {
     if (this.loginForm.invalid) {
       this.markFormGroupTouched();
+      
+      // Add visual feedback for invalid fields
+      Object.keys(this.loginForm.controls).forEach(field => {
+        const control = this.loginForm.get(field);
+        const input: HTMLElement | null = this.el.nativeElement.querySelector(`[formControlName="${field}"]`);
+        if (control && control.invalid && input) {
+          this.renderer.setStyle(input, 'borderColor', '#e74c3c');
+        }
+      });
       return;
+    }
+
+    // Update button to show loading state
+    const button: HTMLButtonElement | null = this.el.nativeElement.querySelector('button');
+    if (button) {
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+      button.disabled = true;
     }
 
     this.isLoading = true;
@@ -55,9 +85,16 @@ export class LoginComponent implements OnInit {
 
     this.auth.login(this.loginForm.value).subscribe({
       next: (res: any) => {
+        this.isLoading = false;
         console.log('✅ Login successful');
         console.log('📦 Login response:', res);
         
+        // Show success state on button
+        if (button) {
+          button.innerHTML = '<i class="fas fa-check"></i> Access Granted!';
+          this.renderer.setStyle(button, 'background', '#2ecc71');
+        }
+
         localStorage.setItem('loggedIn', 'true');
         localStorage.setItem('token', res.token);
         
@@ -66,20 +103,39 @@ export class LoginComponent implements OnInit {
         }
 
         // ✅ FIXED: Check if user has medical info from backend response
-        if (res.hasMedicalInfo) {
-          console.log('✅ User has medical info, redirecting to landing');
-          localStorage.setItem('hasUpdated', 'true');
-          this.router.navigate(['/landing']);
-        } else {
-          console.log('📝 User needs to fill medical info, redirecting to update-info');
-          localStorage.setItem('hasUpdated', 'false');
-          this.router.navigate(['/update-info']);
-        }
+        setTimeout(() => {
+          if (res.hasMedicalInfo) {
+            console.log('✅ User has medical info, redirecting to landing');
+            localStorage.setItem('hasUpdated', 'true');
+            this.router.navigate(['/landing']);
+          } else {
+            console.log('📝 User needs to fill medical info, redirecting to update-info');
+            localStorage.setItem('hasUpdated', 'false');
+            this.router.navigate(['/update-info']);
+          }
+        }, 1000);
       },
       error: (err) => {
-        console.error('❌ Login failed:', err);
         this.isLoading = false;
+        console.error('❌ Login failed:', err);
+
+        // Reset button to original state
+        if (button) {
+          button.innerHTML = 'Login';
+          button.disabled = false;
+          this.renderer.removeStyle(button, 'background');
+        }
+
         this.errorMessage = err.error?.message || 'Login failed. Please try again.';
+        
+        // More specific error messages
+        if (err.status === 404) {
+          this.errorMessage = 'Login endpoint not found. Please contact administrator.';
+        } else if (err.status === 401) {
+          this.errorMessage = 'Invalid credentials. Please check your email and password.';
+        } else if (err.status === 500) {
+          this.errorMessage = 'Server error. Please try again later.';
+        }
       }
     });
   }
