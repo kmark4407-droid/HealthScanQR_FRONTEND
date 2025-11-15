@@ -23,7 +23,7 @@
 
 .sidebar-brand {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: flex-start;
   gap: 0.75rem;
   padding: 0 0.5rem 1rem;
@@ -35,7 +35,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  width: 100%;
+  flex: 1;
 }
 
 .brand-logo {
@@ -58,13 +58,30 @@
   border-radius: 6px;
 }
 
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  flex: 1;
+}
+
 .sidebar-app-name {
   font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.5px;
+  line-height: 1.2;
 }
 
-/* Enhanced Hamburger Menu Button - Now below the brand */
+.sidebar-app-tagline {
+  font-size: 0.7rem;
+  opacity: 0.9;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.2px;
+}
+
+/* Enhanced Hamburger Menu Button */
 .hamburger-menu {
   display: none;
   flex-direction: column;
@@ -79,6 +96,7 @@
   transition: all 0.3s ease;
   border-radius: 4px;
   margin-left: 0.5rem;
+  flex-shrink: 0;
 }
 
 .hamburger-menu:hover {
@@ -930,6 +948,18 @@ input.ng-invalid.ng-touched, select.ng-invalid.ng-touched {
 
 /* Enhanced Mobile Responsiveness */
 @media (max-width: 480px) {
+  .sidebar-brand {
+    padding: 0 0.25rem 0.75rem;
+  }
+  
+  .sidebar-app-name {
+    font-size: 1.1rem;
+  }
+  
+  .sidebar-app-tagline {
+    font-size: 0.65rem;
+  }
+  
   .sidebar-user {
     flex-direction: row;
     align-items: center;
@@ -977,10 +1007,6 @@ input.ng-invalid.ng-touched, select.ng-invalid.ng-touched {
   
   .sidebar-brand {
     gap: 0.5rem;
-  }
-  
-  .sidebar-app-name {
-    font-size: 1.1rem;
   }
   
   /* Enhanced Mobile Settings */
@@ -1056,6 +1082,10 @@ input.ng-invalid.ng-touched, select.ng-invalid.ng-touched {
   
   .sidebar-app-name {
     font-size: 1rem;
+  }
+  
+  .sidebar-app-tagline {
+    font-size: 0.6rem;
   }
   
   .card-title {
@@ -1277,6 +1307,10 @@ body.mobile-menu-open {
   
   .sidebar-app-name {
     font-size: 1.5rem;
+  }
+  
+  .sidebar-app-tagline {
+    font-size: 0.8rem;
   }
   
   .card-header {
