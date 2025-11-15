@@ -21,6 +21,7 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
   isSubmitting = false;
   showSettings = false;
   largeFontEnabled = false;
+  mobileMenuOpen = false; // NEW: Mobile menu state
   private appContainer: HTMLElement | null = null;
 
   // Accessibility settings state
@@ -72,12 +73,36 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
     this.applyAccessibilitySettings();
   }
 
+  // NEW: Toggle mobile menu
+  toggleMobileMenu() {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+    
+    // Prevent body scroll when mobile menu is open
+    if (this.mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }
+
   // Close settings when clicking outside or pressing escape
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const settingsPanel = document.querySelector('.settings-panel');
     const settingsButton = document.querySelector('.nav-item[title="Settings"]');
+    const hamburgerButton = document.querySelector('.hamburger-menu');
+    const sidebarNav = document.querySelector('.sidebar-nav');
     
+    // Close mobile menu when clicking outside
+    if (this.mobileMenuOpen && 
+        sidebarNav && 
+        !sidebarNav.contains(event.target as Node) &&
+        hamburgerButton &&
+        !hamburgerButton.contains(event.target as Node)) {
+      this.toggleMobileMenu();
+    }
+    
+    // Close settings when clicking outside
     if (this.showSettings && 
         settingsPanel && 
         !settingsPanel.contains(event.target as Node) &&
@@ -91,6 +116,9 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
   onEscapePress() {
     if (this.showSettings) {
       this.toggleSettings();
+    }
+    if (this.mobileMenuOpen) {
+      this.toggleMobileMenu();
     }
   }
 
