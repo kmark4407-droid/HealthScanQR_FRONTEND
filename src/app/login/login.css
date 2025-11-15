@@ -344,8 +344,8 @@ input.ng-invalid.ng-touched + .input-icon {
 
 /* Enhanced button states */
 button.success {
-    background: linear-gradient(120deg, #2ecc71 0%, #27ae60 100%);
-    box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3);
+    background: linear-gradient(120deg, #2ecc71 0%, #27ae60 100%) !important;
+    box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3) !important;
 }
 
 button.error {
@@ -439,6 +439,34 @@ button {
 input:focus-visible {
     outline: 2px solid #4b6cb7;
     outline-offset: 2px;
+}
+
+/* Authentication animation styles */
+button .fa-spinner {
+    margin-right: 8px;
+}
+
+button .fa-check {
+    margin-right: 8px;
+}
+
+button.success {
+    background: linear-gradient(120deg, #2ecc71 0%, #27ae60 100%) !important;
+    box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3) !important;
+}
+
+/* Ensure the spinner animation works */
+.fa-spin {
+    animation: fa-spin 2s infinite linear;
+}
+
+@keyframes fa-spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Responsive design */
