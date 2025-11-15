@@ -220,41 +220,6 @@
   font-size: 0.8rem;
 }
 
-.sidebar-footer {
-  padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  margin-top: auto;
-}
-
-.logout-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  border-radius: 10px;
-  color: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100%;
-}
-
-.logout-button:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.logout-icon {
-  font-size: 1.25rem;
-  width: 24px;
-  text-align: center;
-}
-
-.logout-label {
-  font-weight: 500;
-}
-
 /* Enhanced Pop-out Settings Panel - FIXED */
 .settings-panel {
   position: fixed;
@@ -564,11 +529,13 @@ input:checked + .slider:before {
   font-family: 'OpenDyslexic', 'Comic Sans MS', cursive;
 }
 
-/* Main Content */
+/* Main Content - FIXED SCROLLING */
 .medical-main-content {
   flex: 1;
   min-height: calc(100vh - 80px);
   transition: filter 0.3s ease;
+  overflow-y: auto; /* Enable scrolling */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
 .medical-profile-container {
@@ -605,6 +572,7 @@ input:checked + .slider:before {
   z-index: 1;
   transition: filter 0.3s ease;
   margin: 1rem 0;
+  overflow-y: visible; /* Allow content to scroll */
 }
 
 .card-header {
@@ -651,6 +619,7 @@ input:checked + .slider:before {
 
 .medical-form {
   padding: 1.5rem;
+  overflow: visible; /* Allow form to be scrollable */
 }
 
 .form-section {
@@ -1156,7 +1125,7 @@ input.ng-invalid.ng-touched, select.ng-invalid.ng-touched {
   }
 }
 
-/* Mobile Navigation Styles */
+/* Mobile Navigation Styles - FIXED */
 @media (max-width: 639px) {
   .hamburger-menu {
     display: flex;
@@ -1183,6 +1152,7 @@ input.ng-invalid.ng-touched, select.ng-invalid.ng-touched {
   .sidebar-nav.active {
     display: flex;
     max-height: 400px;
+    overflow-y: auto;
   }
   
   .nav-item {
@@ -1198,21 +1168,11 @@ input.ng-invalid.ng-touched, select.ng-invalid.ng-touched {
   .nav-label {
     font-size: 0.9rem;
   }
-  
-  .sidebar-footer {
-    display: none;
-  }
-  
-  .sidebar-footer.mobile-visible {
-    display: block;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-  }
 }
 
 /* Prevent body scroll when settings are open */
-body.settings-open {
+body.settings-open,
+body.mobile-menu-open {
   overflow: hidden;
 }
 
@@ -1232,6 +1192,7 @@ body.settings-open {
   .medical-main-content {
     margin-left: 240px;
     min-height: 100vh;
+    overflow-y: auto; /* Ensure scrolling works on desktop */
   }
   
   .medical-profile-container {
