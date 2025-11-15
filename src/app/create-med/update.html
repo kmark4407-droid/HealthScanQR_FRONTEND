@@ -1,23 +1,28 @@
 <div class="medical-app-container">
   <!-- Sidebar Navigation -->
   <nav class="medical-sidebar">
-    <div class="sidebar-brand">
-      <div class="brand-content">
-        <div class="brand-logo">
-          <img src="./healthscanqr1.png" alt="HealthScanQR Logo" 
-               onerror="this.onerror=null; this.src='https://via.placeholder.com/60/ffffff/3b82f6?text=HSQR'; this.style.backgroundColor='transparent'">
-        </div>
-        <div class="brand-text">
-          <span class="sidebar-app-name">HealthScanQR</span>
-          <span class="sidebar-app-tagline">Your Digital Health ID for Effortless Care Access</span>
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <div class="brand-content">
+          <div class="brand-logo">
+            <img src="./healthscanqr1.png" alt="HealthScanQR Logo" 
+                 onerror="this.onerror=null; this.src='https://via.placeholder.com/60/ffffff/3b82f6?text=HSQR'; this.style.backgroundColor='transparent'">
+          </div>
+          <div class="brand-text">
+            <span class="sidebar-app-name">HealthScanQR</span>
+            <span class="sidebar-app-tagline">Your Digital Health Companion</span>
+          </div>
         </div>
       </div>
-      <!-- Hamburger Menu Button - Below the brand -->
-      <button class="hamburger-menu" (click)="toggleMobileMenu()" [class.active]="mobileMenuOpen">
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-      </button>
+      
+      <!-- Hamburger Menu Button - Below the brand and aligned left -->
+      <div class="hamburger-container">
+        <button class="hamburger-menu" (click)="toggleMobileMenu()" [class.active]="mobileMenuOpen">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
+      </div>
     </div>
     
     <!-- Combined User and Navigation Section -->
