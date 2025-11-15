@@ -1,3 +1,4 @@
+
 import { Component, AfterViewInit, OnInit, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -73,23 +74,32 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
     this.applyAccessibilitySettings();
   }
 
-  // NEW: Toggle mobile menu
+  // ENHANCED: Toggle mobile menu with better UX
   toggleMobileMenu() {
     this.mobileMenuOpen = !this.mobileMenuOpen;
     
     // Prevent body scroll when mobile menu is open
     if (this.mobileMenuOpen) {
       document.body.style.overflow = 'hidden';
+      document.body.classList.add('mobile-menu-open');
     } else {
       document.body.style.overflow = '';
+      document.body.classList.remove('mobile-menu-open');
     }
   }
 
-  // Close settings when clicking outside or pressing escape
+  // Close mobile menu when clicking on nav items
+  closeMobileMenu() {
+    if (this.mobileMenuOpen) {
+      this.toggleMobileMenu();
+    }
+  }
+
+  // Enhanced click outside handler
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const settingsPanel = document.querySelector('.settings-panel');
-    const settingsButton = document.querySelector('.nav-item[title="Settings"]');
+    const settingsButton = document.querySelector('.nav-item[title="Accessibility Settings"]');
     const hamburgerButton = document.querySelector('.hamburger-menu');
     const sidebarNav = document.querySelector('.sidebar-nav');
     
@@ -126,6 +136,7 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
   goToDashboard() {
     console.log('📊 Dashboard clicked - scrolling to top');
     this.scrollToTop();
+    this.closeMobileMenu();
   }
 
   // ✅ NEW METHOD: Scroll to top of page
@@ -141,6 +152,7 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+    this.closeMobileMenu();
   }
 
   toggleSettings() {
@@ -152,6 +164,8 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
     } else {
       document.body.style.overflow = '';
     }
+    
+    this.closeMobileMenu();
   }
 
   // Enhanced accessibility toggle functions
@@ -223,6 +237,7 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
     if (confirm('Are you sure you want to exit?')) {
       this.router.navigate(['/login']);
     }
+    this.closeMobileMenu();
   }
 
   onFileSelected(event: any): void {
