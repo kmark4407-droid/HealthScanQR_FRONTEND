@@ -4,7 +4,6 @@ import { AuthService } from '../auth.service';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { environment } from '../../Environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -34,7 +33,7 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('🔐 Login Component - Fixed Version');
+    console.log('🔐 Login Component');
     this.clearAuthData();
 
     const inputs: NodeListOf<HTMLInputElement> = this.el.nativeElement.querySelectorAll('input');
@@ -82,7 +81,7 @@ export class LoginComponent implements OnInit {
       return;
     }
 
-    const button: HTMLButtonElement | null = this.el.nativeElement.querySelector('button');
+    const button: HTMLButtonElement | null = this.el.nativeElement.querySelector('button[type="submit"]');
     if (button) {
       button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
       button.disabled = true;
@@ -95,7 +94,6 @@ export class LoginComponent implements OnInit {
       next: (res: any) => {
         this.isLoading = false;
         console.log('✅ Login successful');
-        console.log('📦 Login response:', res);
         
         if (button) {
           button.innerHTML = '<i class="fas fa-check"></i> Access Granted!';
