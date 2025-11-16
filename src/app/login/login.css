@@ -204,46 +204,6 @@ input:focus + .input-icon {
     width: 100%;
 }
 
-/* Password toggle button - MINIMAL VISIBLE STYLES */
-.password-toggle-btn {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid #e1e5ec;
-    color: #000000;
-    cursor: pointer;
-    z-index: 100;
-    font-size: 14px;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-    opacity: 1;
-    visibility: visible;
-}
-
-.password-toggle-btn:hover {
-    color: #4b6cb7;
-    background: rgba(255, 255, 255, 1);
-    border-color: #4b6cb7;
-    transform: translateY(-50%) scale(1.1);
-}
-
-.password-toggle-btn:active {
-    transform: translateY(-50%) scale(0.95);
-}
-
-.password-toggle-btn:focus {
-    outline: 2px solid #4b6cb7;
-    outline-offset: 1px;
-}
-
 /* Ensure the lock icon is properly positioned */
 .password-input-container .input-icon.fa-lock {
     position: absolute;
@@ -567,10 +527,6 @@ button[type="submit"].success {
     .image-section i {
         font-size: 50px;
     }
-    
-    .password-toggle-btn {
-        right: 12px;
-    }
 }
 
 @media (max-width: 768px) {
@@ -585,13 +541,6 @@ button[type="submit"].success {
     h2 {
         font-size: 28px;
         margin-bottom: 25px;
-    }
-    
-    .password-toggle-btn {
-        right: 10px;
-        width: 28px;
-        height: 28px;
-        font-size: 13px;
     }
     
     input {
@@ -627,13 +576,6 @@ button[type="submit"].success {
         padding: 20px 15px;
     }
     
-    .password-toggle-btn {
-        right: 8px;
-        font-size: 12px;
-        width: 26px;
-        height: 26px;
-    }
-    
     input {
         padding: 12px 45px 12px 40px;
         font-size: 14px;
@@ -648,16 +590,5 @@ button[type="submit"].success {
     button[type="submit"] {
         padding: 16px;
         font-size: 16px;
-    }
-}
-
-/* Touch device optimizations */
-@media (hover: none) and (pointer: coarse) {
-    .password-toggle-btn {
-        min-width: 44px;
-        min-height: 44px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
 }
