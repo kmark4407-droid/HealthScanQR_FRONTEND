@@ -202,38 +202,36 @@ input:focus + .input-icon {
 .password-input-container input {
     padding-right: 60px;
     width: 100%;
-    position: relative;
-    z-index: 1;
 }
 
-/* Password toggle button */
+/* Password toggle button - MINIMAL VISIBLE STYLES */
 .password-toggle-btn {
     position: absolute;
-    right: 12px;
+    right: 15px;
     top: 50%;
     transform: translateY(-50%);
-    background: transparent;
-    border: none;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #e1e5ec;
     color: #000000;
     cursor: pointer;
     z-index: 100;
-    font-size: 16px;
-    width: 32px;
-    height: 32px;
+    font-size: 14px;
+    width: 30px;
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0;
-    border-radius: 6px;
+    border-radius: 4px;
     transition: all 0.3s ease;
     opacity: 1;
     visibility: visible;
-    pointer-events: all;
 }
 
 .password-toggle-btn:hover {
     color: #4b6cb7;
-    background: rgba(75, 108, 183, 0.1);
+    background: rgba(255, 255, 255, 1);
+    border-color: #4b6cb7;
     transform: translateY(-50%) scale(1.1);
 }
 
@@ -243,7 +241,7 @@ input:focus + .input-icon {
 
 .password-toggle-btn:focus {
     outline: 2px solid #4b6cb7;
-    outline-offset: 2px;
+    outline-offset: 1px;
 }
 
 /* Ensure the lock icon is properly positioned */
@@ -571,7 +569,7 @@ button[type="submit"].success {
     }
     
     .password-toggle-btn {
-        right: 10px;
+        right: 12px;
     }
 }
 
@@ -590,9 +588,10 @@ button[type="submit"].success {
     }
     
     .password-toggle-btn {
-        right: 8px;
+        right: 10px;
         width: 28px;
         height: 28px;
+        font-size: 13px;
     }
     
     input {
@@ -629,10 +628,10 @@ button[type="submit"].success {
     }
     
     .password-toggle-btn {
-        right: 6px;
-        font-size: 14px;
-        width: 24px;
-        height: 24px;
+        right: 8px;
+        font-size: 12px;
+        width: 26px;
+        height: 26px;
     }
     
     input {
