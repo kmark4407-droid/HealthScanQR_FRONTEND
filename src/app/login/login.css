@@ -192,10 +192,14 @@ input:focus + .input-icon {
     color: #4b6cb7;
 }
 
-/* Password input container */
+/* Password input container - FIXED */
 .password-input-container {
     position: relative;
     display: block;
+}
+
+.password-input-container input {
+    padding-right: 50px !important;
 }
 
 .password-toggle {
@@ -203,18 +207,20 @@ input:focus + .input-icon {
     right: 18px;
     top: 50%;
     transform: translateY(-50%);
-    color: #000000 !important; /* Changed to black */
+    color: #000000 !important;
     cursor: pointer;
     transition: all 0.3s ease;
-    z-index: 3;
+    z-index: 100;
     font-size: 16px;
     width: 20px;
     height: 20px;
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: center;
-    opacity: 1;
-    visibility: visible;
+    opacity: 1 !important;
+    visibility: visible !important;
+    background: transparent;
+    pointer-events: all;
 }
 
 .password-toggle:hover {
@@ -224,6 +230,13 @@ input:focus + .input-icon {
 
 .password-toggle:active {
     transform: translateY(-50%) scale(0.95);
+}
+
+/* Ensure the lock icon is properly positioned */
+.password-input-container .input-icon.fa-lock {
+    left: 18px;
+    right: auto;
+    z-index: 2;
 }
 
 .error {
@@ -586,7 +599,7 @@ button.success {
     
     .image-section p {
         font-size: 14px;
-        display: none; /* Hide text on very small screens */
+        display: none;
     }
     
     .image-section i {
