@@ -12,23 +12,26 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="password">Password</label>
-        <div class="password-input-container">
-          <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Enter your password" />
-          <i class="input-icon fas fa-lock"></i>
-          <button type="button" 
-                  class="password-toggle-btn" 
-                  (click)="togglePasswordVisibility()"
-                  [title]="showPassword ? 'Hide password' : 'Show password'"
-                  style="position: absolute !important; right: 15px !important; top: 50% !important; transform: translateY(-50%) !important; background: white !important; border: 1px solid #e1e5ec !important; color: #000000 !important; cursor: pointer !important; z-index: 1000 !important; font-size: 14px !important; width: 30px !important; height: 30px !important; display: flex !important; align-items: center !important; justify-content: center !important; padding: 0 !important; border-radius: 4px !important; opacity: 1 !important; visibility: visible !important;">
-            <i class="fas" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword"></i>
-          </button>
-        </div>
-        <div class="error" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
-          Password Required.
-        </div>
-      </div>
+<div class="form-group">
+  <label for="password">Password</label>
+  <div class="password-input-container">
+    <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Enter your password" />
+    <i class="input-icon fas fa-lock"></i>
+    <button type="button" 
+            class="password-toggle-btn" 
+            (click)="togglePasswordVisibility()"
+            [title]="showPassword ? 'Hide password' : 'Show password'"
+            style="position: absolute !important; right: 15px !important; top: 50% !important; transform: translateY(-50%) !important; background: white !important; border: 1px solid #e1e5ec !important; color: #000000 !important; cursor: pointer !important; z-index: 1000 !important; font-size: 14px !important; width: 30px !important; height: 30px !important; display: flex !important; align-items: center !important; justify-content: center !important; padding: 0 !important; border-radius: 4px !important; opacity: 1 !important; visibility: visible !important;">
+      <!-- Debug: Show text if icons don't load -->
+      <span *ngIf="!showPassword" style="font-size: 12px; font-weight: bold;">👁️</span>
+      <span *ngIf="showPassword" style="font-size: 12px; font-weight: bold;">🚫</span>
+      <i class="fas" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword" style="display: none;"></i>
+    </button>
+  </div>
+  <div class="error" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
+    Password required.
+  </div>
+</div>
 
       <div class="error" *ngIf="errorMessage" style="margin-bottom: 20px;">
         {{ errorMessage }}
