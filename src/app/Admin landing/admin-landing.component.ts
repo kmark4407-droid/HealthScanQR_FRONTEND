@@ -65,6 +65,9 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
 
   // Search debounce
   private searchTimeout: any;
+  // FIXED: Add debounce for log activity
+  private lastLogTime: number = 0;
+  private logDebounceTime: number = 1000; // 1 second debounce
 
   constructor(
     private fb: FormBuilder,
@@ -316,6 +319,14 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   }
 
   logActivity(action: string, description: string, changes: string = ''): void {
+    // FIXED: Prevent rapid duplicate logging
+    const now = Date.now();
+    if (now - this.lastLogTime < this.logDebounceTime) {
+      console.log('🔄 Skipping duplicate log entry (debounce)');
+      return;
+    }
+    this.lastLogTime = now;
+    
     let cleanChanges = changes;
     if (changes) {
       cleanChanges = this.cleanLogDescription(changes);
@@ -336,7 +347,10 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     this.http.post(`${environment.apiUrl}/admin/log-activity`, logData).subscribe({
       next: (res: any) => {
         console.log('✅ Activity logged successfully:', res);
-        setTimeout(() => this.loadActivityLogs(), 500);
+        // FIXED: Only reload logs if not a SYSTEM action to avoid UI flicker
+        if (action !== 'SYSTEM') {
+          setTimeout(() => this.loadActivityLogs(), 500);
+        }
       },
       error: (err) => {
         console.error('❌ Error logging activity:', err);
@@ -366,6 +380,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
           console.log('✅ Logs cleared successfully:', res);
           this.activityLogs = [];
           this.filteredLogs = [];
+          // FIXED: Use SYSTEM action for clear logs with proper styling
           this.logActivity('SYSTEM', 'Cleared all activity logs');
           alert('Activity logs cleared successfully');
         },
@@ -1079,6 +1094,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
           this.scanStatusClass = 'status-success';
           this.scanResultVisible = true;
           
+          // FIXED: Only log scan activity once per successful scan
           this.logActivity('SCAN', `Scanned medical QR for: ${minimalData.full_name}`);
           
           setTimeout(() => {
@@ -1106,6 +1122,9 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
           this.scannedData = this.ensureTimestamp(fallbackData);
           this.scanStatus = 'Basic info loaded (full data unavailable)';
           this.scanStatusClass = 'status-success';
+          
+          // FIXED: Log scan activity for fallback data too, but only once
+          this.logActivity('SCAN', `Scanned medical QR for: ${minimalData.full_name} (basic info only)`);
         }
       }
     });
