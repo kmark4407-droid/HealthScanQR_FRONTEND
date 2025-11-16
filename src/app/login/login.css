@@ -192,50 +192,61 @@ input:focus + .input-icon {
     color: #4b6cb7;
 }
 
-/* Password input container - FIXED */
+/* Password input container - UPDATED */
 .password-input-container {
     position: relative;
     display: block;
+    width: 100%;
 }
 
 .password-input-container input {
     padding-right: 50px !important;
+    width: 100%;
 }
 
-.password-toggle {
+/* Password toggle button - NEW APPROACH */
+.password-toggle-btn {
     position: absolute;
-    right: 18px;
+    right: 15px;
     top: 50%;
     transform: translateY(-50%);
-    color: #000000 !important;
+    background: transparent;
+    border: none;
+    color: #000000;
     cursor: pointer;
-    transition: all 0.3s ease;
     z-index: 100;
     font-size: 16px;
-    width: 20px;
-    height: 20px;
-    display: flex !important;
+    width: 24px;
+    height: 24px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 1 !important;
-    visibility: visible !important;
-    background: transparent;
-    pointer-events: all;
+    padding: 0;
+    border-radius: 4px;
+    transition: all 0.3s ease;
 }
 
-.password-toggle:hover {
-    color: #4b6cb7 !important;
+.password-toggle-btn:hover {
+    color: #4b6cb7;
+    background: rgba(75, 108, 183, 0.1);
     transform: translateY(-50%) scale(1.1);
 }
 
-.password-toggle:active {
+.password-toggle-btn:active {
     transform: translateY(-50%) scale(0.95);
+}
+
+.password-toggle-btn:focus {
+    outline: 2px solid #4b6cb7;
+    outline-offset: 2px;
 }
 
 /* Ensure the lock icon is properly positioned */
 .password-input-container .input-icon.fa-lock {
+    position: absolute;
     left: 18px;
-    right: auto;
+    top: 50%;
+    transform: translateY(-50%);
     z-index: 2;
 }
 
@@ -248,7 +259,7 @@ input:focus + .input-icon {
     padding-left: 5px;
 }
 
-button {
+button[type="submit"] {
     width: 100%;
     padding: 18px;
     background: linear-gradient(120deg, #4b6cb7 0%, #182848 100%);
@@ -265,7 +276,7 @@ button {
     overflow: hidden;
 }
 
-button::before {
+button[type="submit"]::before {
     content: '';
     position: absolute;
     top: 0;
@@ -276,21 +287,21 @@ button::before {
     transition: 0.5s;
 }
 
-button:hover::before {
+button[type="submit"]:hover::before {
     left: 100%;
 }
 
-button:hover {
+button[type="submit"]:hover {
     transform: translateY(-3px);
     box-shadow: 0 15px 25px rgba(75, 108, 183, 0.4);
 }
 
-button:active {
+button[type="submit"]:active {
     transform: translateY(0);
     box-shadow: 0 5px 15px rgba(75, 108, 183, 0.4);
 }
 
-button:disabled {
+button[type="submit"]:disabled {
     background: #cccccc;
     cursor: not-allowed;
     transform: none;
@@ -390,12 +401,12 @@ input.ng-invalid.ng-touched + .input-icon {
 }
 
 /* Enhanced button states */
-button.success {
+button[type="submit"].success {
     background: linear-gradient(120deg, #2ecc71 0%, #27ae60 100%) !important;
     box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3) !important;
 }
 
-button.error {
+button[type="submit"].error {
     background: linear-gradient(120deg, #e74c3c 0%, #c0392b 100%);
     box-shadow: 0 10px 20px rgba(231, 76, 60, 0.3);
 }
@@ -458,7 +469,7 @@ button.error {
     }
 }
 
-button {
+button[type="submit"] {
     animation: slideUp 0.5s ease;
 }
 
@@ -497,7 +508,7 @@ button .fa-check {
     margin-right: 8px;
 }
 
-button.success {
+button[type="submit"].success {
     background: linear-gradient(120deg, #2ecc71 0%, #27ae60 100%) !important;
     box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3) !important;
 }
@@ -554,8 +565,8 @@ button.success {
         font-size: 50px;
     }
     
-    .password-toggle {
-        right: 15px;
+    .password-toggle-btn {
+        right: 12px;
     }
 }
 
@@ -573,8 +584,8 @@ button.success {
         margin-bottom: 25px;
     }
     
-    .password-toggle {
-        right: 12px;
+    .password-toggle-btn {
+        right: 10px;
     }
     
     input {
@@ -610,9 +621,11 @@ button.success {
         padding: 20px 15px;
     }
     
-    .password-toggle {
-        right: 10px;
+    .password-toggle-btn {
+        right: 8px;
         font-size: 14px;
+        width: 20px;
+        height: 20px;
     }
     
     input {
@@ -626,7 +639,7 @@ button.success {
         font-size: 14px;
     }
     
-    button {
+    button[type="submit"] {
         padding: 16px;
         font-size: 16px;
     }
@@ -634,7 +647,7 @@ button.success {
 
 /* Touch device optimizations */
 @media (hover: none) and (pointer: coarse) {
-    .password-toggle {
+    .password-toggle-btn {
         min-width: 44px;
         min-height: 44px;
         display: flex;
