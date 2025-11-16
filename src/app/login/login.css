@@ -203,20 +203,22 @@ input:focus + .input-icon {
     right: 18px;
     top: 50%;
     transform: translateY(-50%);
-    color: #a0a0a0;
+    color: #000000 !important; /* Changed to black */
     cursor: pointer;
     transition: all 0.3s ease;
-    z-index: 2;
+    z-index: 3;
     font-size: 16px;
     width: 20px;
     height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 1;
+    visibility: visible;
 }
 
 .password-toggle:hover {
-    color: #4b6cb7;
+    color: #4b6cb7 !important;
     transform: translateY(-50%) scale(1.1);
 }
 
