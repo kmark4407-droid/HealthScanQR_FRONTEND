@@ -68,6 +68,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   // FIXED: Add debounce for log activity
   private lastLogTime: number = 0;
   private logDebounceTime: number = 1000; // 1 second debounce
+  // FIXED: Add property to track last logged scan to prevent duplicates
+  private lastScanLog: { user: string, timestamp: number } = { user: '', timestamp: 0 };
 
   constructor(
     private fb: FormBuilder,
@@ -319,13 +321,37 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   }
 
   logActivity(action: string, description: string, changes: string = ''): void {
-    // FIXED: Prevent rapid duplicate logging
+    // FIXED: Enhanced debounce for scan actions to prevent duplicates
     const now = Date.now();
-    if (now - this.lastLogTime < this.logDebounceTime) {
-      console.log('🔄 Skipping duplicate log entry (debounce)');
-      return;
+    
+    // Special handling for SCAN actions to prevent rapid duplicates
+    if (action === 'SCAN') {
+      const scanCooldown = 3000; // 3 seconds between scan logs for same user
+      
+      // Extract username from description for comparison
+      const userMatch = description.match(/Scanned medical QR for: (.+)$/);
+      const currentUser = userMatch ? userMatch[1].trim() : '';
+      
+      if (currentUser && 
+          this.lastScanLog.user === currentUser && 
+          now - this.lastScanLog.timestamp < scanCooldown) {
+        console.log('🔄 Skipping duplicate scan log for same user:', currentUser);
+        return;
+      }
+      
+      // Update last scan log
+      this.lastScanLog = {
+        user: currentUser,
+        timestamp: now
+      };
+    } else {
+      // General debounce for other actions
+      if (now - this.lastLogTime < this.logDebounceTime) {
+        console.log('🔄 Skipping duplicate log entry (debounce)');
+        return;
+      }
+      this.lastLogTime = now;
     }
-    this.lastLogTime = now;
     
     let cleanChanges = changes;
     if (changes) {
@@ -1039,6 +1065,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       const scannedData = JSON.parse(result);
       
       if (scannedData.user_id && scannedData.full_name) {
+        // FIXED: Stop scanning immediately to prevent multiple detections
+        this.stopCamera();
         this.fetchMedicalData(scannedData.user_id, scannedData);
       } else {
         this.scanStatus = 'Not a valid medical QR code';
@@ -1048,6 +1076,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     } catch {
       const parsedData = this.parseTextData(result);
       if (parsedData && parsedData.user_id) {
+        // FIXED: Stop scanning immediately to prevent multiple detections
+        this.stopCamera();
         this.fetchMedicalData(parsedData.user_id, parsedData);
       } else {
         this.scannedData = { message: result };
@@ -1095,10 +1125,12 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
           this.scanResultVisible = true;
           
           // FIXED: Only log scan activity once per successful scan
-          this.logActivity('SCAN', `Scanned medical QR for: ${minimalData.full_name}`);
+          // Moved outside the method to prevent multiple calls
+          setTimeout(() => {
+            this.logActivity('SCAN', `Scanned medical QR for: ${minimalData.full_name}`);
+          }, 100);
           
           setTimeout(() => {
-            this.stopCamera();
             this.populateEditForm(this.scannedData);
             this.switchTab('edit');
           }, 1500);
@@ -1123,8 +1155,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
           this.scanStatus = 'Basic info loaded (full data unavailable)';
           this.scanStatusClass = 'status-success';
           
-          // FIXED: Log scan activity for fallback data too, but only once
-          this.logActivity('SCAN', `Scanned medical QR for: ${minimalData.full_name} (basic info only)`);
+          // FIXED: Don't log scan activity for fallback data to prevent duplicates
         }
       }
     });
