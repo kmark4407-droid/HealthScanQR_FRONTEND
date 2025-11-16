@@ -1,3 +1,4 @@
+
 /* Modern Full-Screen Login Design - Right Side Form */
 * {
     margin: 0;
@@ -190,6 +191,26 @@ input:focus {
 
 input:focus + .input-icon {
     color: #4b6cb7;
+}
+
+/* Password input container */
+.password-input-container {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 18px;
+    top: 43px;
+    color: #a0a0a0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+.password-toggle:hover {
+    color: #4b6cb7;
+    transform: scale(1.1);
 }
 
 .error {
