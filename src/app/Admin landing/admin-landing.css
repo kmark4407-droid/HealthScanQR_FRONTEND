@@ -694,7 +694,7 @@ display: none;
   margin-bottom: 15px;
 }
 
-/* Profile Photo Container with Change Button */
+/* Profile Photo Container with Change Option */
 .profile-photo-container {
   text-align: center;
   margin-bottom: 20px;
@@ -1133,6 +1133,12 @@ display: none;
   color: #3b82f6;
 }
 
+/* FIXED: System log item styling */
+.log-item.log-system {
+  border-left-color: #6b7280;
+  color: #6b7280;
+}
+
 /* Enhanced Log Icon */
 .log-icon {
   width: 48px;
@@ -1173,6 +1179,11 @@ display: none;
 
 .log-profile_update .log-icon {
   background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+/* FIXED: System log icon styling */
+.log-system .log-icon {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
 }
 
 /* Enhanced Log Content */
@@ -1256,6 +1267,13 @@ display: none;
   background: rgba(59, 130, 246, 0.1);
   color: #1e40af;
   border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* FIXED: System log badge styling */
+.badge-system {
+  background: rgba(107, 114, 128, 0.1);
+  color: #374151;
+  border: 1px solid rgba(107, 114, 128, 0.2);
 }
 
 /* Enhanced No Logs State */
