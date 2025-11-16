@@ -17,7 +17,7 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   errorMessage = '';
   isLoading = false;
-  showPassword = false; // Add this property for password visibility
+  showPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -37,7 +37,6 @@ export class LoginComponent implements OnInit {
     console.log('🔐 Login Component - Fixed Version');
     this.clearAuthData();
 
-    // Add focus/blur effects for labels
     const inputs: NodeListOf<HTMLInputElement> = this.el.nativeElement.querySelectorAll('input');
     inputs.forEach(input => {
       this.renderer.listen(input, 'focus', () => {
@@ -52,14 +51,12 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  // Toggle password visibility
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
     const passwordInput = document.getElementById('password') as HTMLInputElement;
     
     if (passwordInput) {
       passwordInput.type = this.showPassword ? 'text' : 'password';
-      // Keep focus on input after toggle
       setTimeout(() => passwordInput.focus(), 0);
     }
   }
@@ -75,7 +72,6 @@ export class LoginComponent implements OnInit {
     if (this.loginForm.invalid) {
       this.markFormGroupTouched();
       
-      // Add visual feedback for invalid fields
       Object.keys(this.loginForm.controls).forEach(field => {
         const control = this.loginForm.get(field);
         const input: HTMLElement | null = this.el.nativeElement.querySelector(`[formControlName="${field}"]`);
@@ -86,7 +82,6 @@ export class LoginComponent implements OnInit {
       return;
     }
 
-    // Update button to show loading state
     const button: HTMLButtonElement | null = this.el.nativeElement.querySelector('button');
     if (button) {
       button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
@@ -102,7 +97,6 @@ export class LoginComponent implements OnInit {
         console.log('✅ Login successful');
         console.log('📦 Login response:', res);
         
-        // Show success state on button
         if (button) {
           button.innerHTML = '<i class="fas fa-check"></i> Access Granted!';
           this.renderer.setStyle(button, 'background', '#2ecc71');
@@ -115,7 +109,6 @@ export class LoginComponent implements OnInit {
           localStorage.setItem('user_id', res.user.id.toString());
         }
 
-        // ✅ FIXED: Check if user has medical info from backend response
         setTimeout(() => {
           if (res.hasMedicalInfo) {
             console.log('✅ User has medical info, redirecting to landing');
@@ -132,7 +125,6 @@ export class LoginComponent implements OnInit {
         this.isLoading = false;
         console.error('❌ Login failed:', err);
 
-        // Reset button to original state
         if (button) {
           button.innerHTML = 'Login';
           button.disabled = false;
@@ -141,7 +133,6 @@ export class LoginComponent implements OnInit {
 
         this.errorMessage = err.error?.message || 'Login failed. Please try again.';
         
-        // More specific error messages
         if (err.status === 404) {
           this.errorMessage = 'Login endpoint not found. Please contact administrator.';
         } else if (err.status === 401) {
