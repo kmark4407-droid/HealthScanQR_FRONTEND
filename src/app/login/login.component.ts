@@ -18,6 +18,7 @@ export class LoginComponent implements OnInit {
   errorMessage = '';
   isLoading = false;
   showPassword = false; // Add this property for password visibility
+  isPasswordFocused = false; // Track password focus state
 
   constructor(
     private fb: FormBuilder,
@@ -43,13 +44,50 @@ export class LoginComponent implements OnInit {
       this.renderer.listen(input, 'focus', () => {
         const label = input.parentElement?.querySelector('label');
         if (label) this.renderer.setStyle(label, 'color', '#4b6cb7');
+        
+        // Handle password field specifically
+        if (input.id === 'password') {
+          this.isPasswordFocused = true;
+          this.updatePasswordToggleVisibility();
+        }
       });
 
       this.renderer.listen(input, 'blur', () => {
         const label = input.parentElement?.querySelector('label');
         if (label) this.renderer.setStyle(label, 'color', '#34495e');
+        
+        // Handle password field specifically
+        if (input.id === 'password') {
+          this.isPasswordFocused = false;
+          // Keep toggle visible if there's text in the password field
+          setTimeout(() => this.updatePasswordToggleVisibility(), 150);
+        }
       });
+
+      // Handle input events for password field
+      if (input.id === 'password') {
+        this.renderer.listen(input, 'input', () => {
+          this.updatePasswordToggleVisibility();
+        });
+      }
     });
+  }
+
+  // Update password toggle visibility based on focus and content
+  private updatePasswordToggleVisibility(): void {
+    const passwordInput = document.getElementById('password') as HTMLInputElement;
+    const passwordToggle = document.querySelector('.password-toggle') as HTMLElement;
+    
+    if (passwordInput && passwordToggle) {
+      const hasText = passwordInput.value.length > 0;
+      const shouldShow = this.isPasswordFocused || hasText;
+      
+      if (shouldShow) {
+        passwordToggle.classList.add('active');
+      } else {
+        passwordToggle.classList.remove('active');
+      }
+    }
   }
 
   // Toggle password visibility
@@ -60,6 +98,8 @@ export class LoginComponent implements OnInit {
     
     if (passwordInput) {
       passwordInput.type = this.showPassword ? 'text' : 'password';
+      // Keep focus on input after toggle
+      passwordInput.focus();
     }
     
     if (passwordToggle) {
@@ -174,6 +214,8 @@ export class LoginComponent implements OnInit {
       email: 'test@example.com',
       password: 'password123'
     });
+    // Trigger the password toggle visibility update
+    this.updatePasswordToggleVisibility();
     this.submit();
   }
 
