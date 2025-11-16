@@ -17,6 +17,7 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   errorMessage = '';
   isLoading = false;
+  showPassword = false; // Add this property for password visibility
 
   constructor(
     private fb: FormBuilder,
@@ -49,6 +50,27 @@ export class LoginComponent implements OnInit {
         if (label) this.renderer.setStyle(label, 'color', '#34495e');
       });
     });
+  }
+
+  // Toggle password visibility
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+    const passwordInput = document.getElementById('password') as HTMLInputElement;
+    const passwordToggle = document.querySelector('.password-toggle') as HTMLElement;
+    
+    if (passwordInput) {
+      passwordInput.type = this.showPassword ? 'text' : 'password';
+    }
+    
+    if (passwordToggle) {
+      if (this.showPassword) {
+        passwordToggle.classList.remove('fa-eye');
+        passwordToggle.classList.add('fa-eye-slash');
+      } else {
+        passwordToggle.classList.remove('fa-eye-slash');
+        passwordToggle.classList.add('fa-eye');
+      }
+    }
   }
 
   private clearAuthData(): void {
