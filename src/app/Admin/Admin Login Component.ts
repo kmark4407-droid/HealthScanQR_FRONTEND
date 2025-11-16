@@ -58,10 +58,18 @@ export class AdminLoginComponent implements OnInit {
 
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
+    const passwordInput = document.getElementById('password') as HTMLInputElement;
+    
+    if (passwordInput) {
+      passwordInput.type = this.showPassword ? 'text' : 'password';
+      setTimeout(() => passwordInput.focus(), 0);
+    }
   }
 
   submit(): void {
     if (this.loginForm.invalid) {
+      this.markFormGroupTouched();
+      
       Object.keys(this.loginForm.controls).forEach(field => {
         const control = this.loginForm.get(field);
         const input: HTMLElement | null = this.el.nativeElement.querySelector(`[formControlName="${field}"]`);
@@ -72,7 +80,7 @@ export class AdminLoginComponent implements OnInit {
       return;
     }
 
-    const button: HTMLButtonElement | null = this.el.nativeElement.querySelector('button');
+    const button: HTMLButtonElement | null = this.el.nativeElement.querySelector('button[type="submit"]');
     if (button) {
       button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
       button.disabled = true;
@@ -91,6 +99,14 @@ export class AdminLoginComponent implements OnInit {
         if (button) {
           button.innerHTML = '<i class="fas fa-check"></i> Access Granted!';
           this.renderer.setStyle(button, 'background', '#2ecc71');
+        }
+
+        // Store admin authentication
+        localStorage.setItem('adminLoggedIn', 'true');
+        localStorage.setItem('adminToken', res.token);
+        
+        if (res.admin && res.admin.id) {
+          localStorage.setItem('admin_id', res.admin.id.toString());
         }
 
         // Redirect to admin dashboard
@@ -119,6 +135,13 @@ export class AdminLoginComponent implements OnInit {
           this.errorMessage = 'Server error. Please try again later.';
         }
       }
+    });
+  }
+
+  private markFormGroupTouched() {
+    Object.keys(this.loginForm.controls).forEach(key => {
+      const control = this.loginForm.get(key);
+      control?.markAsTouched();
     });
   }
 }
