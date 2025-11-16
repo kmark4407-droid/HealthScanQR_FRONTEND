@@ -3,6 +3,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { AuthService } from '../auth.service';
 import { HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common'; 
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -20,12 +21,15 @@ export class RegisterComponent implements OnInit {
   showPassword = false;
   showTermsCard = false;
   showPrivacyCard = false;
+  errorMessage = '';
+  isLoading = false;
 
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
     private el: ElementRef,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private router: Router
   ) {
     this.registerForm = this.fb.group({
       full_name: ['', Validators.required],
@@ -55,21 +59,17 @@ export class RegisterComponent implements OnInit {
 
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
-    const passwordInput = document.getElementById('password') as HTMLInputElement;
-    if (passwordInput) {
-      passwordInput.type = this.showPassword ? 'text' : 'password';
-    }
   }
 
   getPasswordStrength(): number {
     const password = this.registerForm.get('password')?.value || '';
     let strength = 0;
     
-    if (this.hasMinLength()) strength += 25;
-    if (this.hasLowerCase()) strength += 25;
-    if (this.hasUpperCase()) strength += 25;
-    if (this.hasNumber()) strength += 25;
-    if (this.hasSpecialChar()) strength += 25;
+    if (this.hasMinLength()) strength += 20;
+    if (this.hasLowerCase()) strength += 20;
+    if (this.hasUpperCase()) strength += 20;
+    if (this.hasNumber()) strength += 20;
+    if (this.hasSpecialChar()) strength += 20;
     
     return Math.min(strength, 100); // Cap at 100%
   }
@@ -119,6 +119,8 @@ export class RegisterComponent implements OnInit {
 
   submit(): void {
     if (this.registerForm.invalid) {
+      this.markFormGroupTouched();
+      
       // Highlight invalid inputs
       Object.keys(this.registerForm.controls).forEach(field => {
         const control = this.registerForm.get(field);
@@ -130,40 +132,57 @@ export class RegisterComponent implements OnInit {
       return;
     }
 
-    const button: HTMLButtonElement | null = this.el.nativeElement.querySelector('button');
+    const button: HTMLButtonElement | null = this.el.nativeElement.querySelector('button[type="submit"]');
     if (button) {
-      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
       button.disabled = true;
     }
 
+    this.isLoading = true;
+    this.errorMessage = '';
+
     this.auth.register(this.registerForm.value).subscribe({
-      next: res => {
+      next: (res: any) => {
+        this.isLoading = false;
+        console.log('✅ Registration successful:', res);
+
         if (button) {
-          button.innerHTML = '<i class="fas fa-check"></i> Success!';
+          button.innerHTML = '<i class="fas fa-check"></i> Account Created!';
           this.renderer.setStyle(button, 'background', '#2ecc71');
         }
 
         setTimeout(() => {
-          if (button) {
-            button.innerHTML = 'Register';
-            button.disabled = false;
-            this.renderer.removeStyle(button, 'background');
-          }
-          this.registerForm.reset();
-          alert('✅ Registered successfully!');
-        }, 2000);
-
-        console.log(res);
+          // Redirect to login page after successful registration
+          this.router.navigate(['/login']);
+        }, 1500);
       },
-      error: err => {
+      error: (err: any) => {
+        this.isLoading = false;
+        console.error('❌ Registration failed:', err);
+
         if (button) {
           button.innerHTML = 'Register';
           button.disabled = false;
           this.renderer.removeStyle(button, 'background');
         }
-        alert('❌ Registration failed: ' + (err.error?.error || err.message));
-        console.error(err);
+
+        this.errorMessage = err.error?.message || 'Registration failed. Please try again.';
+        
+        if (err.status === 409) {
+          this.errorMessage = 'Email or username already exists. Please use different credentials.';
+        } else if (err.status === 400) {
+          this.errorMessage = 'Invalid registration data. Please check your information.';
+        } else if (err.status === 500) {
+          this.errorMessage = 'Server error. Please try again later.';
+        }
       }
+    });
+  }
+
+  private markFormGroupTouched() {
+    Object.keys(this.registerForm.controls).forEach(key => {
+      const control = this.registerForm.get(key);
+      control?.markAsTouched();
     });
   }
 }
