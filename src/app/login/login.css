@@ -192,54 +192,58 @@ input:focus + .input-icon {
     color: #4b6cb7;
 }
 
-/* Password input container - FIXED VERSION */
+/* Password input container */
 .password-input-container {
-    position: relative !important;
-    display: block !important;
-    width: 100% !important;
+    position: relative;
+    display: block;
+    width: 100%;
 }
 
 .password-input-container input {
-    padding-right: 60px !important; /* More space for the button */
-    width: 100% !important;
-    position: relative !important;
-    z-index: 1 !important;
+    padding-right: 60px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
 }
 
-/* Password toggle button - FORCE VISIBLE */
+/* Password toggle button */
 .password-toggle-btn {
-    position: absolute !important;
-    right: 12px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    background: rgba(255, 255, 255, 0.9) !important;
-    border: 2px solid #e1e5ec !important;
-    color: #000000 !important;
-    cursor: pointer !important;
-    z-index: 1000 !important;
-    font-size: 16px !important;
-    width: 32px !important;
-    height: 32px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 0 !important;
-    border-radius: 6px !important;
-    transition: all 0.3s ease !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: all !important;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #000000;
+    cursor: pointer;
+    z-index: 100;
+    font-size: 16px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
 }
 
-
+.password-toggle-btn:hover {
+    color: #4b6cb7;
+    background: rgba(75, 108, 183, 0.1);
+    transform: translateY(-50%) scale(1.1);
+}
 
 .password-toggle-btn:active {
-    transform: translateY(-50%) scale(0.95) !important;
+    transform: translateY(-50%) scale(0.95);
 }
 
 .password-toggle-btn:focus {
-    outline: 2px solid #4b6cb7 !important;
-    outline-offset: 2px !important;
+    outline: 2px solid #4b6cb7;
+    outline-offset: 2px;
 }
 
 /* Ensure the lock icon is properly positioned */
@@ -249,16 +253,6 @@ input:focus + .input-icon {
     top: 50%;
     transform: translateY(-50%);
     z-index: 2;
-}
-
-/* DEBUG STYLES - Remove these after it works */
-.debug-border {
-    border: 2px solid red !important;
-}
-
-.debug-bg {
-    background: yellow !important;
-    border: 2px solid blue !important;
 }
 
 .error {
@@ -577,7 +571,7 @@ button[type="submit"].success {
     }
     
     .password-toggle-btn {
-        right: 10px !important;
+        right: 10px;
     }
 }
 
@@ -596,13 +590,13 @@ button[type="submit"].success {
     }
     
     .password-toggle-btn {
-        right: 8px !important;
-        width: 28px !important;
-        height: 28px !important;
+        right: 8px;
+        width: 28px;
+        height: 28px;
     }
     
     input {
-        padding: 14px 50px 14px 45px !important;
+        padding: 14px 50px 14px 45px;
         font-size: 15px;
     }
     
@@ -635,14 +629,14 @@ button[type="submit"].success {
     }
     
     .password-toggle-btn {
-        right: 6px !important;
-        font-size: 14px !important;
-        width: 24px !important;
-        height: 24px !important;
+        right: 6px;
+        font-size: 14px;
+        width: 24px;
+        height: 24px;
     }
     
     input {
-        padding: 12px 45px 12px 40px !important;
+        padding: 12px 45px 12px 40px;
         font-size: 14px;
     }
     
@@ -661,10 +655,10 @@ button[type="submit"].success {
 /* Touch device optimizations */
 @media (hover: none) and (pointer: coarse) {
     .password-toggle-btn {
-        min-width: 44px !important;
-        min-height: 44px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 }
