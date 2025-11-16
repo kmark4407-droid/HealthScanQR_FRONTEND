@@ -162,7 +162,7 @@ label {
 
 input {
     width: 100%;
-    padding: 15px 15px 15px 45px;
+    padding: 15px 50px 15px 45px;
     border: 2px solid #e1e5ec;
     border-radius: 10px;
     font-size: 16px;
@@ -196,6 +196,55 @@ input:focus + .input-icon {
     color: #4b6cb7;
 }
 
+/* Password input container */
+.password-input-container {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+
+.password-input-container input {
+    padding-right: 60px;
+    width: 100%;
+}
+
+/* Ensure the lock icon is properly positioned */
+.password-input-container .input-icon.fa-lock {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+}
+
+/* Password toggle button styling */
+.password-toggle-btn {
+    position: absolute !important;
+    right: 15px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    background: transparent !important;
+    border: none !important;
+    color: #6c757d !important;
+    cursor: pointer !important;
+    z-index: 1000 !important;
+    font-size: 14px !important;
+    width: 30px !important;
+    height: 30px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transition: color 0.3s ease !important;
+}
+
+.password-toggle-btn:hover {
+    color: #4b6cb7 !important;
+    background: transparent !important;
+}
+
 .error {
     color: #e74c3c;
     font-size: 12px;
@@ -205,7 +254,7 @@ input:focus + .input-icon {
     padding-left: 5px;
 }
 
-button {
+button[type="submit"] {
     width: 100%;
     padding: 16px;
     background: linear-gradient(120deg, #4b6cb7 0%, #182848 100%);
@@ -223,7 +272,7 @@ button {
     min-height: 54px;
 }
 
-button::before {
+button[type="submit"]::before {
     content: '';
     position: absolute;
     top: 0;
@@ -234,21 +283,21 @@ button::before {
     transition: 0.5s;
 }
 
-button:hover::before {
+button[type="submit"]:hover::before {
     left: 100%;
 }
 
-button:hover {
+button[type="submit"]:hover {
     transform: translateY(-3px);
     box-shadow: 0 15px 25px rgba(75, 108, 183, 0.4);
 }
 
-button:active {
+button[type="submit"]:active {
     transform: translateY(0);
     box-shadow: 0 5px 15px rgba(75, 108, 183, 0.4);
 }
 
-button:disabled {
+button[type="submit"]:disabled {
     background: #cccccc;
     cursor: not-allowed;
     transform: none;
@@ -368,23 +417,6 @@ button.success {
 button.error {
     background: linear-gradient(120deg, #e74c3c 0%, #c0392b 100%);
     box-shadow: 0 10px 20px rgba(231, 76, 60, 0.3);
-}
-
-/* Password visibility toggle */
-.password-toggle {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #a0a0a0;
-    cursor: pointer;
-    transition: color 0.3s ease;
-    z-index: 2;
-    font-size: 16px;
-}
-
-.password-toggle:hover {
-    color: #4b6cb7;
 }
 
 /* Form validation messages */
@@ -696,7 +728,7 @@ button.error {
     }
     
     input {
-        padding: 14px 14px 14px 42px;
+        padding: 14px 50px 14px 42px;
         font-size: 15px;
     }
     
@@ -756,18 +788,13 @@ button.error {
     }
     
     input {
-        padding: 14px 14px 14px 42px;
+        padding: 14px 50px 14px 42px;
         font-size: 15px;
         min-height: 48px;
     }
     
     .input-icon {
         left: 14px;
-        font-size: 15px;
-    }
-    
-    .password-toggle {
-        right: 14px;
         font-size: 15px;
     }
     
@@ -840,7 +867,7 @@ button.error {
     }
     
     input {
-        padding: 12px 12px 12px 40px;
+        padding: 12px 50px 12px 40px;
         font-size: 14px;
         min-height: 46px;
         border-radius: 8px;
@@ -848,11 +875,6 @@ button.error {
     
     .input-icon {
         left: 12px;
-        font-size: 14px;
-    }
-    
-    .password-toggle {
-        right: 12px;
         font-size: 14px;
     }
     
@@ -939,18 +961,13 @@ button.error {
     }
     
     input {
-        padding: 11px 11px 11px 38px;
+        padding: 11px 50px 11px 38px;
         font-size: 13px;
         min-height: 44px;
     }
     
     .input-icon {
         left: 11px;
-        font-size: 13px;
-    }
-    
-    .password-toggle {
-        right: 11px;
         font-size: 13px;
     }
     
@@ -999,7 +1016,7 @@ button.error {
     }
     
     input {
-        padding: 10px 10px 10px 38px;
+        padding: 10px 50px 10px 38px;
         min-height: 42px;
     }
 }
