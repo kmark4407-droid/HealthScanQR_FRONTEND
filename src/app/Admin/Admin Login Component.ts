@@ -20,7 +20,7 @@ export class AdminLoginComponent implements OnInit {
   loginForm: FormGroup;
   errorMessage = '';
   isLoading = false;
-  showPassword = false; // Add this property
+  showPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -56,15 +56,8 @@ export class AdminLoginComponent implements OnInit {
     });
   }
 
-  // Add this method
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
-    const passwordInput = document.getElementById('password') as HTMLInputElement;
-    
-    if (passwordInput) {
-      passwordInput.type = this.showPassword ? 'text' : 'password';
-      setTimeout(() => passwordInput.focus(), 0);
-    }
   }
 
   submit(): void {
