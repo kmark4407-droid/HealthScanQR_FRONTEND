@@ -56,24 +56,11 @@ export class LoginComponent implements OnInit {
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
     const passwordInput = document.getElementById('password') as HTMLInputElement;
-    const passwordToggle = document.querySelector('.password-toggle') as HTMLElement;
     
     if (passwordInput) {
       passwordInput.type = this.showPassword ? 'text' : 'password';
       // Keep focus on input after toggle
       setTimeout(() => passwordInput.focus(), 0);
-    }
-    
-    if (passwordToggle) {
-      if (this.showPassword) {
-        passwordToggle.classList.remove('fa-eye');
-        passwordToggle.classList.add('fa-eye-slash');
-        passwordToggle.title = 'Hide password';
-      } else {
-        passwordToggle.classList.remove('fa-eye-slash');
-        passwordToggle.classList.add('fa-eye');
-        passwordToggle.title = 'Show password';
-      }
     }
   }
 
