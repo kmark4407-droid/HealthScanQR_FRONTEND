@@ -12,21 +12,21 @@
         </div>
       </div>
 
-<div class="form-group">
-  <label for="password">Password</label>
-  <div class="password-input-container debug-border">
-    <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Enter your password" />
-    <i class="input-icon fas fa-lock"></i>
-    <button type="button" class="password-toggle-btn debug-bg" 
-            (click)="togglePasswordVisibility()"
-            [title]="showPassword ? 'Hide password' : 'Show password'">
-      <i class="fas" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword"></i>
-    </button>
-  </div>
-  <div class="error" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
-    Password must be inputted.
-  </div>
-</div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="password-input-container">
+          <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Enter your password" />
+          <i class="input-icon fas fa-lock"></i>
+          <button type="button" class="password-toggle-btn" 
+                  (click)="togglePasswordVisibility()"
+                  [title]="showPassword ? 'Hide password' : 'Show password'">
+            <i class="fas" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword"></i>
+          </button>
+        </div>
+        <div class="error" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
+          Password must be at least 6 characters.
+        </div>
+      </div>
 
       <div class="error" *ngIf="errorMessage" style="margin-bottom: 20px;">
         {{ errorMessage }}
