@@ -1,6 +1,6 @@
 import { Component, ElementRef, Renderer2, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../services/auth.service';
 import { HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common'; 
 import { Router } from '@angular/router';
@@ -194,21 +194,21 @@ export class RegisterComponent implements OnInit {
     });
   }
 
-  // Resend verification email
-  resendVerification(): void {
-    if (this.registeredEmail) {
-      this.auth.resendVerificationEmail(this.registeredEmail).subscribe({
-        next: (res: any) => {
-          console.log('✅ Verification email resent');
-          this.errorMessage = ''; // Clear any previous errors
-        },
-        error: (error: any) => {
-          console.error('❌ Failed to resend verification:', error);
-          this.errorMessage = 'Failed to resend verification email. Please try again.';
-        }
-      });
-    }
-  }
+  // TEMPORARILY COMMENTED OUT - Will add back after AuthService is updated
+  // resendVerification(): void {
+  //   if (this.registeredEmail) {
+  //     this.auth.resendVerificationEmail(this.registeredEmail).subscribe({
+  //       next: (res: any) => {
+  //         console.log('✅ Verification email resent');
+  //         this.errorMessage = ''; // Clear any previous errors
+  //       },
+  //       error: (error: any) => {
+  //         console.error('❌ Failed to resend verification:', error);
+  //         this.errorMessage = 'Failed to resend verification email. Please try again.';
+  //       }
+  //     });
+  //   }
+  // }
 
   // Go to login page
   goToLogin(): void {
