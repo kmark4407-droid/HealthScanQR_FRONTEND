@@ -1,6 +1,6 @@
 import { Component, ElementRef, Renderer2, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '../auth.service';
 import { HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common'; 
 import { Router } from '@angular/router';
