@@ -129,9 +129,10 @@
         <p>Please check your inbox and click the verification link to activate your account.</p>
         
         <div class="verification-actions">
-          <button class="resend-btn" (click)="resendVerification()">
+          <!-- Resend button temporarily removed until AuthService is updated -->
+          <!-- <button class="resend-btn" (click)="resendVerification()">
             <i class="fas fa-redo"></i> Resend Verification Email
-          </button>
+          </button> -->
           <button class="login-btn" (click)="goToLogin()">
             <i class="fas fa-sign-in-alt"></i> Go to Login
           </button>
@@ -142,7 +143,8 @@
           <ul>
             <li>Check your spam or junk folder</li>
             <li>Make sure you entered the correct email address</li>
-            <li>Wait a few minutes and try again</li>
+            <li>Wait a few minutes and try registering again</li>
+            <li>Contact support if the issue persists</li>
           </ul>
         </div>
       </div>
@@ -206,7 +208,7 @@
         <h4>Data Protection</h4>
         <p>We implement security measures to protect your personal information. Your data is stored securely and never sold to third parties.</p>
         
-        <p><strong>Last updated:</strong> January 2025</p>
+        <p><strong>Last updated:</strong> January 2024</p>
       </div>
       <div class="terms-card-footer">
         <button class="terms-card-button" (click)="showPrivacyCard = false">I Understand</button>
