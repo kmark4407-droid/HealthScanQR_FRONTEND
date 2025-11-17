@@ -23,6 +23,8 @@ export class RegisterComponent implements OnInit {
   showPrivacyCard = false;
   errorMessage = '';
   isLoading = false;
+  showVerificationMessage = false;
+  registeredEmail = '';
 
   constructor(
     private fb: FormBuilder,
@@ -71,7 +73,7 @@ export class RegisterComponent implements OnInit {
     if (this.hasNumber()) strength += 20;
     if (this.hasSpecialChar()) strength += 20;
     
-    return Math.min(strength, 100); // Cap at 100%
+    return Math.min(strength, 100);
   }
 
   getPasswordStrengthText(): string {
@@ -140,6 +142,7 @@ export class RegisterComponent implements OnInit {
 
     this.isLoading = true;
     this.errorMessage = '';
+    this.showVerificationMessage = false;
 
     this.auth.register(this.registerForm.value).subscribe({
       next: (res: any) => {
@@ -151,14 +154,26 @@ export class RegisterComponent implements OnInit {
           this.renderer.setStyle(button, 'background', '#2ecc71');
         }
 
+        // Show verification message instead of redirecting
+        this.showVerificationMessage = true;
+        this.registeredEmail = this.registerForm.get('email')?.value;
+
+        // Clear form
+        this.registerForm.reset();
+
+        // Don't redirect immediately - let user see verification message
         setTimeout(() => {
-          // Redirect to login page after successful registration
-          this.router.navigate(['/login']);
-        }, 1500);
+          if (button) {
+            button.innerHTML = 'Register';
+            button.disabled = false;
+            this.renderer.removeStyle(button, 'background');
+          }
+        }, 3000);
+
       },
-      error: (err: any) => {
+      error: (error: any) => {
         this.isLoading = false;
-        console.error('❌ Registration failed:', err);
+        console.error('❌ Registration failed:', error);
 
         if (button) {
           button.innerHTML = 'Register';
@@ -166,17 +181,38 @@ export class RegisterComponent implements OnInit {
           this.renderer.removeStyle(button, 'background');
         }
 
-        this.errorMessage = err.error?.message || 'Registration failed. Please try again.';
+        this.errorMessage = error.error?.message || 'Registration failed. Please try again.';
         
-        if (err.status === 409) {
+        if (error.status === 409) {
           this.errorMessage = 'Email or username already exists. Please use different credentials.';
-        } else if (err.status === 400) {
+        } else if (error.status === 400) {
           this.errorMessage = 'Invalid registration data. Please check your information.';
-        } else if (err.status === 500) {
+        } else if (error.status === 500) {
           this.errorMessage = 'Server error. Please try again later.';
         }
       }
     });
+  }
+
+  // Resend verification email
+  resendVerification(): void {
+    if (this.registeredEmail) {
+      this.auth.resendVerificationEmail(this.registeredEmail).subscribe({
+        next: (res: any) => {
+          console.log('✅ Verification email resent');
+          this.errorMessage = ''; // Clear any previous errors
+        },
+        error: (error: any) => {
+          console.error('❌ Failed to resend verification:', error);
+          this.errorMessage = 'Failed to resend verification email. Please try again.';
+        }
+      });
+    }
+  }
+
+  // Go to login page
+  goToLogin(): void {
+    this.router.navigate(['/login']);
   }
 
   private markFormGroupTouched() {
