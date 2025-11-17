@@ -67,6 +67,19 @@ export class AuthService {
     );
   }
 
+  // ✅ ADD THIS METHOD: Resend verification email
+  resendVerificationEmail(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/resend-verification`, { email }).pipe(
+      tap((response: any) => {
+        console.log('✅ Verification email resent to:', email);
+      }),
+      catchError((error: any) => {
+        console.error('❌ Resend verification error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
   // ✅ NEW: Verify email endpoint
   verifyEmail(email: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/auth/verify-email`, { email }).pipe(
@@ -79,19 +92,6 @@ export class AuthService {
       }),
       catchError((error: any) => {
         console.error('❌ Email verification error:', error);
-        return throwError(() => error);
-      })
-    );
-  }
-
-  // ✅ NEW: Resend verification email
-  resendVerificationEmail(email: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth/resend-verification`, { email }).pipe(
-      tap((response: any) => {
-        console.log('✅ Verification email resent to:', email);
-      }),
-      catchError((error: any) => {
-        console.error('❌ Resend verification error:', error);
         return throwError(() => error);
       })
     );
