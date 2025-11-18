@@ -1,4 +1,4 @@
-// auth.service.ts - FIXED WITH CORRECT ENDPOINTS
+// auth.service.ts - CORRECTED VERSION
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, throwError } from 'rxjs';
@@ -108,7 +108,7 @@ export class AuthService {
     );
   }
 
-  // ✅ QUICK VERIFY - FIXED ENDPOINT (was missing /auth/)
+  // ✅ QUICK VERIFY - CORRECT ENDPOINT
   quickVerifyEmail(email: string): Observable<any> {
     console.log('⚡ Quick verifying:', email);
     
@@ -341,9 +341,4 @@ export class AuthService {
     // Use quick verify as it doesn't require password
     return this.quickVerifyEmail(email);
   }
-
-  // REMOVED NON-EXISTENT ENDPOINTS:
-  // - manualSyncVerification (endpoint doesn't exist)
-  // - debugFirebaseCallback (endpoint doesn't exist) 
-  // - testEmailVerification (endpoint doesn't exist)
 }
