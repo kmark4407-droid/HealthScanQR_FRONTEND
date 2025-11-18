@@ -144,6 +144,7 @@ export class RegisterComponent implements OnInit {
     this.errorMessage = '';
     this.showVerificationMessage = false;
 
+    // ✅ ONLY USE AUTH SERVICE - NO DIRECT HTTP CALLS
     this.auth.register(this.registerForm.value).subscribe({
       next: (res: any) => {
         this.isLoading = false;
