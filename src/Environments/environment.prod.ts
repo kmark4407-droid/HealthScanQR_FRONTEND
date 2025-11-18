@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://healthscanqr-backend.onrender.com'  // ← ADD /api here
+  apiUrl: 'https://healthscanqr-backend.onrender.com/api'  // ← ADD /api here
 };
