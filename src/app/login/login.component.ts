@@ -57,44 +57,12 @@ export class LoginComponent implements OnInit {
   testBackendConnection(): void {
     console.log('🧪 Testing backend connection...');
     
-    this.http.get('https://healthscanqr-backend.onrender.com/api/health').subscribe({
+    this.auth.testBackendConnection().subscribe({
       next: (response: any) => {
         console.log('✅ Backend is running:', response);
       },
       error: (error) => {
         console.error('❌ Backend connection failed:', error);
-        alert('Backend is NOT running. Error: ' + error.message);
-      }
-    });
-  }
-
-  // 🔍 TEST LOGIN ENDPOINT DIRECTLY
-  testLoginDirectly(): void {
-    const loginData = this.loginForm.value;
-    console.log('🧪 Testing login endpoint directly...');
-    console.log('📤 URL: https://healthscanqr-backend.onrender.com/api/auth/login');
-    console.log('📦 Data:', loginData);
-
-    this.http.post('https://healthscanqr-backend.onrender.com/api/auth/login', loginData).subscribe({
-      next: (response: any) => {
-        console.log('✅ Direct login successful:', response);
-        alert('✅ Login works! Response: ' + JSON.stringify(response));
-      },
-      error: (error) => {
-        console.error('❌ Direct login failed:', error);
-        console.log('🔍 Full error object:', error);
-        console.log('📡 Error status:', error.status);
-        console.log('📡 Error URL:', error.url);
-        console.log('📡 Error message:', error.message);
-        console.log('📡 Error name:', error.name);
-        
-        if (error.status === 404) {
-          alert('❌ 404 Error: Login endpoint not found. Check backend routes.');
-        } else if (error.status === 0) {
-          alert('❌ Network Error: Cannot connect to backend. Check CORS and server.');
-        } else {
-          alert('❌ Login failed with status: ' + error.status);
-        }
       }
     });
   }
@@ -142,10 +110,7 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    // FIRST: Test the endpoint directly to see what happens
-    this.testLoginDirectly();
-    
-    // SECOND: Also try via AuthService for comparison
+    // ✅ ONLY USE AUTH SERVICE - NO DIRECT HTTP CALLS
     this.auth.login(this.loginForm.value).subscribe({
       next: (res: any) => {
         this.isLoading = false;
@@ -178,13 +143,6 @@ export class LoginComponent implements OnInit {
       error: (err) => {
         this.isLoading = false;
         console.error('❌ Login failed via AuthService:', err);
-        console.log('🔍 AuthService error details:', {
-          status: err.status,
-          statusText: err.statusText,
-          url: err.url,
-          message: err.message,
-          error: err.error
-        });
 
         if (button) {
           button.innerHTML = 'Login';
@@ -219,9 +177,6 @@ export class LoginComponent implements OnInit {
       email: 'test@example.com',
       password: 'password123'
     });
-    
-    // Test with demo account first
-    this.testLoginDirectly();
   }
 
   goToRegister(): void {
@@ -232,14 +187,12 @@ export class LoginComponent implements OnInit {
   testAuthEndpoint(): void {
     console.log('🧪 Testing auth endpoint...');
     
-    this.http.get('https://healthscanqr-backend.onrender.com/api/auth/test').subscribe({
+    this.auth.testApi().subscribe({
       next: (response: any) => {
         console.log('✅ Auth endpoint works:', response);
-        alert('Auth endpoint works! Available endpoints: ' + JSON.stringify(response.endpoints));
       },
       error: (error) => {
         console.error('❌ Auth endpoint failed:', error);
-        alert('Auth endpoint failed: ' + error.message);
       }
     });
   }
