@@ -26,6 +26,7 @@ export class RegisterComponent implements OnInit {
   showVerificationMessage = false;
   registeredEmail = '';
   successMessage = '';
+  showTestingButtons = true; // Set to false in production
 
   constructor(
     private fb: FormBuilder,
@@ -206,19 +207,22 @@ export class RegisterComponent implements OnInit {
     if (this.registeredEmail) {
       this.isLoading = true;
       this.errorMessage = '';
+      this.successMessage = '';
       
       this.auth.resendVerificationEmail(this.registeredEmail).subscribe({
         next: (res: any) => {
           this.isLoading = false;
           console.log('✅ Verification email resent:', res);
-          this.successMessage = 'Verification email sent successfully! Please check your inbox.';
-          this.errorMessage = '';
+          if (res.success && res.emailSent) {
+            this.successMessage = 'Verification email sent successfully! Please check your inbox.';
+          } else {
+            this.errorMessage = 'Failed to send verification email. Please try quick verify instead.';
+          }
         },
         error: (error: any) => {
           this.isLoading = false;
           console.error('❌ Failed to resend verification:', error);
-          this.errorMessage = 'Failed to resend verification email. Please try again.';
-          this.successMessage = '';
+          this.errorMessage = 'Failed to resend verification email. Please try quick verify instead.';
         }
       });
     }
@@ -229,13 +233,13 @@ export class RegisterComponent implements OnInit {
     if (this.registeredEmail) {
       this.isLoading = true;
       this.errorMessage = '';
+      this.successMessage = '';
       
       this.auth.manualSyncVerification(this.registeredEmail).subscribe({
         next: (res: any) => {
           this.isLoading = false;
           console.log('✅ Manual sync successful:', res);
           this.successMessage = 'Email verified successfully! You can now login.';
-          this.errorMessage = '';
           
           // Redirect to login after successful sync
           setTimeout(() => {
@@ -246,7 +250,6 @@ export class RegisterComponent implements OnInit {
           this.isLoading = false;
           console.error('❌ Manual sync failed:', error);
           this.errorMessage = 'Manual sync failed. Please try quick verify instead.';
-          this.successMessage = '';
         }
       });
     }
@@ -257,13 +260,13 @@ export class RegisterComponent implements OnInit {
     if (this.registeredEmail) {
       this.isLoading = true;
       this.errorMessage = '';
+      this.successMessage = '';
       
       this.auth.quickVerifyEmail(this.registeredEmail).subscribe({
         next: (res: any) => {
           this.isLoading = false;
           console.log('✅ Quick verify successful:', res);
           this.successMessage = 'Email verified instantly! You can now login.';
-          this.errorMessage = '';
           
           // Redirect to login after successful verification
           setTimeout(() => {
@@ -274,7 +277,6 @@ export class RegisterComponent implements OnInit {
           this.isLoading = false;
           console.error('❌ Quick verify failed:', error);
           this.errorMessage = 'Quick verify failed. Please try manual sync.';
-          this.successMessage = '';
         }
       });
     }
@@ -284,6 +286,8 @@ export class RegisterComponent implements OnInit {
   checkVerificationStatus(): void {
     if (this.registeredEmail) {
       this.isLoading = true;
+      this.errorMessage = '';
+      this.successMessage = '';
       
       this.auth.checkVerificationStatus(this.registeredEmail).subscribe({
         next: (res: any) => {
@@ -292,7 +296,6 @@ export class RegisterComponent implements OnInit {
           
           if (res.emailVerified) {
             this.successMessage = 'Email is verified! You can now login.';
-            this.errorMessage = '';
             
             // Redirect to login if verified
             setTimeout(() => {
@@ -300,14 +303,12 @@ export class RegisterComponent implements OnInit {
             }, 2000);
           } else {
             this.errorMessage = 'Email is not verified yet. Please check your email or use resend.';
-            this.successMessage = '';
           }
         },
         error: (error: any) => {
           this.isLoading = false;
           console.error('❌ Status check failed:', error);
           this.errorMessage = 'Failed to check verification status.';
-          this.successMessage = '';
         }
       });
     }
@@ -316,6 +317,13 @@ export class RegisterComponent implements OnInit {
   // Go to login page
   goToLogin(): void {
     this.router.navigate(['/login']);
+  }
+
+  // Close verification message
+  closeVerificationMessage(): void {
+    this.showVerificationMessage = false;
+    this.errorMessage = '';
+    this.successMessage = '';
   }
 
   private markFormGroupTouched() {
