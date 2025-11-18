@@ -1,3 +1,4 @@
+// auth.service.ts - COMPLETE REVISED FOR EMAIL CONFIRMATION
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, throwError } from 'rxjs';
@@ -12,26 +13,23 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  // ✅ FIXED: Register with correct endpoint and email verification handling
+  // ✅ REGISTER with email verification
   register(data: any): Observable<any> {
-    console.log('📝 Registering user with data:', data);
+    console.log('📝 Registering user:', data.email);
     
     return this.http.post(`${this.apiUrl}/api/auth/register`, data).pipe(
       tap((response: any) => {
         console.log('✅ Registration response:', response);
         
         if (response.success) {
-          if (response.token && response.user) {
-            // Auto-login if user is verified
-            if (response.user.email_verified) {
-              this.saveUserData(response.token, response.user);
-              console.log('✅ User registered and auto-verified - logged in automatically');
-            } else {
-              // Save pending verification data
-              localStorage.setItem('pending_user_email', response.user.email);
-              localStorage.setItem('pending_user_data', JSON.stringify(response.user));
-              console.log('✅ User registered - email verification required');
-            }
+          // Always store pending verification data
+          localStorage.setItem('pending_user_email', response.user.email);
+          localStorage.setItem('pending_user_data', JSON.stringify(response.user));
+          
+          if (response.emailSent) {
+            console.log('📧 Verification email sent - check your inbox');
+          } else {
+            console.log('⚠️ Registration complete but email failed - use resend');
           }
         }
       }),
@@ -42,7 +40,7 @@ export class AuthService {
     );
   }
 
-  // ✅ FIXED: Login with correct endpoint and verification handling
+  // ✅ LOGIN with email verification check
   login(data: any): Observable<any> {
     console.log('🔐 Logging in user:', data.email);
     
@@ -52,15 +50,14 @@ export class AuthService {
         
         if (response.success && response.token && response.user) {
           this.saveUserData(response.token, response.user);
-          console.log('✅ User logged in successfully:', response.user.email);
+          console.log('✅ User logged in successfully');
         }
       }),
       catchError((error: any) => {
         console.error('❌ Login error:', error);
         
-        // Handle specific error cases
-        if (error.error?.message?.includes('not verified')) {
-          // Store email for resend verification
+        // Handle email verification required
+        if (error.error?.requiresVerification) {
           localStorage.setItem('pending_verification_email', data.email);
         }
         
@@ -69,33 +66,51 @@ export class AuthService {
     );
   }
 
-  // ✅ FIXED: Resend verification email with correct endpoint
+  // ✅ RESEND VERIFICATION EMAIL
   resendVerificationEmail(email: string): Observable<any> {
-    console.log('📧 Resending verification email to:', email);
+    console.log('📧 Resending verification to:', email);
     
     return this.http.post(`${this.apiUrl}/api/auth/resend-verification`, { email }).pipe(
       tap((response: any) => {
-        console.log('✅ Resend verification response:', response);
-        if (response.success) {
+        console.log('✅ Resend response:', response);
+        if (response.success && response.emailSent) {
           console.log('✅ Verification email sent successfully');
         }
       }),
       catchError((error: any) => {
-        console.error('❌ Resend verification error:', error);
+        console.error('❌ Resend error:', error);
         return throwError(() => error);
       })
     );
   }
 
-  // ✅ FIXED: Quick verify endpoint (instant verification for testing)
+  // ✅ SYNC VERIFICATION STATUS (after clicking email link)
+  syncVerificationStatus(email: string): Observable<any> {
+    console.log('🔄 Syncing verification for:', email);
+    
+    return this.http.post(`${this.apiUrl}/api/auth/verify-email-callback`, { email }).pipe(
+      tap((response: any) => {
+        console.log('✅ Sync response:', response);
+        if (response.success && response.verified) {
+          this.clearPendingVerification();
+          console.log('✅ Email verified and synced');
+        }
+      }),
+      catchError((error: any) => {
+        console.error('❌ Sync error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  // ✅ QUICK VERIFY (instant verification for testing)
   quickVerifyEmail(email: string): Observable<any> {
-    console.log('⚡ Quick verifying email:', email);
+    console.log('⚡ Quick verifying:', email);
     
     return this.http.post(`${this.apiUrl}/api/auth/quick-verify`, { email }).pipe(
       tap((response: any) => {
         console.log('✅ Quick verify response:', response);
         if (response.success) {
-          // Clear pending verification data
           this.clearPendingVerification();
           console.log('✅ Email verified instantly');
         }
@@ -107,29 +122,55 @@ export class AuthService {
     );
   }
 
-  // ✅ FIXED: Sync verification status after clicking email link
-  syncVerificationStatus(email: string): Observable<any> {
-    console.log('🔄 Syncing verification status for:', email);
+  // ✅ CHECK VERIFICATION STATUS
+  checkVerificationStatus(email: string): Observable<any> {
+    console.log('🔍 Checking verification status for:', email);
     
-    return this.http.post(`${this.apiUrl}/api/auth/verify-email-callback`, { email }).pipe(
+    return this.http.get(`${this.apiUrl}/api/auth/verification-status/${email}`).pipe(
       tap((response: any) => {
-        console.log('✅ Sync verification response:', response);
-        if (response.success && response.verified) {
-          this.clearPendingVerification();
-          console.log('✅ Email verified and synced successfully');
-        }
+        console.log('✅ Verification status:', response);
       }),
       catchError((error: any) => {
-        console.error('❌ Sync verification error:', error);
+        console.error('❌ Status check error:', error);
         return throwError(() => error);
       })
     );
   }
 
-  // ✅ FIXED: Get user profile with correct endpoint
+  // ✅ TEST FIREBASE CONNECTION
+  testFirebaseConnection(): Observable<any> {
+    console.log('🧪 Testing Firebase connection...');
+    
+    return this.http.post(`${this.apiUrl}/api/auth/test-firebase`, {}).pipe(
+      tap((response: any) => {
+        console.log('✅ Firebase test:', response);
+      }),
+      catchError((error: any) => {
+        console.error('❌ Firebase test error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  // ✅ TEST EMAIL DELIVERY
+  testEmailDelivery(email: string): Observable<any> {
+    console.log('🧪 Testing email delivery to:', email);
+    
+    return this.http.post(`${this.apiUrl}/api/auth/test-email-delivery`, { email }).pipe(
+      tap((response: any) => {
+        console.log('✅ Email test result:', response);
+      }),
+      catchError((error: any) => {
+        console.error('❌ Email test error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  // ✅ GET USER PROFILE
   getProfile(): Observable<any> {
     const token = this.getUserToken();
-    console.log('👤 Getting user profile with token:', token ? 'present' : 'missing');
+    console.log('👤 Getting user profile');
     
     return this.http.get(`${this.apiUrl}/api/auth/me`, {
       headers: {
@@ -139,7 +180,6 @@ export class AuthService {
       tap((response: any) => {
         console.log('✅ Profile response:', response);
         if (response.success && response.user) {
-          // Update stored user data
           localStorage.setItem('user_data', JSON.stringify(response.user));
           localStorage.setItem('email_verified', response.user.email_verified ? 'true' : 'false');
         }
@@ -151,7 +191,7 @@ export class AuthService {
     );
   }
 
-  // ✅ FIXED: Admin login with correct endpoint
+  // ✅ ADMIN LOGIN
   adminLogin(data: any): Observable<any> {
     console.log('🔐 Admin logging in:', data.email);
     
@@ -172,51 +212,6 @@ export class AuthService {
     );
   }
 
-  // ✅ FIXED: Check verification status
-  checkVerificationStatus(email: string): Observable<any> {
-    console.log('🔍 Checking verification status for:', email);
-    
-    return this.http.get(`${this.apiUrl}/api/auth/verification-status/${email}`).pipe(
-      tap((response: any) => {
-        console.log('✅ Verification status:', response);
-      }),
-      catchError((error: any) => {
-        console.error('❌ Check verification error:', error);
-        return throwError(() => error);
-      })
-    );
-  }
-
-  // ✅ FIXED: Test Firebase connection
-  testFirebaseConnection(): Observable<any> {
-    console.log('🧪 Testing Firebase connection...');
-    
-    return this.http.post(`${this.apiUrl}/api/auth/test-firebase`, {}).pipe(
-      tap((response: any) => {
-        console.log('✅ Firebase test result:', response);
-      }),
-      catchError((error: any) => {
-        console.error('❌ Firebase test error:', error);
-        return throwError(() => error);
-      })
-    );
-  }
-
-  // ✅ FIXED: Test email delivery
-  testEmailDelivery(email: string): Observable<any> {
-    console.log('🧪 Testing email delivery to:', email);
-    
-    return this.http.post(`${this.apiUrl}/api/auth/test-email-delivery`, { email }).pipe(
-      tap((response: any) => {
-        console.log('✅ Email test result:', response);
-      }),
-      catchError((error: any) => {
-        console.error('❌ Email test error:', error);
-        return throwError(() => error);
-      })
-    );
-  }
-
   // ✅ PRIVATE: Save user data to localStorage
   private saveUserData(token: string, user: any): void {
     localStorage.setItem('token', token);
@@ -229,7 +224,7 @@ export class AuthService {
     this.clearPendingVerification();
   }
 
-  // ✅ UPDATED: Logout - clear all data
+  // ✅ LOGOUT - clear all data
   logout(): void {
     const itemsToRemove = [
       'loggedIn', 'token', 'user_id', 'user_data', 'hasUpdated',
@@ -243,12 +238,12 @@ export class AuthService {
     console.log('✅ User logged out - all data cleared');
   }
 
-  // ✅ FIXED: Save token method
+  // ✅ SAVE TOKEN
   saveToken(token: string): void {
     localStorage.setItem('token', token);
   }
 
-  // ✅ FIXED: Check authentication with proper verification
+  // ✅ CHECK AUTHENTICATION
   isAuthenticated(): boolean {
     const loggedIn = localStorage.getItem('loggedIn');
     const token = localStorage.getItem('token');
@@ -258,7 +253,7 @@ export class AuthService {
     return loggedIn === 'true' && !!(token && userId) && emailVerified;
   }
 
-  // ✅ FIXED: Check if logged in but not verified
+  // ✅ CHECK IF LOGGED IN BUT NOT VERIFIED
   isLoggedInButNotVerified(): boolean {
     const loggedIn = localStorage.getItem('loggedIn');
     const token = localStorage.getItem('token');
@@ -267,14 +262,14 @@ export class AuthService {
     return loggedIn === 'true' && !!token && !emailVerified;
   }
 
-  // ✅ FIXED: Check admin authentication
+  // ✅ CHECK ADMIN AUTHENTICATION
   isAdminAuthenticated(): boolean {
     const adminLoggedIn = localStorage.getItem('adminLoggedIn');
     const adminToken = localStorage.getItem('admin_token');
     return adminLoggedIn === 'true' && !!adminToken;
   }
 
-  // ✅ Get user data
+  // ✅ GET USER DATA
   getUserData(): any {
     const userData = localStorage.getItem('user_data');
     if (userData) {
@@ -285,49 +280,67 @@ export class AuthService {
     return null;
   }
 
-  // ✅ Get admin data
+  // ✅ GET ADMIN DATA
   getAdminData(): any {
     const adminData = localStorage.getItem('admin_data');
     return adminData ? JSON.parse(adminData) : null;
   }
 
-  // ✅ Get admin token
+  // ✅ GET ADMIN TOKEN
   getAdminToken(): string | null {
     return localStorage.getItem('admin_token');
   }
 
-  // ✅ Get user token
+  // ✅ GET USER TOKEN
   getUserToken(): string | null {
     return localStorage.getItem('token');
   }
 
-  // ✅ Clear pending verification data
+  // ✅ CLEAR PENDING VERIFICATION
   clearPendingVerification(): void {
     localStorage.removeItem('pending_user_email');
     localStorage.removeItem('pending_user_data');
     localStorage.removeItem('pending_verification_email');
   }
 
-  // ✅ Check if user just registered
+  // ✅ CHECK IF USER JUST REGISTERED
   justRegistered(): boolean {
     return !!localStorage.getItem('pending_user_email');
   }
 
-  // ✅ Get just registered user data
+  // ✅ GET JUST REGISTERED USER DATA
   getJustRegisteredUser(): any {
     const userData = localStorage.getItem('pending_user_data');
     return userData ? JSON.parse(userData) : null;
   }
 
-  // ✅ Check if has pending verification
+  // ✅ CHECK IF HAS PENDING VERIFICATION
   hasPendingVerification(): boolean {
     return !!localStorage.getItem('pending_verification_email') || 
            !!localStorage.getItem('pending_user_email');
   }
 
-  // ✅ Get pending verification email
+  // ✅ GET PENDING VERIFICATION EMAIL
   getPendingVerificationEmail(): string | null {
     return localStorage.getItem('pending_verification_email') || 
            localStorage.getItem('pending_user_email');
+  }
+
+  // ✅ MANUAL SYNC VERIFICATION
+  manualSyncVerification(email: string): Observable<any> {
+    console.log('🔧 Manual sync for:', email);
+    
+    return this.http.post(`${this.apiUrl}/api/auth/manual-sync-verification`, { email }).pipe(
+      tap((response: any) => {
+        console.log('✅ Manual sync response:', response);
+        if (response.success) {
+          this.clearPendingVerification();
+        }
+      }),
+      catchError((error: any) => {
+        console.error('❌ Manual sync error:', error);
+        return throwError(() => error);
+      })
+    );
   }
 }
