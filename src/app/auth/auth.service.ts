@@ -1,4 +1,4 @@
-// auth.service.ts - CLEAN VERSION
+// auth.service.ts - COMPLETE REVISED WITH SYNC SUPPORT
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, throwError } from 'rxjs';
@@ -96,6 +96,25 @@ export class AuthService {
       }),
       catchError((error: any) => {
         console.error('❌ Sync error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  // ✅ MANUAL SYNC VERIFICATION
+  manualSyncVerification(email: string): Observable<any> {
+    console.log('🔧 Manual sync for:', email);
+    
+    return this.http.post(`${this.apiUrl}/api/auth/manual-sync-verification`, { email }).pipe(
+      tap((response: any) => {
+        console.log('✅ Manual sync response:', response);
+        if (response.success) {
+          this.clearPendingVerification();
+          console.log('✅ Email verified via manual sync');
+        }
+      }),
+      catchError((error: any) => {
+        console.error('❌ Manual sync error:', error);
         return throwError(() => error);
       })
     );
