@@ -25,8 +25,6 @@ export class RegisterComponent implements OnInit {
   isLoading = false;
   showVerificationMessage = false;
   registeredEmail = '';
-  successMessage = '';
-  showTestingButtons = true; // Set to false in production
 
   constructor(
     private fb: FormBuilder,
@@ -145,7 +143,6 @@ export class RegisterComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
     this.showVerificationMessage = false;
-    this.successMessage = '';
 
     this.auth.register(this.registerForm.value).subscribe({
       next: (res: any) => {
@@ -157,19 +154,14 @@ export class RegisterComponent implements OnInit {
           this.renderer.setStyle(button, 'background', '#2ecc71');
         }
 
-        // Show verification message
+        // Show verification message instead of redirecting
         this.showVerificationMessage = true;
         this.registeredEmail = this.registerForm.get('email')?.value;
-
-        if (res.emailSent) {
-          this.successMessage = 'Registration successful! Please check your email for verification link.';
-        } else {
-          this.successMessage = 'Registration completed but email verification failed. Please use resend verification.';
-        }
 
         // Clear form
         this.registerForm.reset();
 
+        // Don't redirect immediately - let user see verification message
         setTimeout(() => {
           if (button) {
             button.innerHTML = 'Register';
@@ -202,118 +194,6 @@ export class RegisterComponent implements OnInit {
     });
   }
 
-  // RESEND VERIFICATION EMAIL
-  resendVerification(): void {
-    if (this.registeredEmail) {
-      this.isLoading = true;
-      this.errorMessage = '';
-      this.successMessage = '';
-      
-      this.auth.resendVerificationEmail(this.registeredEmail).subscribe({
-        next: (res: any) => {
-          this.isLoading = false;
-          console.log('✅ Verification email resent:', res);
-          if (res.success && res.emailSent) {
-            this.successMessage = 'Verification email sent successfully! Please check your inbox.';
-          } else {
-            this.errorMessage = 'Failed to send verification email. Please try quick verify instead.';
-          }
-        },
-        error: (error: any) => {
-          this.isLoading = false;
-          console.error('❌ Failed to resend verification:', error);
-          this.errorMessage = 'Failed to resend verification email. Please try quick verify instead.';
-        }
-      });
-    }
-  }
-
-  // MANUAL SYNC VERIFICATION (for testing)
-  manualSyncVerification(): void {
-    if (this.registeredEmail) {
-      this.isLoading = true;
-      this.errorMessage = '';
-      this.successMessage = '';
-      
-      this.auth.manualSyncVerification(this.registeredEmail).subscribe({
-        next: (res: any) => {
-          this.isLoading = false;
-          console.log('✅ Manual sync successful:', res);
-          this.successMessage = 'Email verified successfully! You can now login.';
-          
-          // Redirect to login after successful sync
-          setTimeout(() => {
-            this.router.navigate(['/login']);
-          }, 2000);
-        },
-        error: (error: any) => {
-          this.isLoading = false;
-          console.error('❌ Manual sync failed:', error);
-          this.errorMessage = 'Manual sync failed. Please try quick verify instead.';
-        }
-      });
-    }
-  }
-
-  // QUICK VERIFY (instant verification for testing)
-  quickVerify(): void {
-    if (this.registeredEmail) {
-      this.isLoading = true;
-      this.errorMessage = '';
-      this.successMessage = '';
-      
-      this.auth.quickVerifyEmail(this.registeredEmail).subscribe({
-        next: (res: any) => {
-          this.isLoading = false;
-          console.log('✅ Quick verify successful:', res);
-          this.successMessage = 'Email verified instantly! You can now login.';
-          
-          // Redirect to login after successful verification
-          setTimeout(() => {
-            this.router.navigate(['/login']);
-          }, 2000);
-        },
-        error: (error: any) => {
-          this.isLoading = false;
-          console.error('❌ Quick verify failed:', error);
-          this.errorMessage = 'Quick verify failed. Please try manual sync.';
-        }
-      });
-    }
-  }
-
-  // CHECK VERIFICATION STATUS
-  checkVerificationStatus(): void {
-    if (this.registeredEmail) {
-      this.isLoading = true;
-      this.errorMessage = '';
-      this.successMessage = '';
-      
-      this.auth.checkVerificationStatus(this.registeredEmail).subscribe({
-        next: (res: any) => {
-          this.isLoading = false;
-          console.log('✅ Verification status:', res);
-          
-          if (res.emailVerified) {
-            this.successMessage = 'Email is verified! You can now login.';
-            
-            // Redirect to login if verified
-            setTimeout(() => {
-              this.router.navigate(['/login']);
-            }, 2000);
-          } else {
-            this.errorMessage = 'Email is not verified yet. Please check your email or use resend.';
-          }
-        },
-        error: (error: any) => {
-          this.isLoading = false;
-          console.error('❌ Status check failed:', error);
-          this.errorMessage = 'Failed to check verification status.';
-        }
-      });
-    }
-  }
-
   // Go to login page
   goToLogin(): void {
     this.router.navigate(['/login']);
@@ -323,7 +203,6 @@ export class RegisterComponent implements OnInit {
   closeVerificationMessage(): void {
     this.showVerificationMessage = false;
     this.errorMessage = '';
-    this.successMessage = '';
   }
 
   private markFormGroupTouched() {
