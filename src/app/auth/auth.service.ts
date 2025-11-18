@@ -112,9 +112,6 @@ export class AuthService {
   manualSyncVerification(email: string): Observable<any> {
     console.log('🔧 Manual sync for:', email);
     
-    // Note: This requires password, you might need to handle this differently
-    // For now using a placeholder - you may want to remove this method
-    // or integrate it with a password prompt
     return this.http.post(`${this.apiUrl}/api/manual-sync-verification`, { 
       email: email,
       password: 'temporary-password' 
@@ -248,6 +245,36 @@ export class AuthService {
     );
   }
 
+  // ✅ DEBUG FIREBASE CALLBACK
+  debugFirebaseCallback(): Observable<any> {
+    console.log('🐛 Debugging Firebase callback...');
+    
+    return this.http.get(`${this.apiUrl}/api/debug-firebase-callback`).pipe(
+      tap((response: any) => {
+        console.log('✅ Debug response:', response);
+      }),
+      catchError((error: any) => {
+        console.error('❌ Debug error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  // ✅ TEST EMAIL VERIFICATION
+  testEmailVerification(email: string): Observable<any> {
+    console.log('🧪 Testing email verification for:', email);
+    
+    return this.http.post(`${this.apiUrl}/api/test-email-verification`, { email }).pipe(
+      tap((response: any) => {
+        console.log('✅ Email test result:', response);
+      }),
+      catchError((error: any) => {
+        console.error('❌ Email test error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
   // ✅ PRIVATE: Save user data to localStorage
   private saveUserData(token: string, user: any): void {
     localStorage.setItem('token', token);
@@ -366,5 +393,23 @@ export class AuthService {
     
     // Try to use quick verify as it doesn't require password
     return this.quickVerifyEmail(email);
+  }
+
+  // ✅ GET ALL ENDPOINTS (for debugging)
+  getAvailableEndpoints(): string[] {
+    return [
+      'POST /api/auth/register',
+      'POST /api/auth/login',
+      'POST /api/auth/resend-verification',
+      'POST /api/auth/check-sync-verification',
+      'GET /api/auth/verification-status/:email',
+      'POST /api/quick-verify',
+      'POST /api/manual-sync-verification',
+      'GET /api/health',
+      'GET /api/test',
+      'GET /api/debug-firebase-callback',
+      'POST /api/test-email-verification',
+      'POST /api/admin/admin-login'
+    ];
   }
 }
