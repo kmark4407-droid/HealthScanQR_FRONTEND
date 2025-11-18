@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://healthscanqr-backend.onrender.com'  // for local dev
+  apiUrl: 'https://healthscanqr-backend.onrender.com/api'  // for local dev
 };
