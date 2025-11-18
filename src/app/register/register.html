@@ -115,8 +115,8 @@
     </div>
   </div>
 
-  <!-- Email Verification Success Message -->
-  <div class="verification-message-overlay" *ngIf="showVerificationMessage" (click)="showVerificationMessage = false">
+  <!-- Enhanced Email Verification Success Message -->
+  <div class="verification-message-overlay" *ngIf="showVerificationMessage" (click)="closeVerificationMessage()">
     <div class="verification-message-card" (click)="$event.stopPropagation()">
       <div class="verification-header">
         <i class="fas fa-envelope-circle-check"></i>
@@ -128,14 +128,48 @@
         <p class="user-email">{{ registeredEmail }}</p>
         <p>Please check your inbox and click the verification link to activate your account.</p>
         
+        <!-- Success/Error Messages -->
+        <div class="status-messages">
+          <div class="success-message" *ngIf="successMessage">
+            <i class="fas fa-check-circle"></i> {{ successMessage }}
+          </div>
+          <div class="error-message" *ngIf="errorMessage">
+            <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+          </div>
+        </div>
+        
+        <!-- Verification Actions -->
         <div class="verification-actions">
-          <!-- Resend button temporarily removed until AuthService is updated -->
-          <!-- <button class="resend-btn" (click)="resendVerification()">
-            <i class="fas fa-redo"></i> Resend Verification Email
-          </button> -->
-          <button class="login-btn" (click)="goToLogin()">
-            <i class="fas fa-sign-in-alt"></i> Go to Login
+          <button class="resend-btn" (click)="resendVerification()" [disabled]="isLoading">
+            <i class="fas fa-redo" *ngIf="!isLoading"></i>
+            <i class="fas fa-spinner fa-spin" *ngIf="isLoading"></i>
+            Resend Verification Email
           </button>
+          
+          <button class="check-btn" (click)="checkVerificationStatus()" [disabled]="isLoading">
+            <i class="fas fa-sync" *ngIf="!isLoading"></i>
+            <i class="fas fa-spinner fa-spin" *ngIf="isLoading"></i>
+            Check Verification Status
+          </button>
+        </div>
+
+        <!-- Testing Buttons (Remove in production) -->
+        <div class="testing-section" *ngIf="showTestingButtons">
+          <h4>Testing Tools</h4>
+          <div class="testing-actions">
+            <button class="test-btn manual-sync-btn" (click)="manualSyncVerification()" [disabled]="isLoading">
+              <i class="fas fa-tools" *ngIf="!isLoading"></i>
+              <i class="fas fa-spinner fa-spin" *ngIf="isLoading"></i>
+              Manual Sync
+            </button>
+            
+            <button class="test-btn quick-verify-btn" (click)="quickVerify()" [disabled]="isLoading">
+              <i class="fas fa-bolt" *ngIf="!isLoading"></i>
+              <i class="fas fa-spinner fa-spin" *ngIf="isLoading"></i>
+              Quick Verify
+            </button>
+          </div>
+          <small class="testing-note">These buttons are for testing only and will be removed in production</small>
         </div>
         
         <div class="verification-tips">
@@ -143,10 +177,19 @@
           <ul>
             <li>Check your spam or junk folder</li>
             <li>Make sure you entered the correct email address</li>
-            <li>Wait a few minutes and try registering again</li>
-            <li>Contact support if the issue persists</li>
+            <li>Wait a few minutes and try resending</li>
+            <li>Use the Quick Verify button for instant access (testing)</li>
           </ul>
         </div>
+      </div>
+
+      <div class="verification-footer">
+        <button class="login-btn" (click)="goToLogin()">
+          <i class="fas fa-sign-in-alt"></i> Go to Login
+        </button>
+        <button class="close-btn" (click)="closeVerificationMessage()">
+          Close
+        </button>
       </div>
     </div>
   </div>
