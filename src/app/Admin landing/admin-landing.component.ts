@@ -65,10 +65,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
 
   // Search debounce
   private searchTimeout: any;
-  // FIXED: Add debounce for log activity
   private lastLogTime: number = 0;
-  private logDebounceTime: number = 1000; // 1 second debounce
-  // FIXED: Add property to track last logged scan to prevent duplicates
+  private logDebounceTime: number = 1000;
   private lastScanLog: { user: string, timestamp: number } = { user: '', timestamp: 0 };
 
   constructor(
@@ -199,7 +197,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     
     console.log('🔄 Loading activity logs...');
 
-    const url = `${environment.apiUrl}/admin/activity-logs`;
+    // FIXED: Added /api to the URL
+    const url = `${environment.apiUrl}/api/admin/activity-logs`;
 
     this.http.get(url).subscribe({
       next: (res: any) => {
@@ -242,7 +241,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   private tryAlternativeLogsEndpoint(): void {
     console.log('🔄 Trying alternative logs endpoint...');
     
-    this.http.get(`${environment.apiUrl}/admin/logs`).subscribe({
+    // FIXED: Added /api to the URL
+    this.http.get(`${environment.apiUrl}/api/admin/logs`).subscribe({
       next: (res: any) => {
         console.log('✅ Alternative logs response:', res);
         
@@ -321,14 +321,11 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   }
 
   logActivity(action: string, description: string, changes: string = ''): void {
-    // FIXED: Enhanced debounce for scan actions to prevent duplicates
     const now = Date.now();
     
-    // Special handling for SCAN actions to prevent rapid duplicates
     if (action === 'SCAN') {
-      const scanCooldown = 3000; // 3 seconds between scan logs for same user
+      const scanCooldown = 3000;
       
-      // Extract username from description for comparison
       const userMatch = description.match(/Scanned medical QR for: (.+)$/);
       const currentUser = userMatch ? userMatch[1].trim() : '';
       
@@ -339,13 +336,11 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
         return;
       }
       
-      // Update last scan log
       this.lastScanLog = {
         user: currentUser,
         timestamp: now
       };
     } else {
-      // General debounce for other actions
       if (now - this.lastLogTime < this.logDebounceTime) {
         console.log('🔄 Skipping duplicate log entry (debounce)');
         return;
@@ -370,10 +365,10 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
 
     console.log('📝 Logging activity:', logData);
 
-    this.http.post(`${environment.apiUrl}/admin/log-activity`, logData).subscribe({
+    // FIXED: Added /api to the URL
+    this.http.post(`${environment.apiUrl}/api/admin/log-activity`, logData).subscribe({
       next: (res: any) => {
         console.log('✅ Activity logged successfully:', res);
-        // FIXED: Only reload logs if not a SYSTEM action to avoid UI flicker
         if (action !== 'SYSTEM') {
           setTimeout(() => this.loadActivityLogs(), 500);
         }
@@ -401,12 +396,12 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
 
   clearLogs(): void {
     if (confirm('Are you sure you want to clear all activity logs? This action cannot be undone.')) {
-      this.http.delete(`${environment.apiUrl}/admin/clear-logs`).subscribe({
+      // FIXED: Added /api to the URL
+      this.http.delete(`${environment.apiUrl}/api/admin/clear-logs`).subscribe({
         next: (res: any) => {
           console.log('✅ Logs cleared successfully:', res);
           this.activityLogs = [];
           this.filteredLogs = [];
-          // FIXED: Use SYSTEM action for clear logs with proper styling
           this.logActivity('SYSTEM', 'Cleared all activity logs');
           alert('Activity logs cleared successfully');
         },
@@ -470,7 +465,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   }
 
   loadUsers(): void {
-    this.http.get(`${environment.apiUrl}/admin/users`).subscribe({
+    // FIXED: Added /api to the URL
+    this.http.get(`${environment.apiUrl}/api/admin/users`).subscribe({
       next: (res: any) => {
         this.users = res.users || [];
         console.log('📊 Loaded users:', this.users.length);
@@ -545,7 +541,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     }
 
     this.isUserActionLoading = true;
-    this.http.post(`${environment.apiUrl}/admin/approve-user`, {
+    // FIXED: Added /api to the URL
+    this.http.post(`${environment.apiUrl}/api/admin/approve-user`, {
       user_id: user.user_id,
       admin_id: this.adminId
     }).subscribe({
@@ -576,7 +573,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     }
 
     this.isUserActionLoading = true;
-    this.http.post(`${environment.apiUrl}/admin/unapprove-user`, {
+    // FIXED: Added /api to the URL
+    this.http.post(`${environment.apiUrl}/api/admin/unapprove-user`, {
       user_id: user.user_id,
       admin_id: this.adminId
     }).subscribe({
@@ -607,7 +605,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     }
 
     this.isUserActionLoading = true;
-    this.http.delete(`${environment.apiUrl}/admin/delete-user/${user.user_id}`, {
+    // FIXED: Added /api to the URL
+    this.http.delete(`${environment.apiUrl}/api/admin/delete-user/${user.user_id}`, {
       body: { admin_id: this.adminId }
     }).subscribe({
       next: (res: any) => {
@@ -702,24 +701,21 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       .slice(0, 2);
   }
 
-  // ==================== PROFILE PHOTO METHODS - FIXED ====================
+  // ==================== PROFILE PHOTO METHODS ====================
 
   getProfilePhoto(user: any): string {
     if (!user) return this.getPlaceholderImage(user);
     
     let photoPath = user.profile_photo;
     
-    // If it's already a base64 string, return it directly
     if (photoPath && photoPath.startsWith('data:image/')) {
       return photoPath;
     }
     
-    // If it's a URL, return it directly
     if (photoPath && photoPath.startsWith('http')) {
       return photoPath;
     }
     
-    // If it's a file path, convert to full URL
     if (photoPath && !photoPath.startsWith('data:image/') && !photoPath.startsWith('http')) {
       if (photoPath.startsWith('/uploads/')) {
         return `${environment.apiUrl}${photoPath}`;
@@ -732,17 +728,14 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       }
     }
     
-    // No photo available, return placeholder
     return this.getPlaceholderImage(user);
   }
 
-  // Generate placeholder image based on user initials
   getPlaceholderImage(user: any): string {
     const initials = this.getUserInitials(user);
     const backgroundColor = this.stringToColor(user?.email || user?.full_name || 'User');
     const textColor = this.getContrastColor(backgroundColor);
     
-    // Create a simple SVG as base64
     const svg = `
       <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
         <rect width="100%" height="100%" fill="${backgroundColor}"/>
@@ -756,7 +749,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     return 'data:image/svg+xml;base64,' + btoa(svg);
   }
 
-  // Helper: Generate consistent color from string
   stringToColor(str: string): string {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
@@ -772,7 +764,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     return colors[Math.abs(hash) % colors.length];
   }
 
-  // Helper: Get contrast color (black or white)
   getContrastColor(hexcolor: string): string {
     const r = parseInt(hexcolor.substr(1, 2), 16);
     const g = parseInt(hexcolor.substr(3, 2), 16);
@@ -781,17 +772,13 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     return (yiq >= 128) ? '#000000' : '#FFFFFF';
   }
 
-  // FIXED: Handle image errors by showing placeholder
   handleImageError(event: any, user: any): void {
     console.warn('Failed to load profile photo for user:', user?.full_name);
     
     const imgElement = event.target;
-    
-    // Replace with placeholder
     imgElement.src = this.getPlaceholderImage(user);
-    imgElement.onerror = null; // Prevent infinite loop
+    imgElement.onerror = null;
     
-    // Ensure initials are visible in avatar
     const avatarContainer = imgElement.closest('.user-avatar') || imgElement.closest('.user-profile-avatar');
     if (avatarContainer) {
       const initialsElement = avatarContainer.querySelector('.initials');
@@ -801,7 +788,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // FIXED: Change user profile with base64 support
   changeUserProfile(userId: string, photoFile: File): void {
     const reader = new FileReader();
     
@@ -811,7 +797,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       console.log('📸 Changing profile photo for user:', userId);
       console.log('📁 Base64 image size:', base64Image.length);
 
-      this.http.post(`${environment.apiUrl}/admin/change-user-profile-base64`, {
+      // FIXED: Added /api to the URL
+      this.http.post(`${environment.apiUrl}/api/admin/change-user-profile-base64`, {
         user_id: userId,
         profile_photo: base64Image,
         filename: photoFile.name
@@ -823,7 +810,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
             this.logActivity('PROFILE_UPDATE', `Changed profile photo for user ID: ${userId}`);
             alert('Profile photo updated successfully!');
             
-            // Update the user data with the new base64 image
             this.updateUserPhotoInMemory(userId, base64Image);
             
           } else {
@@ -859,34 +845,27 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     reader.readAsDataURL(photoFile);
   }
 
-  // Update user photo in memory without reloading from server
   private updateUserPhotoInMemory(userId: string, base64Image: string): void {
-    // Update in users array
     this.users = this.users.map(user => 
       user.user_id === userId ? { ...user, profile_photo: base64Image } : user
     );
     
-    // Update in filteredUsers array
     this.filteredUsers = this.filteredUsers.map(user => 
       user.user_id === userId ? { ...user, profile_photo: base64Image } : user
     );
     
-    // Update in approvedUsers array
     this.approvedUsers = this.approvedUsers.map(user => 
       user.user_id === userId ? { ...user, profile_photo: base64Image } : user
     );
     
-    // Update in pendingUsers array
     this.pendingUsers = this.pendingUsers.map(user => 
       user.user_id === userId ? { ...user, profile_photo: base64Image } : user
     );
     
-    // Update selected user if applicable
     if (this.selectedUser && this.selectedUser.user_id === userId) {
       this.selectedUser.profile_photo = base64Image;
     }
     
-    // FIXED: Update scanned data if applicable - this is crucial for edit tab
     if (this.scannedData && this.scannedData.user_id === userId) {
       this.scannedData.profile_photo = base64Image;
       console.log('✅ Updated scanned data profile photo for edit tab');
@@ -895,7 +874,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     console.log('✅ Updated profile photo in memory for user:', userId);
   }
 
-  // FIXED: Change profile photo for scanned user (edit tab)
   changeScannedUserProfile(): void {
     if (!this.scannedData || !this.scannedData.user_id) {
       alert('No user selected. Please scan a QR code first.');
@@ -908,7 +886,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     input.onchange = (event: any) => {
       const file = event.target.files[0];
       if (file) {
-        // Validate file type and size
         if (!file.type.startsWith('image/')) {
           alert('Please select a valid image file (JPEG, PNG, etc.)');
           return;
@@ -925,7 +902,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     input.click();
   }
 
-  // FIXED: Change profile photo specifically for edit tab
   changeEditTabProfile(): void {
     if (!this.scannedData || !this.scannedData.user_id) {
       alert('No user selected for editing. Please scan a QR code first.');
@@ -1065,7 +1041,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       const scannedData = JSON.parse(result);
       
       if (scannedData.user_id && scannedData.full_name) {
-        // FIXED: Stop scanning immediately to prevent multiple detections
         this.stopCamera();
         this.fetchMedicalData(scannedData.user_id, scannedData);
       } else {
@@ -1076,7 +1051,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     } catch {
       const parsedData = this.parseTextData(result);
       if (parsedData && parsedData.user_id) {
-        // FIXED: Stop scanning immediately to prevent multiple detections
         this.stopCamera();
         this.fetchMedicalData(parsedData.user_id, parsedData);
       } else {
@@ -1092,18 +1066,18 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     this.scanStatus = 'Fetching medical data...';
     this.scanStatusClass = 'status-scanning';
     
-    this.http.get(`${environment.apiUrl}/medical/${userId}`).subscribe({
+    // FIXED: Added /api to the URL
+    this.http.get(`${environment.apiUrl}/api/medical/${userId}`).subscribe({
       next: (res: any) => {
         if (res) {
-          // FIXED: Properly handle profile photo URL
           let profilePhoto = '';
           if (res.photo_url) {
             if (res.photo_url.startsWith('data:image/')) {
-              profilePhoto = res.photo_url; // Already base64
+              profilePhoto = res.photo_url;
             } else if (res.photo_url.startsWith('http')) {
-              profilePhoto = res.photo_url; // Full URL
+              profilePhoto = res.photo_url;
             } else {
-              profilePhoto = `${environment.apiUrl}${res.photo_url}`; // Convert path to URL
+              profilePhoto = `${environment.apiUrl}${res.photo_url}`;
             }
           }
           
@@ -1124,8 +1098,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
           this.scanStatusClass = 'status-success';
           this.scanResultVisible = true;
           
-          // FIXED: Only log scan activity once per successful scan
-          // Moved outside the method to prevent multiple calls
           setTimeout(() => {
             this.logActivity('SCAN', `Scanned medical QR for: ${minimalData.full_name}`);
           }, 100);
@@ -1154,8 +1126,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
           this.scannedData = this.ensureTimestamp(fallbackData);
           this.scanStatus = 'Basic info loaded (full data unavailable)';
           this.scanStatusClass = 'status-success';
-          
-          // FIXED: Don't log scan activity for fallback data to prevent duplicates
         }
       }
     });
@@ -1352,7 +1322,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
 
   async findUserIdByMedicalInfo(medicalData: any): Promise<string> {
     try {
-      const response: any = await this.http.post(`${environment.apiUrl}/admin/find-user-by-medical`, {
+      // FIXED: Added /api to the URL
+      const response: any = await this.http.post(`${environment.apiUrl}/api/admin/find-user-by-medical`, {
         full_name: medicalData.full_name,
         dob: medicalData.dob
       }).toPromise();
@@ -1380,7 +1351,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       admin_id: this.adminId
     };
 
-    this.http.put(`${environment.apiUrl}/admin/update-medical/${updateData.user_id}`, payload).subscribe({
+    // FIXED: Added /api to the URL
+    this.http.put(`${environment.apiUrl}/api/admin/update-medical/${updateData.user_id}`, payload).subscribe({
       next: (res: any) => {
         const isSuccess = this.checkUpdateSuccess(res);
         
@@ -1478,7 +1450,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   forceUserDataRefresh(userId: string): void {
     if (!userId) return;
     
-    this.http.post(`${environment.apiUrl}/admin/refresh-user-data`, { 
+    // FIXED: Added /api to the URL
+    this.http.post(`${environment.apiUrl}/api/admin/refresh-user-data`, { 
       user_id: userId 
     }).subscribe({
       next: (res: any) => {
