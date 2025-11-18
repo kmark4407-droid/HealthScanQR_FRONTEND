@@ -35,6 +35,9 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     console.log('🔐 Login Component');
     this.clearAuthData();
+    
+    // Test backend connection on init
+    this.testBackendConnection();
 
     const inputs: NodeListOf<HTMLInputElement> = this.el.nativeElement.querySelectorAll('input');
     inputs.forEach(input => {
@@ -47,6 +50,52 @@ export class LoginComponent implements OnInit {
         const label = input.parentElement?.querySelector('label');
         if (label) this.renderer.setStyle(label, 'color', '#34495e');
       });
+    });
+  }
+
+  // 🔍 TEST BACKEND CONNECTION
+  testBackendConnection(): void {
+    console.log('🧪 Testing backend connection...');
+    
+    this.http.get('https://healthscanqr-backend.onrender.com/api/health').subscribe({
+      next: (response: any) => {
+        console.log('✅ Backend is running:', response);
+      },
+      error: (error) => {
+        console.error('❌ Backend connection failed:', error);
+        alert('Backend is NOT running. Error: ' + error.message);
+      }
+    });
+  }
+
+  // 🔍 TEST LOGIN ENDPOINT DIRECTLY
+  testLoginDirectly(): void {
+    const loginData = this.loginForm.value;
+    console.log('🧪 Testing login endpoint directly...');
+    console.log('📤 URL: https://healthscanqr-backend.onrender.com/api/auth/login');
+    console.log('📦 Data:', loginData);
+
+    this.http.post('https://healthscanqr-backend.onrender.com/api/auth/login', loginData).subscribe({
+      next: (response: any) => {
+        console.log('✅ Direct login successful:', response);
+        alert('✅ Login works! Response: ' + JSON.stringify(response));
+      },
+      error: (error) => {
+        console.error('❌ Direct login failed:', error);
+        console.log('🔍 Full error object:', error);
+        console.log('📡 Error status:', error.status);
+        console.log('📡 Error URL:', error.url);
+        console.log('📡 Error message:', error.message);
+        console.log('📡 Error name:', error.name);
+        
+        if (error.status === 404) {
+          alert('❌ 404 Error: Login endpoint not found. Check backend routes.');
+        } else if (error.status === 0) {
+          alert('❌ Network Error: Cannot connect to backend. Check CORS and server.');
+        } else {
+          alert('❌ Login failed with status: ' + error.status);
+        }
+      }
     });
   }
 
@@ -81,6 +130,9 @@ export class LoginComponent implements OnInit {
       return;
     }
 
+    console.log('🔐 Attempting login via AuthService...');
+    console.log('📧 Email:', this.loginForm.value.email);
+
     const button: HTMLButtonElement | null = this.el.nativeElement.querySelector('button[type="submit"]');
     if (button) {
       button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
@@ -90,10 +142,14 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
+    // FIRST: Test the endpoint directly to see what happens
+    this.testLoginDirectly();
+    
+    // SECOND: Also try via AuthService for comparison
     this.auth.login(this.loginForm.value).subscribe({
       next: (res: any) => {
         this.isLoading = false;
-        console.log('✅ Login successful');
+        console.log('✅ Login successful via AuthService');
         
         if (button) {
           button.innerHTML = '<i class="fas fa-check"></i> Access Granted!';
@@ -121,7 +177,14 @@ export class LoginComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading = false;
-        console.error('❌ Login failed:', err);
+        console.error('❌ Login failed via AuthService:', err);
+        console.log('🔍 AuthService error details:', {
+          status: err.status,
+          statusText: err.statusText,
+          url: err.url,
+          message: err.message,
+          error: err.error
+        });
 
         if (button) {
           button.innerHTML = 'Login';
@@ -137,6 +200,8 @@ export class LoginComponent implements OnInit {
           this.errorMessage = 'Invalid credentials. Please check your email and password.';
         } else if (err.status === 500) {
           this.errorMessage = 'Server error. Please try again later.';
+        } else if (err.status === 0) {
+          this.errorMessage = 'Cannot connect to server. Please check your internet connection.';
         }
       }
     });
@@ -154,10 +219,28 @@ export class LoginComponent implements OnInit {
       email: 'test@example.com',
       password: 'password123'
     });
-    this.submit();
+    
+    // Test with demo account first
+    this.testLoginDirectly();
   }
 
   goToRegister(): void {
     this.router.navigate(['/register']);
+  }
+
+  // 🔍 TEST AUTH ENDPOINT
+  testAuthEndpoint(): void {
+    console.log('🧪 Testing auth endpoint...');
+    
+    this.http.get('https://healthscanqr-backend.onrender.com/api/auth/test').subscribe({
+      next: (response: any) => {
+        console.log('✅ Auth endpoint works:', response);
+        alert('Auth endpoint works! Available endpoints: ' + JSON.stringify(response.endpoints));
+      },
+      error: (error) => {
+        console.error('❌ Auth endpoint failed:', error);
+        alert('Auth endpoint failed: ' + error.message);
+      }
+    });
   }
 }
