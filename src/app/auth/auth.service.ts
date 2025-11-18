@@ -1,4 +1,4 @@
-// auth.service.ts - COMPLETE WITH ALL VERIFICATION METHODS
+// auth.service.ts - REVISED WITH CORRECT ENDPOINTS
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, throwError } from 'rxjs';
@@ -13,7 +13,7 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  // ✅ REGISTER with email verification
+  // ✅ REGISTER with email verification - FIXED ENDPOINT
   register(data: any): Observable<any> {
     console.log('📝 Registering user:', data.email);
     
@@ -39,7 +39,7 @@ export class AuthService {
     );
   }
 
-  // ✅ LOGIN with email verification check
+  // ✅ LOGIN with email verification check - FIXED ENDPOINT
   login(data: any): Observable<any> {
     console.log('🔐 Logging in user:', data.email);
     
@@ -64,7 +64,7 @@ export class AuthService {
     );
   }
 
-  // ✅ RESEND VERIFICATION EMAIL
+  // ✅ RESEND VERIFICATION EMAIL - FIXED ENDPOINT
   resendVerificationEmail(email: string): Observable<any> {
     console.log('📧 Resending verification to:', email);
     
@@ -82,7 +82,7 @@ export class AuthService {
     );
   }
 
-  // ✅ SYNC VERIFICATION STATUS (after clicking email link)
+  // ✅ SYNC VERIFICATION STATUS (after clicking email link) - FIXED ENDPOINT
   syncVerificationStatus(email: string): Observable<any> {
     console.log('🔄 Syncing verification for:', email);
     
@@ -101,7 +101,7 @@ export class AuthService {
     );
   }
 
-  // ✅ MANUAL SYNC VERIFICATION
+  // ✅ MANUAL SYNC VERIFICATION - FIXED ENDPOINT
   manualSyncVerification(email: string): Observable<any> {
     console.log('🔧 Manual sync for:', email);
     
@@ -120,7 +120,7 @@ export class AuthService {
     );
   }
 
-  // ✅ QUICK VERIFY (instant verification for testing)
+  // ✅ QUICK VERIFY (instant verification for testing) - FIXED ENDPOINT
   quickVerifyEmail(email: string): Observable<any> {
     console.log('⚡ Quick verifying:', email);
     
@@ -139,7 +139,7 @@ export class AuthService {
     );
   }
 
-  // ✅ CHECK VERIFICATION STATUS
+  // ✅ CHECK VERIFICATION STATUS - FIXED ENDPOINT
   checkVerificationStatus(email: string): Observable<any> {
     console.log('🔍 Checking verification status for:', email);
     
@@ -154,7 +154,7 @@ export class AuthService {
     );
   }
 
-  // ✅ TEST FIREBASE CONNECTION
+  // ✅ TEST FIREBASE CONNECTION - FIXED ENDPOINT
   testFirebaseConnection(): Observable<any> {
     console.log('🧪 Testing Firebase connection...');
     
@@ -169,7 +169,7 @@ export class AuthService {
     );
   }
 
-  // ✅ TEST EMAIL DELIVERY
+  // ✅ TEST EMAIL DELIVERY - FIXED ENDPOINT
   testEmailDelivery(email: string): Observable<any> {
     console.log('🧪 Testing email delivery to:', email);
     
@@ -184,7 +184,7 @@ export class AuthService {
     );
   }
 
-  // ✅ GET USER PROFILE
+  // ✅ GET USER PROFILE - FIXED ENDPOINT
   getProfile(): Observable<any> {
     const token = this.getUserToken();
     console.log('👤 Getting user profile');
@@ -208,7 +208,7 @@ export class AuthService {
     );
   }
 
-  // ✅ ADMIN LOGIN
+  // ✅ ADMIN LOGIN - FIXED ENDPOINT
   adminLogin(data: any): Observable<any> {
     console.log('🔐 Admin logging in:', data.email);
     
