@@ -1,4 +1,4 @@
-// auth.service.ts - COMPLETE REVISED WITH SYNC SUPPORT
+// auth.service.ts - COMPLETE WITH ALL VERIFICATION METHODS
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, throwError } from 'rxjs';
