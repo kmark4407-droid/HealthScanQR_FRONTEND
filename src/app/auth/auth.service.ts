@@ -1,4 +1,4 @@
-// auth.service.ts - COMPLETE REVISED FOR EMAIL CONFIRMATION
+// auth.service.ts - CLEAN VERSION
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, throwError } from 'rxjs';
@@ -22,7 +22,6 @@ export class AuthService {
         console.log('✅ Registration response:', response);
         
         if (response.success) {
-          // Always store pending verification data
           localStorage.setItem('pending_user_email', response.user.email);
           localStorage.setItem('pending_user_data', JSON.stringify(response.user));
           
@@ -56,7 +55,6 @@ export class AuthService {
       catchError((error: any) => {
         console.error('❌ Login error:', error);
         
-        // Handle email verification required
         if (error.error?.requiresVerification) {
           localStorage.setItem('pending_verification_email', data.email);
         }
@@ -219,8 +217,6 @@ export class AuthService {
     localStorage.setItem('user_data', JSON.stringify(user));
     localStorage.setItem('loggedIn', 'true');
     localStorage.setItem('email_verified', user.email_verified ? 'true' : 'false');
-    
-    // Clear any pending verification data
     this.clearPendingVerification();
   }
 
@@ -324,23 +320,5 @@ export class AuthService {
   getPendingVerificationEmail(): string | null {
     return localStorage.getItem('pending_verification_email') || 
            localStorage.getItem('pending_user_email');
-  }
-
-  // ✅ MANUAL SYNC VERIFICATION
-  manualSyncVerification(email: string): Observable<any> {
-    console.log('🔧 Manual sync for:', email);
-    
-    return this.http.post(`${this.apiUrl}/api/auth/manual-sync-verification`, { email }).pipe(
-      tap((response: any) => {
-        console.log('✅ Manual sync response:', response);
-        if (response.success) {
-          this.clearPendingVerification();
-        }
-      }),
-      catchError((error: any) => {
-        console.error('❌ Manual sync error:', error);
-        return throwError(() => error);
-      })
-    );
   }
 }
