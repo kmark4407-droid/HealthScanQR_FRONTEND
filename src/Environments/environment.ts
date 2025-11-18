@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000'  // for local dev
+  apiUrl: 'https://healthscanqr-backend.onrender.com'  // for local dev
 };
