@@ -197,8 +197,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     
     console.log('🔄 Loading activity logs...');
 
-    // FIXED: Added /api to the URL
-    const url = `${environment.apiUrl}/api/admin/activity-logs`;
+    // ✅ FIXED: Removed duplicate /api
+    const url = `${environment.apiUrl}/admin/activity-logs`;
 
     this.http.get(url).subscribe({
       next: (res: any) => {
@@ -241,8 +241,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   private tryAlternativeLogsEndpoint(): void {
     console.log('🔄 Trying alternative logs endpoint...');
     
-    // FIXED: Added /api to the URL
-    this.http.get(`${environment.apiUrl}/api/admin/logs`).subscribe({
+    // ✅ FIXED: Removed duplicate /api
+    this.http.get(`${environment.apiUrl}/admin/logs`).subscribe({
       next: (res: any) => {
         console.log('✅ Alternative logs response:', res);
         
@@ -365,8 +365,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
 
     console.log('📝 Logging activity:', logData);
 
-    // FIXED: Added /api to the URL
-    this.http.post(`${environment.apiUrl}/api/admin/log-activity`, logData).subscribe({
+    // ✅ FIXED: Removed duplicate /api
+    this.http.post(`${environment.apiUrl}/admin/log-activity`, logData).subscribe({
       next: (res: any) => {
         console.log('✅ Activity logged successfully:', res);
         if (action !== 'SYSTEM') {
@@ -396,8 +396,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
 
   clearLogs(): void {
     if (confirm('Are you sure you want to clear all activity logs? This action cannot be undone.')) {
-      // FIXED: Added /api to the URL
-      this.http.delete(`${environment.apiUrl}/api/admin/clear-logs`).subscribe({
+      // ✅ FIXED: Removed duplicate /api
+      this.http.delete(`${environment.apiUrl}/admin/clear-logs`).subscribe({
         next: (res: any) => {
           console.log('✅ Logs cleared successfully:', res);
           this.activityLogs = [];
@@ -465,8 +465,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   }
 
   loadUsers(): void {
-    // FIXED: Added /api to the URL
-    this.http.get(`${environment.apiUrl}/api/admin/users`).subscribe({
+    // ✅ FIXED: Removed duplicate /api
+    this.http.get(`${environment.apiUrl}/admin/users`).subscribe({
       next: (res: any) => {
         this.users = res.users || [];
         console.log('📊 Loaded users:', this.users.length);
@@ -541,8 +541,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     }
 
     this.isUserActionLoading = true;
-    // FIXED: Added /api to the URL
-    this.http.post(`${environment.apiUrl}/api/admin/approve-user`, {
+    // ✅ FIXED: Removed duplicate /api
+    this.http.post(`${environment.apiUrl}/admin/approve-user`, {
       user_id: user.user_id,
       admin_id: this.adminId
     }).subscribe({
@@ -573,8 +573,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     }
 
     this.isUserActionLoading = true;
-    // FIXED: Added /api to the URL
-    this.http.post(`${environment.apiUrl}/api/admin/unapprove-user`, {
+    // ✅ FIXED: Removed duplicate /api
+    this.http.post(`${environment.apiUrl}/admin/unapprove-user`, {
       user_id: user.user_id,
       admin_id: this.adminId
     }).subscribe({
@@ -605,8 +605,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     }
 
     this.isUserActionLoading = true;
-    // FIXED: Added /api to the URL
-    this.http.delete(`${environment.apiUrl}/api/admin/delete-user/${user.user_id}`, {
+    // ✅ FIXED: Removed duplicate /api
+    this.http.delete(`${environment.apiUrl}/admin/delete-user/${user.user_id}`, {
       body: { admin_id: this.adminId }
     }).subscribe({
       next: (res: any) => {
@@ -797,8 +797,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       console.log('📸 Changing profile photo for user:', userId);
       console.log('📁 Base64 image size:', base64Image.length);
 
-      // FIXED: Added /api to the URL
-      this.http.post(`${environment.apiUrl}/api/admin/change-user-profile-base64`, {
+      // ✅ FIXED: Removed duplicate /api
+      this.http.post(`${environment.apiUrl}/admin/change-user-profile-base64`, {
         user_id: userId,
         profile_photo: base64Image,
         filename: photoFile.name
@@ -1066,8 +1066,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     this.scanStatus = 'Fetching medical data...';
     this.scanStatusClass = 'status-scanning';
     
-    // FIXED: Added /api to the URL
-    this.http.get(`${environment.apiUrl}/api/medical/${userId}`).subscribe({
+    // ✅ FIXED: This one is correct - medical routes are at /api/medical
+    this.http.get(`${environment.apiUrl}/medical/${userId}`).subscribe({
       next: (res: any) => {
         if (res) {
           let profilePhoto = '';
@@ -1322,8 +1322,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
 
   async findUserIdByMedicalInfo(medicalData: any): Promise<string> {
     try {
-      // FIXED: Added /api to the URL
-      const response: any = await this.http.post(`${environment.apiUrl}/api/admin/find-user-by-medical`, {
+      // ✅ FIXED: Removed duplicate /api
+      const response: any = await this.http.post(`${environment.apiUrl}/admin/find-user-by-medical`, {
         full_name: medicalData.full_name,
         dob: medicalData.dob
       }).toPromise();
@@ -1351,8 +1351,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       admin_id: this.adminId
     };
 
-    // FIXED: Added /api to the URL
-    this.http.put(`${environment.apiUrl}/api/admin/update-medical/${updateData.user_id}`, payload).subscribe({
+    // ✅ FIXED: Removed duplicate /api
+    this.http.put(`${environment.apiUrl}/admin/update-medical/${updateData.user_id}`, payload).subscribe({
       next: (res: any) => {
         const isSuccess = this.checkUpdateSuccess(res);
         
@@ -1450,8 +1450,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   forceUserDataRefresh(userId: string): void {
     if (!userId) return;
     
-    // FIXED: Added /api to the URL
-    this.http.post(`${environment.apiUrl}/api/admin/refresh-user-data`, { 
+    // ✅ FIXED: Removed duplicate /api
+    this.http.post(`${environment.apiUrl}/admin/refresh-user-data`, { 
       user_id: userId 
     }).subscribe({
       next: (res: any) => {
