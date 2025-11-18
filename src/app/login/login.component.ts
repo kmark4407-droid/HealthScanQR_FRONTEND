@@ -35,9 +35,6 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     console.log('🔐 Login Component');
     this.clearAuthData();
-    
-    // Test backend connection on init
-    this.testBackendConnection();
 
     const inputs: NodeListOf<HTMLInputElement> = this.el.nativeElement.querySelectorAll('input');
     inputs.forEach(input => {
@@ -50,20 +47,6 @@ export class LoginComponent implements OnInit {
         const label = input.parentElement?.querySelector('label');
         if (label) this.renderer.setStyle(label, 'color', '#34495e');
       });
-    });
-  }
-
-  // 🔍 TEST BACKEND CONNECTION
-  testBackendConnection(): void {
-    console.log('🧪 Testing backend connection...');
-    
-    this.auth.testBackendConnection().subscribe({
-      next: (response: any) => {
-        console.log('✅ Backend is running:', response);
-      },
-      error: (error) => {
-        console.error('❌ Backend connection failed:', error);
-      }
     });
   }
 
@@ -140,7 +123,7 @@ export class LoginComponent implements OnInit {
           }
         }, 1000);
       },
-      error: (err) => {
+      error: (err: any) => {
         this.isLoading = false;
         console.error('❌ Login failed via AuthService:', err);
 
@@ -181,19 +164,5 @@ export class LoginComponent implements OnInit {
 
   goToRegister(): void {
     this.router.navigate(['/register']);
-  }
-
-  // 🔍 TEST AUTH ENDPOINT
-  testAuthEndpoint(): void {
-    console.log('🧪 Testing auth endpoint...');
-    
-    this.auth.testApi().subscribe({
-      next: (response: any) => {
-        console.log('✅ Auth endpoint works:', response);
-      },
-      error: (error) => {
-        console.error('❌ Auth endpoint failed:', error);
-      }
-    });
   }
 }
