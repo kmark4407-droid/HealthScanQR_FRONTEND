@@ -1,4 +1,4 @@
-// auth.service.ts - COMPLETELY REVISED WITH CORRECT ENDPOINTS
+// auth.service.ts - FIXED WITH CORRECT ENDPOINTS
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, throwError } from 'rxjs';
@@ -108,33 +108,11 @@ export class AuthService {
     );
   }
 
-  // ✅ MANUAL SYNC VERIFICATION - USING CORRECT ENDPOINT
-  manualSyncVerification(email: string): Observable<any> {
-    console.log('🔧 Manual sync for:', email);
-    
-    return this.http.post(`${this.apiUrl}/api/manual-sync-verification`, { 
-      email: email,
-      password: 'temporary-password' 
-    }).pipe(
-      tap((response: any) => {
-        console.log('✅ Manual sync response:', response);
-        if (response.success) {
-          this.clearPendingVerification();
-          console.log('✅ Email verified via manual sync');
-        }
-      }),
-      catchError((error: any) => {
-        console.error('❌ Manual sync error:', error);
-        return throwError(() => error);
-      })
-    );
-  }
-
-  // ✅ QUICK VERIFY - CORRECT ENDPOINT
+  // ✅ QUICK VERIFY - FIXED ENDPOINT (was missing /auth/)
   quickVerifyEmail(email: string): Observable<any> {
     console.log('⚡ Quick verifying:', email);
     
-    return this.http.post(`${this.apiUrl}/api/quick-verify`, { email }).pipe(
+    return this.http.post(`${this.apiUrl}/api/auth/quick-verify`, { email }).pipe(
       tap((response: any) => {
         console.log('✅ Quick verify response:', response);
         if (response.success) {
@@ -164,7 +142,7 @@ export class AuthService {
     );
   }
 
-  // ✅ GET USER PROFILE - NOTE: This endpoint might not exist in your backend
+  // ✅ GET USER PROFILE - CORRECT ENDPOINT
   getProfile(): Observable<any> {
     const token = this.getUserToken();
     console.log('👤 Getting user profile');
@@ -188,7 +166,6 @@ export class AuthService {
       }),
       catchError((error: any) => {
         console.error('❌ Profile error:', error);
-        // If endpoint doesn't exist, we'll handle it gracefully
         return throwError(() => error);
       })
     );
@@ -240,36 +217,6 @@ export class AuthService {
       }),
       catchError((error: any) => {
         console.error('❌ API test error:', error);
-        return throwError(() => error);
-      })
-    );
-  }
-
-  // ✅ DEBUG FIREBASE CALLBACK
-  debugFirebaseCallback(): Observable<any> {
-    console.log('🐛 Debugging Firebase callback...');
-    
-    return this.http.get(`${this.apiUrl}/api/debug-firebase-callback`).pipe(
-      tap((response: any) => {
-        console.log('✅ Debug response:', response);
-      }),
-      catchError((error: any) => {
-        console.error('❌ Debug error:', error);
-        return throwError(() => error);
-      })
-    );
-  }
-
-  // ✅ TEST EMAIL VERIFICATION
-  testEmailVerification(email: string): Observable<any> {
-    console.log('🧪 Testing email verification for:', email);
-    
-    return this.http.post(`${this.apiUrl}/api/test-email-verification`, { email }).pipe(
-      tap((response: any) => {
-        console.log('✅ Email test result:', response);
-      }),
-      catchError((error: any) => {
-        console.error('❌ Email test error:', error);
         return throwError(() => error);
       })
     );
@@ -391,25 +338,12 @@ export class AuthService {
   syncVerificationStatus(email: string): Observable<any> {
     console.log('🔄 Simplified sync for:', email);
     
-    // Try to use quick verify as it doesn't require password
+    // Use quick verify as it doesn't require password
     return this.quickVerifyEmail(email);
   }
 
-  // ✅ GET ALL ENDPOINTS (for debugging)
-  getAvailableEndpoints(): string[] {
-    return [
-      'POST /api/auth/register',
-      'POST /api/auth/login',
-      'POST /api/auth/resend-verification',
-      'POST /api/auth/check-sync-verification',
-      'GET /api/auth/verification-status/:email',
-      'POST /api/quick-verify',
-      'POST /api/manual-sync-verification',
-      'GET /api/health',
-      'GET /api/test',
-      'GET /api/debug-firebase-callback',
-      'POST /api/test-email-verification',
-      'POST /api/admin/admin-login'
-    ];
-  }
+  // REMOVED NON-EXISTENT ENDPOINTS:
+  // - manualSyncVerification (endpoint doesn't exist)
+  // - debugFirebaseCallback (endpoint doesn't exist) 
+  // - testEmailVerification (endpoint doesn't exist)
 }
