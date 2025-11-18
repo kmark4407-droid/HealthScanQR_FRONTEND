@@ -1,4 +1,4 @@
-// auth.service.ts - CORRECTED VERSION
+// auth.service.ts - COMPLETE CORRECTED VERSION
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, throwError } from 'rxjs';
@@ -11,13 +11,17 @@ export class AuthService {
 
   private apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    console.log('🔧 AuthService initialized with API URL:', this.apiUrl);
+  }
 
   // ✅ REGISTER - CORRECT ENDPOINT
   register(data: any): Observable<any> {
+    const url = `${this.apiUrl}/auth/register`;
     console.log('📝 Registering user:', data.email);
+    console.log('🔧 REGISTER URL:', url);
     
-    return this.http.post(`${this.apiUrl}/api/auth/register`, data).pipe(
+    return this.http.post(url, data).pipe(
       tap((response: any) => {
         console.log('✅ Registration response:', response);
         
@@ -45,9 +49,11 @@ export class AuthService {
 
   // ✅ LOGIN - CORRECT ENDPOINT
   login(data: any): Observable<any> {
+    const url = `${this.apiUrl}/auth/login`;
     console.log('🔐 Logging in user:', data.email);
+    console.log('🔧 LOGIN URL:', url);
     
-    return this.http.post(`${this.apiUrl}/api/auth/login`, data).pipe(
+    return this.http.post(url, data).pipe(
       tap((response: any) => {
         console.log('✅ Login response:', response);
         
@@ -70,9 +76,11 @@ export class AuthService {
 
   // ✅ RESEND VERIFICATION - CORRECT ENDPOINT
   resendVerificationEmail(email: string): Observable<any> {
+    const url = `${this.apiUrl}/auth/resend-verification`;
     console.log('📧 Resending verification to:', email);
+    console.log('🔧 RESEND VERIFICATION URL:', url);
     
-    return this.http.post(`${this.apiUrl}/api/auth/resend-verification`, { email }).pipe(
+    return this.http.post(url, { email }).pipe(
       tap((response: any) => {
         console.log('✅ Resend response:', response);
         if (response.success && response.emailSent) {
@@ -88,9 +96,11 @@ export class AuthService {
 
   // ✅ CHECK SYNC VERIFICATION - CORRECT ENDPOINT
   checkSyncVerification(email: string, password: string): Observable<any> {
+    const url = `${this.apiUrl}/auth/check-sync-verification`;
     console.log('🔄 Checking sync verification for:', email);
+    console.log('🔧 CHECK SYNC URL:', url);
     
-    return this.http.post(`${this.apiUrl}/api/auth/check-sync-verification`, { 
+    return this.http.post(url, { 
       email: email,
       password: password
     }).pipe(
@@ -110,9 +120,11 @@ export class AuthService {
 
   // ✅ QUICK VERIFY - CORRECT ENDPOINT
   quickVerifyEmail(email: string): Observable<any> {
+    const url = `${this.apiUrl}/auth/quick-verify`;
     console.log('⚡ Quick verifying:', email);
+    console.log('🔧 QUICK VERIFY URL:', url);
     
-    return this.http.post(`${this.apiUrl}/api/auth/quick-verify`, { email }).pipe(
+    return this.http.post(url, { email }).pipe(
       tap((response: any) => {
         console.log('✅ Quick verify response:', response);
         if (response.success) {
@@ -129,9 +141,11 @@ export class AuthService {
 
   // ✅ CHECK VERIFICATION STATUS - CORRECT ENDPOINT
   checkVerificationStatus(email: string): Observable<any> {
+    const url = `${this.apiUrl}/auth/verification-status/${email}`;
     console.log('🔍 Checking verification status for:', email);
+    console.log('🔧 VERIFICATION STATUS URL:', url);
     
-    return this.http.get(`${this.apiUrl}/api/auth/verification-status/${email}`).pipe(
+    return this.http.get(url).pipe(
       tap((response: any) => {
         console.log('✅ Verification status:', response);
       }),
@@ -144,15 +158,17 @@ export class AuthService {
 
   // ✅ GET USER PROFILE - CORRECT ENDPOINT
   getProfile(): Observable<any> {
+    const url = `${this.apiUrl}/auth/me`;
     const token = this.getUserToken();
     console.log('👤 Getting user profile');
+    console.log('🔧 PROFILE URL:', url);
     
     if (!token) {
       console.error('❌ No token available for profile request');
       return throwError(() => new Error('No authentication token'));
     }
     
-    return this.http.get(`${this.apiUrl}/api/auth/me`, {
+    return this.http.get(url, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -173,9 +189,11 @@ export class AuthService {
 
   // ✅ ADMIN LOGIN - CORRECT ENDPOINT
   adminLogin(data: any): Observable<any> {
+    const url = `${this.apiUrl}/admin/admin-login`;
     console.log('🔐 Admin logging in:', data.email);
+    console.log('🔧 ADMIN LOGIN URL:', url);
     
-    return this.http.post(`${this.apiUrl}/api/admin/admin-login`, data).pipe(
+    return this.http.post(url, data).pipe(
       tap((response: any) => {
         console.log('✅ Admin login response:', response);
         if (response.success && response.token && response.admin) {
@@ -194,9 +212,11 @@ export class AuthService {
 
   // ✅ TEST BACKEND CONNECTION
   testBackendConnection(): Observable<any> {
+    const url = `${this.apiUrl}/health`;
     console.log('🧪 Testing backend connection...');
+    console.log('🔧 HEALTH CHECK URL:', url);
     
-    return this.http.get(`${this.apiUrl}/api/health`).pipe(
+    return this.http.get(url).pipe(
       tap((response: any) => {
         console.log('✅ Backend connection test:', response);
       }),
@@ -209,9 +229,11 @@ export class AuthService {
 
   // ✅ TEST API ENDPOINT
   testApi(): Observable<any> {
+    const url = `${this.apiUrl}/test`;
     console.log('🧪 Testing API endpoint...');
+    console.log('🔧 API TEST URL:', url);
     
-    return this.http.get(`${this.apiUrl}/api/test`).pipe(
+    return this.http.get(url).pipe(
       tap((response: any) => {
         console.log('✅ API test result:', response);
       }),
