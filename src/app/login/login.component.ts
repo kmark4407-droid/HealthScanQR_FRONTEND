@@ -4,6 +4,7 @@ import { AuthService } from '../auth.service';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { environment } from '../../Environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -111,6 +112,7 @@ export class LoginComponent implements OnInit {
           localStorage.setItem('user_id', res.user.id.toString());
         }
 
+        // ✅ FIXED: Check if user has medical info and redirect accordingly
         setTimeout(() => {
           if (res.hasMedicalInfo) {
             console.log('✅ User has medical info, redirecting to landing');
@@ -143,6 +145,9 @@ export class LoginComponent implements OnInit {
           this.errorMessage = 'Server error. Please try again later.';
         } else if (err.status === 0) {
           this.errorMessage = 'Cannot connect to server. Please check your internet connection.';
+        } else if (err.error?.requiresVerification) {
+          this.errorMessage = 'Email not verified. Please check your email for verification link.';
+          localStorage.setItem('pending_verification_email', this.loginForm.value.email);
         }
       }
     });
