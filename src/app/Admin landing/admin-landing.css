@@ -876,6 +876,11 @@ display: none;
 
 .actions button.destruct {
   background: #ef4444;
+  color: white;
+}
+
+.actions button.destruct:hover:not(:disabled) {
+  background: #dc2626;
 }
 
 .actions button:disabled {
@@ -1777,12 +1782,12 @@ display: none;
 }
 
 .btn-delete {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: linear-gradient(135deg, #8B0000 0%, #A52A2A 100%);
   color: white;
 }
 
 .btn-delete:hover {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  background: linear-gradient(135deg, #A52A2A 0%, #8B0000 100%);
 }
 
 /* Enhanced User Details Section - FIXED: Responsive */
@@ -2003,8 +2008,12 @@ display: none;
 }
 
 .user-actions-full .destruct {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: linear-gradient(135deg, #8B0000 0%, #A52A2A 100%);
   color: white;
+}
+
+.user-actions-full .destruct:hover:not(:disabled) {
+  background: linear-gradient(135deg, #A52A2A 0%, #8B0000 100%);
 }
 
 /* Enhanced No Users State */
