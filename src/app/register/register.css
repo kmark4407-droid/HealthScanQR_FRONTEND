@@ -715,7 +715,7 @@ button.error {
     box-shadow: 0 6px 20px rgba(75, 108, 183, 0.4);
 }
 
-/* Email Verification Message Styles */
+/* Enhanced Email Verification Message Styles */
 .verification-message-overlay {
     position: fixed;
     top: 0;
@@ -733,10 +733,10 @@ button.error {
 
 .verification-message-card {
     background: white;
-    border-radius: 16px;
+    border-radius: 20px;
     width: 90%;
-    max-width: 500px;
-    max-height: 80vh;
+    max-width: 480px;
+    max-height: 90vh;
     display: flex;
     flex-direction: column;
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
@@ -745,29 +745,39 @@ button.error {
 }
 
 .verification-header {
-    background: linear-gradient(90deg, #2ecc71 0%, #27ae60 100%);
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
     color: white;
-    padding: 25px;
+    padding: 30px 25px;
     text-align: center;
     position: relative;
 }
 
 .verification-header i {
-    font-size: 48px;
+    font-size: 52px;
     margin-bottom: 15px;
     display: block;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
 }
 
 .verification-header h3 {
     margin: 0;
-    font-size: 24px;
+    font-size: 26px;
     font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .verification-content {
     padding: 30px;
     flex: 1;
     overflow-y: auto;
+    text-align: center;
+}
+
+.verification-content p {
+    color: #34495e;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    font-size: 16px;
 }
 
 .user-email {
@@ -775,57 +785,28 @@ button.error {
     font-weight: 700;
     color: #2c3e50;
     text-align: center;
-    margin: 15px 0;
-    padding: 10px;
-    background: #f8f9fc;
-    border-radius: 8px;
+    margin: 20px 0;
+    padding: 15px;
+    background: linear-gradient(135deg, #f8f9fc 0%, #e8f4fd 100%);
+    border-radius: 12px;
     border-left: 4px solid #2ecc71;
-}
-
-.verification-actions {
-    display: flex;
-    gap: 15px;
-    margin: 25px 0;
-    flex-wrap: wrap;
-}
-
-.resend-btn, .login-btn {
-    flex: 1;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    min-width: 150px;
-}
-
-.resend-btn {
-    background: #3498db;
-    color: white;
-}
-
-.resend-btn:hover {
-    background: #2980b9;
-    transform: translateY(-2px);
-}
-
-.login-btn {
-    background: #2ecc71;
-    color: white;
-}
-
-.login-btn:hover {
-    background: #27ae60;
-    transform: translateY(-2px);
+    border-right: 4px solid #2ecc71;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.1);
 }
 
 .verification-tips {
-    background: #f8f9fc;
+    background: linear-gradient(135deg, #f8f9fc 0%, #e8f4fd 100%);
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 12px;
     border-left: 4px solid #3498db;
-    margin-top: 20px;
+    margin-top: 25px;
+    text-align: left;
+}
+
+.verification-tips p {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 10px;
 }
 
 .verification-tips ul {
@@ -835,8 +816,56 @@ button.error {
 
 .verification-tips li {
     color: #34495e;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
     font-size: 14px;
+    line-height: 1.5;
+}
+
+.verification-footer {
+    padding: 25px 30px;
+    background: #f8f9fc;
+    border-top: 1px solid #e1e5ec;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.verification-action-btn {
+    padding: 14px 25px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 140px;
+    font-size: 15px;
+    flex: 1;
+    max-width: 200px;
+}
+
+.verification-action-btn.primary {
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    color: white;
+    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.3);
+}
+
+.verification-action-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(46, 204, 113, 0.4);
+}
+
+.verification-action-btn.secondary {
+    background: white;
+    color: #34495e;
+    border: 2px solid #e1e5ec;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.verification-action-btn.secondary:hover {
+    transform: translateY(-2px);
+    border-color: #4b6cb7;
+    color: #4b6cb7;
+    box-shadow: 0 6px 20px rgba(75, 108, 183, 0.1);
 }
 
 /* ========== RESPONSIVE DESIGN ========== */
@@ -945,20 +974,50 @@ button.error {
         padding: 15px 20px;
     }
     
-    .verification-actions {
-        flex-direction: column;
-    }
-    
-    .resend-btn, .login-btn {
-        width: 100%;
-    }
-    
-    .verification-content {
-        padding: 20px;
+    /* Verification Message Responsive */
+    .verification-message-card {
+        width: 95%;
+        max-height: 85vh;
+        border-radius: 16px;
     }
     
     .verification-header {
+        padding: 25px 20px;
+    }
+    
+    .verification-header i {
+        font-size: 44px;
+    }
+    
+    .verification-header h3 {
+        font-size: 22px;
+    }
+    
+    .verification-content {
+        padding: 25px 20px;
+    }
+    
+    .user-email {
+        font-size: 16px;
+        padding: 12px;
+        margin: 15px 0;
+    }
+    
+    .verification-tips {
+        padding: 15px;
+        margin-top: 20px;
+    }
+    
+    .verification-footer {
         padding: 20px;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .verification-action-btn {
+        min-width: auto;
+        max-width: none;
+        width: 100%;
     }
 }
 
@@ -1076,16 +1135,57 @@ button.error {
         font-size: 14px;
     }
     
+    /* Verification Message Mobile */
+    .verification-message-overlay {
+        padding: 15px;
+    }
+    
+    .verification-message-card {
+        width: 100%;
+        max-height: 90vh;
+        border-radius: 14px;
+    }
+    
+    .verification-header {
+        padding: 20px 15px;
+    }
+    
     .verification-header i {
-        font-size: 36px;
+        font-size: 40px;
     }
     
     .verification-header h3 {
         font-size: 20px;
     }
     
+    .verification-content {
+        padding: 20px 15px;
+    }
+    
+    .verification-content p {
+        font-size: 15px;
+    }
+    
     .user-email {
-        font-size: 16px;
+        font-size: 15px;
+        padding: 10px;
+    }
+    
+    .verification-tips {
+        padding: 12px;
+    }
+    
+    .verification-tips li {
+        font-size: 13px;
+    }
+    
+    .verification-footer {
+        padding: 15px;
+    }
+    
+    .verification-action-btn {
+        padding: 12px 20px;
+        font-size: 14px;
     }
 }
 
@@ -1143,12 +1243,37 @@ button.error {
         line-height: 1.3;
     }
     
-    .verification-content {
-        padding: 15px;
+    /* Verification Message Small Mobile */
+    .verification-header {
+        padding: 18px 12px;
     }
     
-    .verification-header {
-        padding: 15px;
+    .verification-header i {
+        font-size: 36px;
+    }
+    
+    .verification-header h3 {
+        font-size: 18px;
+    }
+    
+    .verification-content {
+        padding: 15px 12px;
+    }
+    
+    .verification-content p {
+        font-size: 14px;
+    }
+    
+    .user-email {
+        font-size: 14px;
+    }
+    
+    .verification-tips li {
+        font-size: 12px;
+    }
+    
+    .verification-footer {
+        padding: 12px;
     }
 }
 
@@ -1178,6 +1303,38 @@ button.error {
     input {
         padding: 10px 50px 10px 38px;
         min-height: 42px;
+    }
+    
+    /* Verification Message Landscape */
+    .verification-message-card {
+        max-height: 95vh;
+    }
+    
+    .verification-header {
+        padding: 20px;
+    }
+    
+    .verification-header i {
+        font-size: 36px;
+        margin-bottom: 10px;
+    }
+    
+    .verification-content {
+        padding: 20px;
+    }
+    
+    .user-email {
+        margin: 10px 0;
+        padding: 10px;
+    }
+    
+    .verification-tips {
+        margin-top: 15px;
+        padding: 15px;
+    }
+    
+    .verification-footer {
+        padding: 15px 20px;
     }
 }
 
@@ -1230,6 +1387,27 @@ button {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+/* Enhanced animations for verification */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
     }
 }
 
