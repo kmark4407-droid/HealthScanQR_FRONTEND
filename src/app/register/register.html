@@ -115,7 +115,7 @@
     </div>
   </div>
 
-  <!-- Simple Email Verification Success Message -->
+  <!-- Enhanced Email Verification Success Message -->
   <div class="verification-message-overlay" *ngIf="showVerificationMessage" (click)="closeVerificationMessage()">
     <div class="verification-message-card" (click)="$event.stopPropagation()">
       <div class="verification-header">
@@ -133,17 +133,16 @@
           <ul>
             <li>Check your spam or junk folder</li>
             <li>Make sure you entered the correct email address</li>
-            <li>Wait a few minutes and try registering again</li>
-            <li>Contact support if the issue persists</li>
+            <li>Wait a few minutes and try again</li>
           </ul>
         </div>
       </div>
 
       <div class="verification-footer">
-        <button class="login-btn" (click)="goToLogin()">
-          <i class="fas fa-sign-in-alt"></i> Go to Login
+        <button class="verification-action-btn primary" (click)="goToLogin()">
+          Continue to Login
         </button>
-        <button class="close-btn" (click)="closeVerificationMessage()">
+        <button class="verification-action-btn secondary" (click)="closeVerificationMessage()">
           Close
         </button>
       </div>
