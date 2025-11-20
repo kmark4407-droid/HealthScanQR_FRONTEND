@@ -1359,7 +1359,13 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
         if (isSuccess) {
           const updatedTimestamp = res.lastUpdated || res.timestamp || timestamp;
           
-          this.logActivity('UPDATE', `Updated medical information for user: ${updateData.full_name}`, this.getChangedFields());
+          // FIXED: Only log actual changes, not false positives
+          const actualChanges = this.getActualChangedFields();
+          if (actualChanges) {
+            this.logActivity('UPDATE', `Updated medical information for user: ${updateData.full_name}`, actualChanges);
+          } else {
+            console.log('🔄 No actual changes detected, skipping activity log');
+          }
           
           this.forceUserDataRefresh(updateData.user_id);
           
@@ -1371,7 +1377,13 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
           if (this.looksLikeSuccess(res)) {
             const updatedTimestamp = res.lastUpdated || res.timestamp || timestamp;
             
-            this.logActivity('UPDATE', `Updated medical information for user: ${updateData.full_name}`, this.getChangedFields());
+            // FIXED: Only log actual changes, not false positives
+            const actualChanges = this.getActualChangedFields();
+            if (actualChanges) {
+              this.logActivity('UPDATE', `Updated medical information for user: ${updateData.full_name}`, actualChanges);
+            } else {
+              console.log('🔄 No actual changes detected, skipping activity log');
+            }
             
             this.forceUserDataRefresh(updateData.user_id);
             
@@ -1463,16 +1475,67 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     });
   }
 
-  getChangedFields(): string {
+  // FIXED: Improved change detection to avoid false positives
+  getActualChangedFields(): string {
     if (!this.originalData) return '';
     
     const changes: string[] = [];
-    Object.keys(this.editForm.value).forEach(key => {
-      if (this.editForm.value[key] !== this.originalData[key]) {
+    const formData = this.editForm.value;
+    
+    // Compare each field and only include actual meaningful changes
+    Object.keys(formData).forEach(key => {
+      const originalValue = this.originalData[key];
+      const newValue = formData[key];
+      
+      // Skip user_id field from comparison
+      if (key === 'user_id') return;
+      
+      // Handle date comparison - normalize dates for comparison
+      if (key === 'dob') {
+        const originalDate = this.normalizeDate(originalValue);
+        const newDate = this.normalizeDate(newValue);
+        if (originalDate !== newDate) {
+          changes.push(key);
+        }
+      } 
+      // Handle empty string vs null/undefined comparison
+      else if ((!originalValue && newValue) || (originalValue && !newValue)) {
+        changes.push(key);
+      }
+      // Handle string comparison with trimming
+      else if (originalValue?.toString().trim() !== newValue?.toString().trim()) {
         changes.push(key);
       }
     });
+    
+    console.log('🔄 Detected actual changes:', changes);
     return changes.join(', ');
+  }
+
+  // Helper method to normalize dates for comparison
+  private normalizeDate(dateString: string): string {
+    if (!dateString) return '';
+    
+    try {
+      // Handle both "MM/DD/YYYY" and "YYYY-MM-DD" formats
+      if (dateString.includes('/')) {
+        const parts = dateString.split('/');
+        if (parts.length === 3) {
+          return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+        }
+      }
+      
+      // If it's already in YYYY-MM-DD format or invalid, return as is
+      return dateString;
+    } catch (e) {
+      console.error('Error normalizing date:', e);
+      return dateString;
+    }
+  }
+
+  // Keep original method for backward compatibility
+  getChangedFields(): string {
+    return this.getActualChangedFields();
   }
 
   cancelEdit(): void {
