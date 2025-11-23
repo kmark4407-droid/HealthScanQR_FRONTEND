@@ -13,7 +13,7 @@ html, body {
 }
 
 body {
-    background: linear-gradient(135deg, #8B0000 0%, #B22222 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -56,12 +56,12 @@ body {
     left: 0;
     right: 0;
     height: 6px;
-    background: linear-gradient(90deg, #8B0000 0%, #FF0000 100%);
+    background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
 }
 
 .image-section { 
     flex: 1.5;
-    background: linear-gradient(120deg, rgba(139, 0, 0, 0.5) 0%, rgba(178, 34, 34, 0.5) 100%);
+    background: linear-gradient(120deg, rgba(106, 17, 203, 0.5) 0%, rgba(37, 117, 252, 0.5) 100%);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -88,7 +88,7 @@ body {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: linear-gradient(45deg, rgba(139, 0, 0, 0.7) 0%, rgba(178, 34, 34, 0.7) 100%);
+    background: linear-gradient(45deg, rgba(136, 145, 168, 0.7) 0%, rgba(24, 40, 72, 0.7) 100%);
     z-index: 1;
 }
 
@@ -140,7 +140,7 @@ h2::after {
     transform: translateX(-50%);
     width: 60px;
     height: 4px;
-    background: linear-gradient(90deg, #8B0000 0%, #FF0000 100%);
+    background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
     border-radius: 2px;
 }
 
@@ -171,8 +171,8 @@ input {
 
 input:focus {
     outline: none;
-    border-color: #8B0000;
-    box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.2), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border-color: #4b6cb7;
+    box-shadow: 0 0 0 3px rgba(75, 108, 183, 0.2), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     background: white;
     transform: translateY(-2px) scale(1.01);
 }
@@ -187,7 +187,7 @@ input:focus {
 }
 
 input:focus + .input-icon {
-    color: #8B0000;
+    color: #4b6cb7;
 }
 
 /* Password input container - Match regular login */
@@ -235,7 +235,7 @@ input:focus + .input-icon {
 }
 
 .password-toggle-btn:hover {
-    color: #8B0000 !important;
+    color: #4b6cb7 !important;
     background: transparent !important;
 }
 
@@ -251,7 +251,7 @@ input:focus + .input-icon {
 button[type="submit"] {
     width: 100%;
     padding: 18px;
-    background: linear-gradient(120deg, #8B0000 0%, #FF0000 100%);
+    background: linear-gradient(120deg, #4b6cb7 0%, #182848 100%);
     color: white;
     border: none;
     border-radius: 12px;
@@ -259,7 +259,7 @@ button[type="submit"] {
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 10px 20px rgba(139, 0, 0, 0.3);
+    box-shadow: 0 10px 20px rgba(75, 108, 183, 0.3);
     letter-spacing: 0.5px;
     position: relative;
     overflow: hidden;
@@ -282,12 +282,12 @@ button[type="submit"]:hover::before {
 
 button[type="submit"]:hover {
     transform: translateY(-3px);
-    box-shadow: 0 15px 25px rgba(139, 0, 0, 0.4);
+    box-shadow: 0 15px 25px rgba(75, 108, 183, 0.4);
 }
 
 button[type="submit"]:active {
     transform: translateY(0);
-    box-shadow: 0 5px 15px rgba(139, 0, 0, 0.4);
+    box-shadow: 0 5px 15px rgba(75, 108, 183, 0.4);
 }
 
 button[type="submit"]:disabled {
@@ -306,7 +306,7 @@ button[type="submit"]:disabled {
 }
 
 .form-footer a {
-    color: #8B0000;
+    color: #4b6cb7;
     text-decoration: none;
     font-weight: 700;
     transition: all 0.3s ease;
@@ -322,7 +322,7 @@ button[type="submit"]:disabled {
     left: 0;
     width: 0;
     height: 2px;
-    background: #8B0000;
+    background: #4b6cb7;
     transition: width 0.3s ease;
 }
 
@@ -332,7 +332,7 @@ button[type="submit"]:disabled {
 
 .form-footer a:hover {
     text-decoration: none;
-    color: #B22222;
+    color: #3a5999;
 }
 
 /* Admin Specific Animations */
@@ -367,7 +367,7 @@ input.ng-invalid.ng-touched + .input-icon {
 
 /* Subtle hover effects */
 .form-group:hover label {
-    color: #8B0000;
+    color: #4b6cb7;
 }
 
 .form-group:hover .input-icon {
@@ -469,7 +469,7 @@ button {
 
 /* Focus with keyboard navigation */
 input:focus-visible {
-    outline: 2px solid #8B0000;
+    outline: 2px solid #4b6cb7;
     outline-offset: 2px;
 }
 
