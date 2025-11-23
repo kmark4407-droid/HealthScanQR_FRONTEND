@@ -51,8 +51,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   filteredUsers: any[] = [];
   approvedUsers: any[] = [];
   pendingUsers: any[] = [];
-  usersWithDetails: any[] = []; // NEW: Users who have provided medical details
-  usersWithoutDetails: any[] = []; // NEW: Users who haven't provided medical details
   userSearchTerm: string = '';
   selectedUser: any = null;
   isUserActionLoading: boolean = false;
@@ -473,15 +471,48 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
         this.users = res.users || [];
         console.log('📊 Loaded users:', this.users.length);
         
-        this.filteredUsers = [...this.users];
+        // FILTER OUT USERS WHO HAVEN'T VALIDATED THEIR DATA
+        this.filteredUsers = this.users.filter(user => 
+          this.isUserDataValidated(user)
+        );
+        
+        console.log('✅ Filtered validated users:', this.filteredUsers.length);
         this.separateUsersByApproval();
-        this.separateUsersByMedicalDetails(); // NEW: Separate users by medical details
       },
       error: (err) => {
         console.error('Error loading users:', err);
         alert('Failed to load users. Please try again.');
       }
     });
+  }
+
+  // NEW METHOD: Check if user has validated their medical data
+  private isUserDataValidated(user: any): boolean {
+    if (!user) return false;
+    
+    // Check if user has completed basic medical information
+    const hasBasicInfo = user.full_name && 
+                        user.full_name !== 'Not provided' && 
+                        user.full_name.trim() !== '' &&
+                        user.dob &&
+                        user.blood_type &&
+                        user.address &&
+                        user.emergency_contact;
+    
+    // Check if user has at least some medical information filled
+    const hasMedicalInfo = user.allergies || user.medications || user.conditions;
+    
+    // User is considered validated if they have basic info AND at least some medical info
+    const isValidated = hasBasicInfo && (hasMedicalInfo || user.approved);
+    
+    console.log(`🔍 User validation check: ${user.full_name}`, {
+      hasBasicInfo,
+      hasMedicalInfo,
+      approved: user.approved,
+      isValidated
+    });
+    
+    return isValidated;
   }
 
   private separateUsersByApproval(): void {
@@ -491,7 +522,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     const usersToSeparate = this.filteredUsers.length > 0 ? this.filteredUsers : this.users;
     
     usersToSeparate.forEach(user => {
-      if (user) {
+      if (user && this.isUserDataValidated(user)) {
         if (user.approved === true) {
           this.approvedUsers.push(user);
         } else {
@@ -500,57 +531,17 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       }
     });
     
-    console.log('🔄 Separated users - Approved:', this.approvedUsers.length, 'Pending:', this.pendingUsers.length);
-  }
-
-  // NEW: Separate users by whether they have provided medical details
-  private separateUsersByMedicalDetails(): void {
-    this.usersWithDetails = [];
-    this.usersWithoutDetails = [];
-    
-    const usersToSeparate = this.filteredUsers.length > 0 ? this.filteredUsers : this.users;
-    
-    usersToSeparate.forEach(user => {
-      if (user) {
-        if (this.hasMedicalDetails(user)) {
-          this.usersWithDetails.push(user);
-        } else {
-          this.usersWithoutDetails.push(user);
-        }
-      }
-    });
-    
-    console.log('🔄 Separated users by medical details - With Details:', this.usersWithDetails.length, 'Without Details:', this.usersWithoutDetails.length);
-  }
-
-  // NEW: Check if a user has provided medical details
-  private hasMedicalDetails(user: any): boolean {
-    if (!user) return false;
-    
-    // Check if user has basic medical information filled
-    const hasBasicInfo = user.full_name && user.full_name.trim() !== '' &&
-                        user.dob && user.dob.trim() !== '' &&
-                        user.blood_type && user.blood_type.trim() !== '' &&
-                        user.address && user.address.trim() !== '' &&
-                        user.emergency_contact && user.emergency_contact.trim() !== '';
-    
-    // Check if user has any medical data (allergies, medications, conditions)
-    const hasMedicalData = (user.allergies && user.allergies.trim() !== '') ||
-                          (user.medications && user.medications.trim() !== '') ||
-                          (user.conditions && user.conditions.trim() !== '');
-    
-    // User is considered to have medical details if they have basic info OR medical data
-    return hasBasicInfo || hasMedicalData;
+    console.log('🔄 Separated validated users - Approved:', this.approvedUsers.length, 'Pending:', this.pendingUsers.length);
   }
 
   filterUsers(): void {
     const term = this.userSearchTerm ? this.userSearchTerm.toLowerCase().trim() : '';
     
     if (!term) {
-      this.filteredUsers = [...this.users];
+      this.filteredUsers = this.users.filter(user => this.isUserDataValidated(user));
     } else {
       this.filteredUsers = this.users.filter(user => {
-        if (!user) return false;
+        if (!user || !this.isUserDataValidated(user)) return false;
         
         const nameMatch = user.full_name && user.full_name.toLowerCase().includes(term);
         const emailMatch = user.email && user.email.toLowerCase().includes(term);
@@ -562,7 +553,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     }
     
     this.separateUsersByApproval();
-    this.separateUsersByMedicalDetails(); // NEW: Update medical details separation
   }
 
   onSearchInput(): void {
@@ -580,12 +570,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   }
 
   approveUser(user: any): void {
-    // NEW: Check if user has medical details before allowing approval
-    if (!this.hasMedicalDetails(user)) {
-      alert(`Cannot approve ${user.full_name || 'this user'}. User has not provided complete medical information.`);
-      return;
-    }
-
     if (!confirm(`Approve medical information for ${user.full_name}?`)) {
       return;
     }
@@ -666,7 +650,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
           this.users = this.users.filter(u => u.user_id !== user.user_id);
           this.filteredUsers = this.filteredUsers.filter(u => u.user_id !== user.user_id);
           this.separateUsersByApproval();
-          this.separateUsersByMedicalDetails(); // NEW: Update medical details separation
           this.selectedUser = null;
           this.showUserDetails = false;
         } else {
@@ -703,13 +686,10 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   }
 
   exportUsers(): void {
-    // NEW: Only export users who have medical details
-    const usersToExport = this.usersWithDetails.length > 0 ? this.usersWithDetails : 
-                         (this.filteredUsers.length > 0 ? this.filteredUsers.filter(user => this.hasMedicalDetails(user)) : 
-                         this.users.filter(user => this.hasMedicalDetails(user)));
+    const usersToExport = this.filteredUsers.length > 0 ? this.filteredUsers : this.users.filter(user => this.isUserDataValidated(user));
     
     if (usersToExport.length === 0) {
-      alert('No users with medical details to export.');
+      alert('No validated users to export.');
       return;
     }
 
@@ -718,7 +698,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `users-with-medical-details-${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `users-export-${new Date().toISOString().split('T')[0]}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -726,7 +706,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   }
 
   convertUsersToCSV(users: any[]): string {
-    const headers = ['Full Name', 'Email', 'Approved', 'Approved At', 'Approved By', 'Created At', 'Last Updated', 'Has Medical Details'];
+    const headers = ['Full Name', 'Email', 'Approved', 'Approved At', 'Approved By', 'Created At', 'Last Updated'];
     const rows = users.map(user => [
       user.full_name || '',
       user.email || '',
@@ -734,8 +714,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       user.approved_at ? new Date(user.approved_at).toLocaleString() : '',
       user.approved_by || '',
       user.created_at ? new Date(user.created_at).toLocaleString() : '',
-      user.lastUpdated ? new Date(user.lastUpdated).toLocaleString() : '',
-      this.hasMedicalDetails(user) ? 'Yes' : 'No'
+      user.lastUpdated ? new Date(user.lastUpdated).toLocaleString() : ''
     ]);
     
     return [headers, ...rows].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
@@ -747,23 +726,13 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   }
 
   getUserInitials(user: any): string {
-    if (!user.full_name) return 'U';
+    if (!user.full_name || user.full_name === 'Not provided') return 'U';
     return user.full_name
       .split(' ')
       .map((name: string) => name.charAt(0))
       .join('')
       .toUpperCase()
       .slice(0, 2);
-  }
-
-  // NEW: Get medical details status for display
-  getMedicalDetailsStatus(user: any): string {
-    return this.hasMedicalDetails(user) ? 'Complete' : 'Incomplete';
-  }
-
-  // NEW: Get medical details status class for styling
-  getMedicalDetailsStatusClass(user: any): string {
-    return this.hasMedicalDetails(user) ? 'status-approved' : 'status-pending';
   }
 
   // ==================== PROFILE PHOTO METHODS ====================
@@ -924,14 +893,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     );
     
     this.pendingUsers = this.pendingUsers.map(user => 
-      user.user_id === userId ? { ...user, profile_photo: base64Image } : user
-    );
-    
-    this.usersWithDetails = this.usersWithDetails.map(user => 
-      user.user_id === userId ? { ...user, profile_photo: base64Image } : user
-    );
-    
-    this.usersWithoutDetails = this.usersWithoutDetails.map(user => 
       user.user_id === userId ? { ...user, profile_photo: base64Image } : user
     );
     
