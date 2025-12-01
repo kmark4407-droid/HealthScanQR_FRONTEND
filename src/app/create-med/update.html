@@ -112,6 +112,7 @@
           <p class="card-subtitle">Keep your medical information up to date for better healthcare</p>
         </div>
         
+        <!-- Success Message -->
         <div *ngIf="showSuccess" class="success-message">
           <i class="success-icon">✓</i>
           Your information has been updated successfully!
@@ -121,6 +122,12 @@
         <div *ngIf="showWarning" class="warning-message">
           <i class="warning-icon">⚠️</i>
           Please fill in all required fields before submitting the form.
+        </div>
+
+        <!-- Error Message for API failures -->
+        <div *ngIf="showError" class="error-alert-message">
+          <i class="error-icon">❌</i>
+          {{errorMessage}}
         </div>
         
         <form [formGroup]="updateForm" (ngSubmit)="submit()" enctype="multipart/form-data" class="medical-form">
@@ -139,6 +146,9 @@
                 </div>
                 <div *ngIf="previewUrl" class="preview">
                   <img [src]="previewUrl" alt="Profile Preview" />
+                  <div class="preview-info">
+                    <small>Preview - Max size: 5MB (JPEG, PNG, GIF, WebP)</small>
+                  </div>
                 </div>
                 <div *ngIf="updateForm.get('photo')?.invalid && updateForm.get('photo')?.touched" class="error-message">
                   <i class="error-icon">⚠️</i> Profile photo is required
@@ -213,11 +223,14 @@
           </div>
 
           <div class="form-actions">
-            <button type="submit" [disabled]="updateForm.invalid" class="submit-button">
+            <button type="submit" [disabled]="updateForm.invalid || isSubmitting" class="submit-button">
               <span class="button-icon">💾</span> 
               {{isSubmitting ? 'Saving...' : 'Save & Continue'}}
               <span class="button-shine"></span>
             </button>
+            <div class="form-note">
+              <small>⚠️ Please ensure you have a stable internet connection before submitting</small>
+            </div>
           </div>
         </form>
       </div>
