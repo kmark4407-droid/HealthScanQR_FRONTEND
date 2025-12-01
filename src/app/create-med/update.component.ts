@@ -408,12 +408,11 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
 
     console.log('🌐 Making API call to:', `${environment.apiUrl}/medical/update`);
     
-    // Make the API call with timeout and better error handling
+    // Make the API call with better error handling
     this.http.post(`${environment.apiUrl}/medical/update`, formData, {
       headers: {
         'Authorization': `Bearer ${token}`
-      },
-      timeout: 30000 // 30 second timeout for mobile
+      }
     }).subscribe({
       next: (res: any) => {
         console.log('✅ Medical info saved successfully:', res);
