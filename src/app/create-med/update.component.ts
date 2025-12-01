@@ -18,6 +18,8 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
   previewUrl: string | ArrayBuffer | null = null;
   showSuccess = false;
   showWarning = false;
+  showError = false;
+  errorMessage = '';
   isSubmitting = false;
   showSettings = false;
   largeFontEnabled = false;
@@ -49,6 +51,7 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
 
   ngOnInit() {
     console.log('🔄 Update component initialized');
+    console.log('🌐 API URL:', environment.apiUrl);
     
     // ✅ Check if user already completed update
     const hasUpdated = localStorage.getItem('hasUpdated');
@@ -58,16 +61,54 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
       return;
     }
 
+    // ✅ Check if user is logged in
+    const user_id = localStorage.getItem('user_id');
+    const token = localStorage.getItem('token');
+    
+    if (!user_id || !token) {
+      console.log('❌ User not logged in, redirecting to login');
+      this.router.navigate(['/login']);
+      return;
+    }
+    
+    console.log('🔑 User ID from localStorage:', user_id);
+    console.log('🔐 Token present:', !!token);
+
     // ✅ User needs to fill the form, stay on update page
     console.log('📝 User needs to fill medical info, staying on update page');
     
     // Load saved accessibility settings
     this.loadAccessibilitySettings();
+    
+    // Pre-fill with any existing data
+    this.prefillForm();
   }
 
   ngAfterViewInit() {
     this.appContainer = document.querySelector('.medical-app-container');
     this.applyAccessibilitySettings();
+  }
+
+  private prefillForm() {
+    // Try to load any previously saved form data
+    const savedData = localStorage.getItem('medicalFormDraft');
+    if (savedData) {
+      try {
+        const data = JSON.parse(savedData);
+        this.updateForm.patchValue(data);
+        console.log('📋 Loaded saved form draft');
+      } catch (e) {
+        console.log('❌ Could not load saved form draft');
+      }
+    }
+  }
+
+  // Save form draft when user leaves page
+  @HostListener('window:beforeunload')
+  saveDraftOnLeave() {
+    if (this.updateForm.dirty && !this.isSubmitting) {
+      localStorage.setItem('medicalFormDraft', JSON.stringify(this.updateForm.value));
+    }
   }
 
   // SIMPLIFIED: Toggle mobile menu
@@ -191,11 +232,15 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
   private loadAccessibilitySettings() {
     const saved = localStorage.getItem('accessibilitySettings');
     if (saved) {
-      const settings = JSON.parse(saved);
-      this.dyslexiaFontEnabled = settings.dyslexia || false;
-      this.largeFontEnabled = settings.largeFont || false;
-      this.grayscaleEnabled = settings.grayscale || false;
-      this.highContrastEnabled = settings.highContrast || false;
+      try {
+        const settings = JSON.parse(saved);
+        this.dyslexiaFontEnabled = settings.dyslexia || false;
+        this.largeFontEnabled = settings.largeFont || false;
+        this.grayscaleEnabled = settings.grayscale || false;
+        this.highContrastEnabled = settings.highContrast || false;
+      } catch (e) {
+        console.log('❌ Error loading accessibility settings:', e);
+      }
     }
   }
 
@@ -211,22 +256,66 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
   onFileSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
+        this.showErrorWithMessage('Please select a valid image file (JPEG, PNG, GIF, or WebP)');
+        event.target.value = ''; // Clear the file input
+        return;
+      }
+
+      // Validate file size (5MB max)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        this.showErrorWithMessage('Image size must be less than 5MB');
+        event.target.value = ''; // Clear the file input
+        return;
+      }
+
       this.selectedFile = file;
       this.updateForm.patchValue({ photo: file });
       this.updateForm.get('photo')?.updateValueAndValidity();
 
       const reader = new FileReader();
-      reader.onload = e => (this.previewUrl = (e.target as FileReader).result);
+      reader.onload = (e) => {
+        this.previewUrl = (e.target as FileReader).result;
+        console.log('📸 File selected and preview generated:', {
+          name: file.name,
+          size: file.size,
+          type: file.type
+        });
+      };
       reader.readAsDataURL(file);
       
-      console.log('📸 File selected:', file.name, 'Size:', file.size, 'Type:', file.type);
+    } else {
+      this.selectedFile = null;
+      this.previewUrl = null;
+      this.updateForm.patchValue({ photo: null });
     }
   }
 
-  // ✅ FIXED: Submit method with corrected arrow function syntax
+  // Helper method to show error
+  private showErrorWithMessage(message: string) {
+    this.errorMessage = message;
+    this.showError = true;
+    this.showWarning = false;
+    this.showSuccess = false;
+    
+    setTimeout(() => {
+      this.showError = false;
+    }, 5000);
+  }
+
+  // ✅ ENHANCED: Submit method with better error handling
   submit() {
     console.log('🔄 Submit method called');
     console.log('🌐 API Base URL:', environment.apiUrl);
+    
+    // Reset all messages
+    this.showError = false;
+    this.showWarning = false;
+    this.showSuccess = false;
+    this.errorMessage = '';
     
     if (this.updateForm.invalid) {
       console.log('❌ Form invalid - showing errors:');
@@ -253,25 +342,34 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
     this.showWarning = false;
     this.isSubmitting = true;
     
+    // Get user data from localStorage
     const user_id = localStorage.getItem('user_id');
-    console.log('🔑 User ID for submission:', user_id);
+    const token = localStorage.getItem('token');
     
-    if (!user_id) {
-      alert('⚠️ User not logged in properly. Please log in again.');
-      this.router.navigate(['/login']);
+    console.log('🔑 User ID for submission:', user_id);
+    console.log('🔐 Token present:', !!token);
+    
+    if (!user_id || !token) {
+      this.showErrorWithMessage('⚠️ User not logged in properly. Please log in again.');
       this.isSubmitting = false;
+      setTimeout(() => {
+        this.router.navigate(['/login']);
+      }, 2000);
       return;
     }
 
     // Validate user_id is a number
     const parsedUserId = parseInt(user_id);
     if (isNaN(parsedUserId)) {
-      alert('⚠️ Invalid user ID format. Please log in again.');
-      this.router.navigate(['/login']);
+      this.showErrorWithMessage('⚠️ Invalid user ID format. Please log in again.');
       this.isSubmitting = false;
+      setTimeout(() => {
+        this.router.navigate(['/login']);
+      }, 2000);
       return;
     }
 
+    // Create FormData
     const formData = new FormData();
     formData.append('user_id', user_id);
 
@@ -281,36 +379,61 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
     Object.keys(this.updateForm.value).forEach(key => {
       if (key !== 'photo') {
         const value = this.updateForm.value[key];
-        if (value !== null && value !== undefined) {
-          formData.append(key, value.toString());
+        if (value !== null && value !== undefined && value !== '') {
+          formData.append(key, value.toString().trim());
         }
       }
     });
 
+    // Add file if selected
     if (this.selectedFile) {
-      formData.append('photo', this.selectedFile);
-      console.log('📸 File attached:', this.selectedFile.name);
+      formData.append('photo', this.selectedFile, this.selectedFile.name);
+      console.log('📸 File attached:', {
+        name: this.selectedFile.name,
+        size: this.selectedFile.size,
+        type: this.selectedFile.type
+      });
     } else {
-      console.log('⚠️ No file selected - form requires photo');
+      console.log('⚠️ No file selected - but form requires photo');
+      this.showErrorWithMessage('Please select a profile photo');
+      this.isSubmitting = false;
+      return;
+    }
+
+    // Log FormData contents (for debugging)
+    console.log('📦 FormData entries:');
+    for (let pair of (formData as any).entries()) {
+      console.log(`  ${pair[0]}:`, pair[1]);
     }
 
     console.log('🌐 Making API call to:', `${environment.apiUrl}/medical/update`);
     
-    this.http.post(`${environment.apiUrl}/medical/update`, formData).subscribe({
-      next: (res: any) => {  // ✅ FIXED: Added arrow function syntax
+    // Make the API call with timeout and better error handling
+    this.http.post(`${environment.apiUrl}/medical/update`, formData, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      timeout: 30000 // 30 second timeout for mobile
+    }).subscribe({
+      next: (res: any) => {
         console.log('✅ Medical info saved successfully:', res);
         this.showSuccess = true;
         this.isSubmitting = false;
 
+        // Clear draft data
+        localStorage.removeItem('medicalFormDraft');
+        
         // ✅ Mark user as having completed update
         localStorage.setItem('hasUpdated', 'true');
         
-        // ✅ Also store the form data in localStorage as backup
+        // ✅ Store the form data in localStorage as backup
         localStorage.setItem('medicalFormData', JSON.stringify(this.updateForm.value));
         
         // ✅ Store timestamp for last updated
         localStorage.setItem('medicalInfoLastUpdated', new Date().toISOString());
 
+        console.log('🎉 Success! Redirecting to landing page in 1.5 seconds...');
+        
         setTimeout(() => {
           console.log('➡️ Redirecting to landing page');
           this.router.navigate(['/landing']);
@@ -318,8 +441,43 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
       },
       error: (err: HttpErrorResponse) => {
         console.error('❌ Submission error:', err);
-        alert('❌ Failed to save medical information. Please try again.');
+        
+        let errorMessage = 'Failed to save medical information. Please try again.';
+        
+        if (err.status === 0) {
+          errorMessage = 'Network error. Please check your internet connection.';
+        } else if (err.status === 400) {
+          if (err.error?.message) {
+            errorMessage = err.error.message;
+          } else {
+            errorMessage = 'Invalid data submitted. Please check all fields.';
+          }
+        } else if (err.status === 401) {
+          errorMessage = 'Session expired. Please log in again.';
+          setTimeout(() => {
+            this.router.navigate(['/login']);
+          }, 2000);
+        } else if (err.status === 413) {
+          errorMessage = 'Image file is too large. Please use an image smaller than 5MB.';
+        } else if (err.status === 415) {
+          errorMessage = 'Invalid file type. Please use JPEG, PNG, GIF, or WebP.';
+        } else if (err.error?.message) {
+          errorMessage = err.error.message;
+        }
+        
+        this.showErrorWithMessage(errorMessage);
         this.isSubmitting = false;
+        
+        // Log detailed error for debugging
+        console.error('🔍 Error details:', {
+          status: err.status,
+          statusText: err.statusText,
+          message: err.message,
+          error: err.error
+        });
+      },
+      complete: () => {
+        console.log('✅ API call completed');
       }
     });
   }
@@ -330,6 +488,12 @@ export class UpdateInfoComponent implements AfterViewInit, OnInit {
       firstErrorElement.scrollIntoView({
         behavior: 'smooth',
         block: 'center'
+      });
+    } else {
+      // Scroll to top if no error messages visible
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
       });
     }
   }
