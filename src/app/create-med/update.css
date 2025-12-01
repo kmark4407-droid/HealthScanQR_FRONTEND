@@ -1,4 +1,4 @@
-/* update.css - Enhanced Responsive Version */
+/* update.css - Enhanced Responsive Version with Mobile Fixes */
 /* Modern Medical App Styles with Sidebar */
 .medical-app-container {
   min-height: 100vh;
@@ -816,11 +816,6 @@ input:checked + .slider:before {
   animation: fadeIn 0.5s ease;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 .preview img {
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -828,11 +823,32 @@ input:checked + .slider:before {
   transition: all 0.3s ease;
   max-width: 140px;
   height: auto;
+  max-height: 140px;
+  object-fit: cover;
 }
 
 .preview img:hover {
   transform: scale(1.03);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.preview-info {
+  margin-top: 0.5rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.preview-info small {
+  display: block;
+  padding: 0.25rem;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .form-actions {
@@ -889,6 +905,7 @@ input:checked + .slider:before {
   cursor: not-allowed;
   transform: none;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  opacity: 0.7;
 }
 
 .button-icon {
@@ -904,6 +921,21 @@ input:checked + .slider:before {
   0%, 100% { transform: rotate(0); }
   25% { transform: rotate(-10deg); }
   75% { transform: rotate(10deg); }
+}
+
+.form-note {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #666;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 6px;
+}
+
+.form-note small {
+  display: block;
+  line-height: 1.4;
 }
 
 /* Validation styles */
@@ -975,6 +1007,23 @@ input.ng-invalid.ng-touched, select.ng-invalid.ng-touched {
 .warning-icon {
   font-size: 1.1rem;
   animation: pulse 1.5s infinite;
+}
+
+/* Error alert message styling */
+.error-alert-message {
+  background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+  color: white;
+  padding: 1rem;
+  border-radius: 10px;
+  margin: 0 1rem 1.5rem;
+  text-align: center;
+  animation: slideIn 0.5s ease;
+  box-shadow: 0 4px 10px rgba(229, 62, 62, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 500;
 }
 
 /* Enhanced Mobile Responsiveness */
@@ -1077,6 +1126,19 @@ input.ng-invalid.ng-touched, select.ng-invalid.ng-touched {
     height: 44px;
     font-size: 2rem;
   }
+  
+  .card-title {
+    font-size: 1.5rem;
+  }
+  
+  .card-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .preview img {
+    max-width: 120px;
+    max-height: 120px;
+  }
 }
 
 @media (max-width: 360px) {
@@ -1176,6 +1238,14 @@ input.ng-invalid.ng-touched, select.ng-invalid.ng-touched {
     width: 44px;
     height: 44px;
     font-size: 2rem;
+  }
+  
+  .file-input-label {
+    padding: 0.875rem;
+  }
+  
+  .submit-button {
+    padding: 0.875rem;
   }
 }
 
@@ -1322,6 +1392,11 @@ body.mobile-menu-open {
     margin: 0 2rem 2rem;
     padding: 1rem 1.5rem;
   }
+  
+  .error-alert-message {
+    margin: 0 2rem 2rem;
+    padding: 1rem 1.5rem;
+  }
 }
 
 @media (min-width: 768px) {
@@ -1407,6 +1482,10 @@ body.mobile-menu-open {
   }
   
   .warning-message {
+    border-radius: 12px;
+  }
+  
+  .error-alert-message {
     border-radius: 12px;
   }
 }
