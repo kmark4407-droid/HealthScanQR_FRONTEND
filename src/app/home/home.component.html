@@ -29,6 +29,29 @@
             <button class="btn-primary" (click)="navigateToRegister()">Start Free Trial</button>
             <button class="btn-secondary" (click)="navigateToLogin()">Professional Login</button>
           </div>
+          <div class="hero-stats">
+            <div class="stat">
+              <div class="stat-icon">⚡</div>
+              <div class="stat-text">
+                <span class="stat-number">Instant</span>
+                <span class="stat-label">Access</span>
+              </div>
+            </div>
+            <div class="stat">
+              <div class="stat-icon">🔒</div>
+              <div class="stat-text">
+                <span class="stat-number">HIPAA</span>
+                <span class="stat-label">Compliant</span>
+              </div>
+            </div>
+            <div class="stat">
+              <div class="stat-icon">🩺</div>
+              <div class="stat-text">
+                <span class="stat-number">24/7</span>
+                <span class="stat-label">Support</span>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="hero-visual">
           <div class="qr-visual">
@@ -40,6 +63,11 @@
               <div class="qr-scan"></div>
             </div>
           </div>
+          <div class="color-highlights">
+            <div class="color-dot dot-1"></div>
+            <div class="color-dot dot-2"></div>
+            <div class="color-dot dot-3"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -49,18 +77,22 @@
   <section class="process">
     <div class="container">
       <h2 class="section-title">Simple & Secure Process</h2>
+      <div class="section-subtitle">Three easy steps to secure medical information</div>
       <div class="process-steps">
         <div class="step">
+          <div class="step-icon">📋</div>
           <div class="step-number">1</div>
           <h3>Create Secure Profile</h3>
           <p>Upload medical history with advanced encryption and privacy controls</p>
         </div>
         <div class="step">
+          <div class="step-icon">🔐</div>
           <div class="step-number">2</div>
           <h3>Get Encrypted QR</h3>
           <p>Receive unique QR code with military-grade encryption</p>
         </div>
         <div class="step">
+          <div class="step-icon">🚑</div>
           <div class="step-number">3</div>
           <h3>Emergency Access</h3>
           <p>Healthcare providers scan for instant, secure information access</p>
@@ -73,8 +105,10 @@
   <section class="features">
     <div class="container">
       <h2 class="section-title">Advanced Security Features</h2>
+      <div class="section-subtitle">Built for healthcare professionals and patient safety</div>
       <div class="features-grid">
-        <div class="feature" *ngFor="let feature of features">
+        <div class="feature" *ngFor="let feature of features; let i = index" [class]="'feature-' + (i + 1)">
+          <div class="feature-icon">{{getFeatureIcon(i)}}</div>
           <h3>{{feature.title}}</h3>
           <p>{{feature.description}}</p>
         </div>
@@ -101,17 +135,43 @@
     <div class="container">
       <div class="footer-content">
         <div class="footer-brand">
-          <!-- Removed logo from footer -->
+          <div class="footer-logo-container">
+            <img src="assets/healthscanqr1.png" alt="HealthScanQR" class="footer-logo">
+          </div>
           <span class="footer-logo-text">HealthScanQR</span>
           <p class="footer-tag">Advanced medical information security platform using cutting-edge QR technology for emergency healthcare access.</p>
+          <div class="footer-contact">
+            <div class="contact-item">
+              <span class="contact-icon">📧</span>
+              <span>support@healthscanqr.com</span>
+            </div>
+            <div class="contact-item">
+              <span class="contact-icon">📞</span>
+              <span>+1 (555) 123-4567</span>
+            </div>
+          </div>
         </div>
         <div class="footer-links">
-          <a [routerLink]="['/login']">Login</a>
-          <a [routerLink]="['/register']">Register</a>
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Service</a>
-          <a href="#">HIPAA Compliance</a>
-          <a href="#">Contact Support</a>
+          <div class="link-group">
+            <h4>Product</h4>
+            <a [routerLink]="['/login']">Login</a>
+            <a [routerLink]="['/register']">Register</a>
+            <a href="#">Features</a>
+            <a href="#">Pricing</a>
+          </div>
+          <div class="link-group">
+            <h4>Legal</h4>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">HIPAA Compliance</a>
+          </div>
+          <div class="link-group">
+            <h4>Company</h4>
+            <a href="#">About Us</a>
+            <a href="#">Contact Support</a>
+            <a href="#">Careers</a>
+            <a href="#">Blog</a>
+          </div>
         </div>
       </div>
       <div class="footer-copyright">
