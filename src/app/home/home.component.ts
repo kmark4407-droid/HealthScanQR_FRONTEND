@@ -14,15 +14,19 @@ export class HomeComponent {
   features = [
     {
       title: 'Emergency Access',
-      description: 'Critical medical information instantly available to authorized responders'
+      description: 'Critical medical information instantly available to authorized responders with zero delays'
     },
     {
-      title: 'Secure & Encrypted',
-      description: 'HIPAA-compliant protection for all patient data'
+      title: 'Military-Grade Security',
+      description: 'End-to-end HIPAA-compliant encryption with multi-factor authentication'
     },
     {
-      title: 'Mobile Optimized',
-      description: 'Access medical profiles from any device'
+      title: 'Real-time Updates',
+      description: 'Dynamic QR codes update automatically with latest medical information'
+    },
+    {
+      title: 'Cross-platform Access',
+      description: 'Accessible on any device with instant scanning capability'
     }
   ];
 
