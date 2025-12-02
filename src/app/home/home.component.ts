@@ -11,56 +11,18 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
-  logoUrl = 'assets/images/healthscanqr1.png';
-  
   features = [
     {
-      icon: 'fas fa-qrcode',
-      title: 'Quick QR Scanning',
-      description: 'Instantly access medical information with a single scan'
+      title: 'Emergency Access',
+      description: 'Critical medical information instantly available to authorized responders'
     },
     {
-      icon: 'fas fa-shield-alt',
-      title: 'Secure & Private',
-      description: 'Enterprise-grade security to protect sensitive health data'
+      title: 'Secure & Encrypted',
+      description: 'HIPAA-compliant protection for all patient data'
     },
     {
-      icon: 'fas fa-bolt',
-      title: 'Instant Access',
-      description: 'Emergency responders get critical info in seconds'
-    },
-    {
-      icon: 'fas fa-mobile-alt',
-      title: 'Mobile First',
-      description: 'Access your medical profile from any device'
-    },
-    {
-      icon: 'fas fa-history',
-      title: 'Medical History',
-      description: 'Complete medical records at your fingertips'
-    },
-    {
-      icon: 'fas fa-ambulance',
-      title: 'Emergency Ready',
-      description: 'Critical information available when it matters most'
-    }
-  ];
-
-  testimonials = [
-    {
-      quote: 'HealthScanQR saved precious minutes during an emergency. The accessibility of medical information through QR codes is revolutionary.',
-      author: 'Dr. Sarah Johnson',
-      role: 'Emergency Physician, St. Mary\'s Hospital'
-    },
-    {
-      quote: 'As a diabetes patient, having my medical information instantly available gives me peace of mind during emergencies.',
-      author: 'Michael Chen',
-      role: 'Patient Advocate'
-    },
-    {
-      quote: 'The system integrates perfectly with our hospital EMR workflow, reducing data retrieval time by 70%.',
-      author: 'Robert Davis',
-      role: 'CTO, Metropolitan Healthcare'
+      title: 'Mobile Optimized',
+      description: 'Access medical profiles from any device'
     }
   ];
 
