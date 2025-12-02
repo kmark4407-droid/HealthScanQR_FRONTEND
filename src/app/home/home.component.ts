@@ -11,6 +11,8 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
+  logoUrl = 'assets/images/healthscanqr1.png';
+  
   features = [
     {
       icon: 'fas fa-qrcode',
@@ -31,24 +33,34 @@ export class HomeComponent {
       icon: 'fas fa-mobile-alt',
       title: 'Mobile First',
       description: 'Access your medical profile from any device'
+    },
+    {
+      icon: 'fas fa-history',
+      title: 'Medical History',
+      description: 'Complete medical records at your fingertips'
+    },
+    {
+      icon: 'fas fa-ambulance',
+      title: 'Emergency Ready',
+      description: 'Critical information available when it matters most'
     }
   ];
 
   testimonials = [
     {
-      quote: 'HealthScanQR saved precious minutes during an emergency. Highly recommended!',
+      quote: 'HealthScanQR saved precious minutes during an emergency. The accessibility of medical information through QR codes is revolutionary.',
       author: 'Dr. Sarah Johnson',
-      role: 'Emergency Physician'
+      role: 'Emergency Physician, St. Mary\'s Hospital'
     },
     {
-      quote: 'Finally, a simple solution for managing medical information securely.',
+      quote: 'As a diabetes patient, having my medical information instantly available gives me peace of mind during emergencies.',
       author: 'Michael Chen',
-      role: 'Diabetes Patient'
+      role: 'Patient Advocate'
     },
     {
-      quote: 'The QR system integrates perfectly with our hospital workflow.',
+      quote: 'The system integrates perfectly with our hospital EMR workflow, reducing data retrieval time by 70%.',
       author: 'Robert Davis',
-      role: 'Hospital Administrator'
+      role: 'CTO, Metropolitan Healthcare'
     }
   ];
 
