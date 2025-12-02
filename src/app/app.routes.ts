@@ -6,6 +6,7 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { LandingComponent } from './landing/landing.component';
 import { UpdateInfoComponent } from './create-med/update.component';
+import { HomeComponent } from './home/home.component'; // ✅ Added Homepage Component
 
 // ✅ Admin Components
 import { AdminLoginComponent } from './Admin/Admin Login Component';
@@ -18,6 +19,7 @@ import { updateInfoGuard } from './auth/update-info.guard';
 
 export const routes: Routes = [
   // Public routes
+  { path: '', component: HomeComponent }, // ✅ Homepage as default route
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'admin-login', component: AdminLoginComponent },
@@ -31,6 +33,6 @@ export const routes: Routes = [
   { path: 'landing', component: LandingComponent, canActivate: [authGuard] },
 
   // Default redirects
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: '**', redirectTo: 'login' }
+  { path: 'home', redirectTo: '', pathMatch: 'full' }, // ✅ Alias for homepage
+  { path: '**', redirectTo: '' } // ✅ Redirect to homepage instead of login
 ];
