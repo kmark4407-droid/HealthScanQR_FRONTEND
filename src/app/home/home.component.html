@@ -4,7 +4,9 @@
     <div class="container">
       <div class="header-content">
         <div class="logo">
-          <img src="assets/healthscanqr1.png" alt="HealthScanQR" class="logo-img">
+          <!-- Logo with fallback path like in deepseek_html_20251202_6df2d9.html -->
+          <img src="assets/healthscanqr1.png" alt="HealthScanQR" class="logo-img" 
+               onerror="this.onerror=null; this.src='healthscanqr1.png';">
           <span class="logo-text">HealthScanQR</span>
         </div>
         <div class="header-actions">
@@ -57,7 +59,9 @@
           <div class="qr-visual">
             <div class="qr-frame">
               <div class="qr-logo">
-                <img src="assets/healthscanqr1.png" alt="HealthScanQR Logo">
+                <!-- Logo with fallback path for hero section -->
+                <img src="assets/healthscanqr1.png" alt="HealthScanQR Logo" 
+                     onerror="this.onerror=null; this.src='healthscanqr1.png';">
               </div>
               <div class="qr-pattern"></div>
               <div class="qr-scan"></div>
@@ -136,6 +140,7 @@
       <div class="footer-content">
         <div class="footer-brand">
           <div class="footer-logo-container">
+            <!-- Keeping original footer logo (without onerror fallback as requested) -->
             <img src="assets/healthscanqr1.png" alt="HealthScanQR" class="footer-logo">
           </div>
           <span class="footer-logo-text">HealthScanQR</span>
