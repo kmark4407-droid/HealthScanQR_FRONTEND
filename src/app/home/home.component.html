@@ -4,13 +4,15 @@
     <div class="container">
       <div class="header-content">
         <div class="logo">
-          <img src="assets/images/healthscanqr1.png" alt="HealthScanQR" class="logo-img">
+          <!-- Try different paths for the logo -->
+          <img src="assets/healthscanqr1.png" alt="HealthScanQR" class="logo-img" 
+               onerror="this.onerror=null; this.src='healthscanqr1.png';">
           <span class="logo-text">HealthScanQR</span>
         </div>
-        <nav class="header-actions">
+        <div class="header-actions">
           <button class="btn-link" (click)="navigateToLogin()">Professional Login</button>
           <button class="btn-primary-sm" (click)="navigateToRegister()">Get Started</button>
-        </nav>
+        </div>
       </div>
     </div>
   </header>
@@ -34,7 +36,8 @@
           <div class="qr-visual">
             <div class="qr-frame">
               <div class="qr-logo">
-                <img src="assets/images/healthscanqr1.png" alt="HealthScanQR Logo">
+                <img src="assets/healthscanqr1.png" alt="HealthScanQR Logo" 
+                     onerror="this.onerror=null; this.src='healthscanqr1.png';">
               </div>
               <div class="qr-pattern"></div>
               <div class="qr-scan"></div>
@@ -101,7 +104,8 @@
     <div class="container">
       <div class="footer-content">
         <div class="footer-brand">
-          <img src="assets/images/healthscanqr1.png" alt="HealthScanQR" class="footer-logo">
+          <img src="assets/healthscanqr1.png" alt="HealthScanQR" class="footer-logo" 
+               onerror="this.onerror=null; this.src='healthscanqr1.png'; this.style.filter='brightness(0) invert(1)';">
           <span class="footer-logo-text">HealthScanQR</span>
           <p class="footer-tag">Advanced medical information security platform using cutting-edge QR technology for emergency healthcare access.</p>
         </div>
