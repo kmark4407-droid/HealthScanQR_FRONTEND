@@ -1,46 +1,104 @@
 <div class="homepage-container">
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container">
+      <div class="nav-content">
+        <div class="logo-container">
+          <img [src]="logoUrl" alt="HealthScanQR Logo" class="logo">
+          <span class="logo-text">HealthScanQR</span>
+        </div>
+        <nav class="nav-links">
+          <a href="#features" class="nav-link">Features</a>
+          <a href="#how-it-works" class="nav-link">How It Works</a>
+          <a href="#testimonials" class="nav-link">Testimonials</a>
+          <button class="btn-nav-primary" (click)="navigateToLogin()">Login</button>
+          <button class="btn-nav-secondary" (click)="navigateToRegister()">Get Started</button>
+        </nav>
+      </div>
+    </div>
+  </header>
+
   <!-- Hero Section -->
   <section class="hero-section">
-    <div class="hero-background"></div>
-    <div class="hero-content">
-      <div class="hero-text">
-        <h1 class="hero-title">Your Medical Information,<br>Always Accessible</h1>
-        <p class="hero-subtitle">HealthScanQR provides instant, secure access to critical medical information through a simple QR code scan. Emergency responders can access vital details when seconds matter.</p>
-        <div class="hero-buttons">
-          <button class="btn-primary" (click)="navigateToLogin()">
-            <i class="fas fa-sign-in-alt"></i> Login
-          </button>
-          <button class="btn-secondary" (click)="navigateToRegister()">
-            <i class="fas fa-user-plus"></i> Get Started Free
-          </button>
-        </div>
-      </div>
-      <div class="hero-image">
-        <div class="qr-animation">
-          <div class="qr-code">
-            <div class="qr-pattern"></div>
-            <div class="qr-scan-line"></div>
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-text">
+          <h1 class="hero-title">Secure Medical Information Access Through QR Technology</h1>
+          <p class="hero-subtitle">HealthScanQR provides healthcare professionals with instant, secure access to critical patient information during emergencies, reducing response time and improving patient outcomes.</p>
+          <div class="hero-buttons">
+            <button class="btn-primary" (click)="navigateToRegister()">
+              <i class="fas fa-rocket"></i> Start Free Trial
+            </button>
+            <button class="btn-secondary" (click)="navigateToLogin()">
+              <i class="fas fa-sign-in-alt"></i> Professional Login
+            </button>
           </div>
-          <div class="medical-icons">
-            <i class="fas fa-heartbeat"></i>
-            <i class="fas fa-prescription-bottle-alt"></i>
-            <i class="fas fa-allergies"></i>
-            <i class="fas fa-user-md"></i>
+          <div class="hero-stats">
+            <div class="stat">
+              <h3>10,000+</h3>
+              <p>Patients Protected</p>
+            </div>
+            <div class="stat">
+              <h3>500+</h3>
+              <p>Healthcare Partners</p>
+            </div>
+            <div class="stat">
+              <h3>99.9%</h3>
+              <p>Uptime Reliability</p>
+            </div>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="qr-demo">
+            <div class="qr-container">
+              <div class="qr-code-placeholder">
+                <div class="qr-grid"></div>
+                <div class="scan-animation"></div>
+              </div>
+              <div class="qr-info">
+                <div class="info-item">
+                  <i class="fas fa-user-md"></i>
+                  <span>Emergency Access</span>
+                </div>
+                <div class="info-item">
+                  <i class="fas fa-prescription-bottle-alt"></i>
+                  <span>Medication History</span>
+                </div>
+                <div class="info-item">
+                  <i class="fas fa-allergies"></i>
+                  <span>Allergies & Conditions</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Features Section -->
-  <section class="features-section">
+  <!-- Trust Badges -->
+  <section class="trust-section">
     <div class="container">
-      <h2 class="section-title">Why Choose HealthScanQR?</h2>
-      <p class="section-subtitle">Designed for patients, trusted by healthcare professionals</p>
-      
+      <p class="trust-text">Trusted by leading healthcare institutions:</p>
+      <div class="trust-logos">
+        <div class="trust-logo">🏥 Mayo Clinic</div>
+        <div class="trust-logo">⚕️ Johns Hopkins</div>
+        <div class="trust-logo">🩺 Cleveland Clinic</div>
+        <div class="trust-logo">💊 Kaiser Permanente</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="features-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Enterprise-Grade Medical Security Platform</h2>
+        <p class="section-subtitle">Designed to meet HIPAA compliance and healthcare industry standards</p>
+      </div>
       <div class="features-grid">
         <div class="feature-card" *ngFor="let feature of features">
-          <div class="feature-icon">
+          <div class="feature-icon-wrapper">
             <i [class]="feature.icon"></i>
           </div>
           <h3 class="feature-title">{{feature.title}}</h3>
@@ -51,35 +109,41 @@
   </section>
 
   <!-- How It Works -->
-  <section class="how-it-works">
+  <section id="how-it-works" class="how-it-works">
     <div class="container">
-      <h2 class="section-title">How It Works</h2>
-      <div class="steps-container">
+      <div class="section-header">
+        <h2 class="section-title">Simple Three-Step Process</h2>
+        <p class="section-subtitle">From registration to emergency access</p>
+      </div>
+      <div class="process-steps">
         <div class="step">
-          <div class="step-number">1</div>
+          <div class="step-icon">
+            <i class="fas fa-user-edit"></i>
+          </div>
           <div class="step-content">
-            <h3>Create Your Profile</h3>
-            <p>Sign up and enter your medical information securely</p>
+            <div class="step-number">01</div>
+            <h3>Register & Create Profile</h3>
+            <p>Secure registration with medical history input. All data encrypted at rest and in transit.</p>
           </div>
         </div>
-        <div class="step-arrow">
-          <i class="fas fa-arrow-right"></i>
-        </div>
         <div class="step">
-          <div class="step-number">2</div>
+          <div class="step-icon">
+            <i class="fas fa-qrcode"></i>
+          </div>
           <div class="step-content">
-            <h3>Generate QR Code</h3>
-            <p>Get your personalized QR code to carry with you</p>
+            <div class="step-number">02</div>
+            <h3>Generate Secure QR</h3>
+            <p>Unique, encrypted QR code generated for emergency access. Updates automatically with new data.</p>
           </div>
         </div>
-        <div class="step-arrow">
-          <i class="fas fa-arrow-right"></i>
-        </div>
         <div class="step">
-          <div class="step-number">3</div>
+          <div class="step-icon">
+            <i class="fas fa-ambulance"></i>
+          </div>
           <div class="step-content">
-            <h3>Scan When Needed</h3>
-            <p>Emergency responders scan to access critical information</p>
+            <div class="step-number">03</div>
+            <h3>Emergency Access</h3>
+            <p>Authorized personnel scan QR to access critical information instantly during emergencies.</p>
           </div>
         </div>
       </div>
@@ -87,14 +151,17 @@
   </section>
 
   <!-- Testimonials -->
-  <section class="testimonials-section">
+  <section id="testimonials" class="testimonials-section">
     <div class="container">
-      <h2 class="section-title">Trusted by Thousands</h2>
+      <div class="section-header">
+        <h2 class="section-title">Trusted by Medical Professionals</h2>
+        <p class="section-subtitle">What healthcare leaders say about HealthScanQR</p>
+      </div>
       <div class="testimonials-grid">
         <div class="testimonial-card" *ngFor="let testimonial of testimonials">
           <div class="testimonial-content">
-            <i class="fas fa-quote-left quote-icon"></i>
-            <p class="testimonial-text">{{testimonial.quote}}</p>
+            <i class="fas fa-quote-left"></i>
+            <p>{{testimonial.quote}}</p>
           </div>
           <div class="testimonial-author">
             <div class="author-info">
@@ -111,17 +178,30 @@
   <section class="cta-section">
     <div class="container">
       <div class="cta-content">
-        <h2 class="cta-title">Ready to Secure Your Medical Information?</h2>
-        <p class="cta-subtitle">Join thousands of users who trust HealthScanQR with their critical health data</p>
+        <h2 class="cta-title">Ready to Enhance Patient Safety?</h2>
+        <p class="cta-subtitle">Join healthcare providers who trust HealthScanQR for secure medical information management</p>
         <div class="cta-buttons">
           <button class="btn-primary-lg" (click)="navigateToRegister()">
-            <i class="fas fa-rocket"></i> Start Free Trial
+            <i class="fas fa-hospital-alt"></i> Start Institutional Trial
           </button>
           <button class="btn-outline-lg" (click)="navigateToLogin()">
-            <i class="fas fa-user"></i> Existing User Login
+            <i class="fas fa-user-md"></i> Healthcare Professional Login
           </button>
         </div>
-        <p class="cta-note">No credit card required • Free forever for personal use</p>
+        <div class="security-badges">
+          <div class="badge">
+            <i class="fas fa-shield-alt"></i>
+            <span>HIPAA Compliant</span>
+          </div>
+          <div class="badge">
+            <i class="fas fa-lock"></i>
+            <span>End-to-End Encryption</span>
+          </div>
+          <div class="badge">
+            <i class="fas fa-certificate"></i>
+            <span>SOC 2 Certified</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -131,25 +211,47 @@
     <div class="container">
       <div class="footer-content">
         <div class="footer-brand">
-          <h3>HealthScanQR</h3>
-          <p>One Quick Scan. That's All It Takes.</p>
+          <div class="logo-container">
+            <img [src]="logoUrl" alt="HealthScanQR Logo" class="footer-logo">
+            <span class="logo-text">HealthScanQR</span>
+          </div>
+          <p class="footer-tagline">Secure Medical Information Access</p>
+          <p class="footer-description">Enterprise-grade healthcare information management platform</p>
         </div>
-        <div class="footer-links">
-          <a [routerLink]="['/login']">Login</a>
-          <a [routerLink]="['/register']">Register</a>
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Service</a>
-          <a href="#">Contact Us</a>
-        </div>
-        <div class="footer-social">
-          <a href="#"><i class="fab fa-twitter"></i></a>
-          <a href="#"><i class="fab fa-facebook"></i></a>
-          <a href="#"><i class="fab fa-linkedin"></i></a>
-          <a href="#"><i class="fab fa-instagram"></i></a>
+        <div class="footer-columns">
+          <div class="footer-column">
+            <h4>Platform</h4>
+            <a [routerLink]="['/login']">Healthcare Login</a>
+            <a [routerLink]="['/register']">Institution Registration</a>
+            <a href="#">API Documentation</a>
+            <a href="#">Integration Guide</a>
+          </div>
+          <div class="footer-column">
+            <h4>Resources</h4>
+            <a href="#">Healthcare Compliance</a>
+            <a href="#">Security White Paper</a>
+            <a href="#">Case Studies</a>
+            <a href="#">Medical Partners</a>
+          </div>
+          <div class="footer-column">
+            <h4>Company</h4>
+            <a href="#">About Us</a>
+            <a href="#">Contact Sales</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+          </div>
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2024 HealthScanQR. All rights reserved. Made with <i class="fas fa-heart"></i> for better healthcare.</p>
+        <div class="footer-copyright">
+          <p>&copy; 2024 HealthScanQR Technologies. All rights reserved. HIPAA Compliant Healthcare Solution.</p>
+        </div>
+        <div class="footer-social">
+          <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+          <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+          <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+        </div>
       </div>
     </div>
   </footer>
