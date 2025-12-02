@@ -99,6 +99,31 @@ body {
   filter: drop-shadow(0 4px 8px rgba(59, 130, 246, 0.3));
 }
 
+/* Logo fallback styling */
+.logo-img:before {
+  content: "HS";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 12px;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.logo-img[src=""]:before,
+.logo-img:not([src]):before {
+  opacity: 1;
+}
+
 .logo-text {
   font-size: 2rem;
   font-weight: 800;
@@ -348,6 +373,30 @@ body {
   height: 100%;
   object-fit: contain;
   display: block;
+}
+
+/* QR logo fallback */
+.qr-logo img:before {
+  content: "HS";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 12px;
+  color: white;
+  font-weight: bold;
+  font-size: 24px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+}
+
+.qr-logo img[src=""]:before,
+.qr-logo img:not([src]):before {
+  opacity: 1;
 }
 
 .qr-pattern {
@@ -817,6 +866,31 @@ body {
   height: 100%;
   object-fit: contain;
   display: block;
+}
+
+/* Footer logo fallback */
+.footer-logo:before {
+  content: "HS";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 12px;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.footer-logo[src=""]:before,
+.footer-logo:not([src]):before {
+  opacity: 1;
 }
 
 .footer-logo-text {
