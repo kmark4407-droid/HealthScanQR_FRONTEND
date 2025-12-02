@@ -120,23 +120,24 @@ body {
 }
 
 .btn-link {
-  background: transparent;
+  background: var(--gradient-primary); /* Changed from transparent to gradient */
+  color: white; /* Changed from #ffffff to white */
   border: 2px solid rgba(255, 255, 255, 0.8);
-  color: #ffffff;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  padding: 12px 28px;
+  padding: 14px 32px; /* Increased padding to match Get Started button */
   border-radius: 12px;
   transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3); /* Added shadow to match Get Started button */
 }
 
 .btn-link:hover {
-  background: rgba(59, 130, 246, 0.1);
-  border-color: var(--primary-light);
-  color: var(--primary-light);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.2);
+  background: var(--gradient-primary); /* Keep gradient on hover */
+  border-color: white; /* Changed to white */
+  color: white; /* Keep white color */
+  transform: translateY(-3px); /* Changed from -2px to -3px to match Get Started */
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4); /* Enhanced shadow to match Get Started */
 }
 
 .btn-primary-sm {
