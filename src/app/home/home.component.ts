@@ -39,4 +39,9 @@ export class HomeComponent {
   navigateToRegister() {
     this.router.navigate(['/register']);
   }
+
+  getFeatureIcon(index: number): string {
+    const icons = ['🚨', '🛡️', '🔄', '📱'];
+    return icons[index] || '⭐';
+  }
 }
