@@ -4,8 +4,9 @@
     <div class="container">
       <div class="header-content">
         <div class="logo">
-          <!-- Simple logo - remove all fallbacks -->
-          <img src="assets/healthscanqr1.png" alt="HealthScanQR" class="logo-img">
+          <!-- Try different paths for the logo -->
+          <img src="assets/healthscanqr1.png" alt="HealthScanQR" class="logo-img" 
+               onerror="this.onerror=null; this.src='healthscanqr1.png';">
           <span class="logo-text">HealthScanQR</span>
         </div>
         <div class="header-actions">
@@ -35,8 +36,8 @@
           <div class="qr-visual">
             <div class="qr-frame">
               <div class="qr-logo">
-                <!-- Simple QR logo -->
-                <img src="assets/healthscanqr1.png" alt="HealthScanQR Logo">
+                <img src="assets/healthscanqr1.png" alt="HealthScanQR Logo" 
+                     onerror="this.onerror=null; this.src='healthscanqr1.png';">
               </div>
               <div class="qr-pattern"></div>
               <div class="qr-scan"></div>
@@ -51,7 +52,6 @@
   <section class="process">
     <div class="container">
       <h2 class="section-title">Simple & Secure Process</h2>
-      <div class="section-subtitle">Three easy steps to secure medical information</div>
       <div class="process-steps">
         <div class="step">
           <div class="step-number">1</div>
@@ -76,7 +76,6 @@
   <section class="features">
     <div class="container">
       <h2 class="section-title">Advanced Security Features</h2>
-      <div class="section-subtitle">Built for healthcare professionals and patient safety</div>
       <div class="features-grid">
         <div class="feature" *ngFor="let feature of features">
           <h3>{{feature.title}}</h3>
@@ -105,32 +104,18 @@
     <div class="container">
       <div class="footer-content">
         <div class="footer-brand">
-          <!-- Simple footer logo -->
-          <img src="assets/healthscanqr1.png" alt="HealthScanQR" class="footer-logo">
+          <img src="assets/healthscanqr1.png" alt="HealthScanQR" class="footer-logo" 
+               onerror="this.onerror=null; this.src='healthscanqr1.png'; this.style.filter='brightness(0) invert(1)';">
           <span class="footer-logo-text">HealthScanQR</span>
           <p class="footer-tag">Advanced medical information security platform using cutting-edge QR technology for emergency healthcare access.</p>
         </div>
         <div class="footer-links">
-          <div class="link-group">
-            <h4>Product</h4>
-            <a [routerLink]="['/login']">Login</a>
-            <a [routerLink]="['/register']">Register</a>
-            <a href="#">Features</a>
-            <a href="#">Pricing</a>
-          </div>
-          <div class="link-group">
-            <h4>Legal</h4>
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
-            <a href="#">HIPAA Compliance</a>
-          </div>
-          <div class="link-group">
-            <h4>Company</h4>
-            <a href="#">About Us</a>
-            <a href="#">Contact Support</a>
-            <a href="#">Careers</a>
-            <a href="#">Blog</a>
-          </div>
+          <a [routerLink]="['/login']">Login</a>
+          <a [routerLink]="['/register']">Register</a>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">HIPAA Compliance</a>
+          <a href="#">Contact Support</a>
         </div>
       </div>
       <div class="footer-copyright">
