@@ -12,7 +12,7 @@ html, body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background: white; /* Changed from dark theme to white */
+  background: #0b1020; /* Changed from dark theme to white */
   color: #0f172a;
 }
 
