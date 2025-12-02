@@ -62,7 +62,7 @@ body {
 
 /* ===== Header ===== */
 .header {
-  padding: 24px 0;
+  padding: 20px 0; /* Reduced padding to move hero up */
   position: sticky;
   top: 0;
   background: rgba(11, 16, 32, 0.95);
@@ -97,6 +97,10 @@ body {
   display: block;
   object-fit: contain;
   filter: drop-shadow(0 4px 8px rgba(59, 130, 246, 0.3));
+  border-radius: 14px; /* Added curved edges */
+  border: 2px solid rgba(59, 130, 246, 0.3); /* Added subtle border */
+  padding: 4px; /* Added padding for better appearance */
+  background: rgba(30, 41, 59, 0.8); /* Added background for contrast */
 }
 
 .logo-text {
@@ -156,7 +160,7 @@ body {
 
 /* ===== Hero ===== */
 .hero {
-  padding: 140px 0 100px;
+  padding: 80px 0 60px; /* Reduced padding to move hero up */
   background: linear-gradient(135deg, #0b1020 0%, #1e293b 50%, #0f172a 100%);
   position: relative;
   overflow: hidden;
@@ -295,7 +299,7 @@ body {
   color: #cbd5e1;
 }
 
-/* QR Visual */
+/* QR Visual - Updated for larger logo */
 .hero-visual {
   display: flex;
   justify-content: center;
@@ -331,8 +335,8 @@ body {
 }
 
 .qr-logo {
-  width: 120px;
-  height: 120px;
+  width: 140px; /* Increased size */
+  height: 140px; /* Increased size */
   position: absolute;
   z-index: 3;
   background: rgba(255, 255, 255, 0.1);
@@ -341,13 +345,18 @@ body {
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .qr-logo img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  width: 100%; /* Make image fill the container */
+  height: 100%; /* Make image fill the container */
+  object-fit: contain; /* Ensure the image scales properly */
   display: block;
+  border-radius: 12px; /* Added curved edges */
+  background: rgba(255, 255, 255, 0.05); /* Added subtle background */
 }
 
 .qr-pattern {
@@ -438,7 +447,7 @@ body {
 
 /* ===== Process ===== */
 .process {
-  padding: 120px 0;
+  padding: 100px 0; /* Adjusted padding to match new hero height */
   background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
   position: relative;
   overflow: hidden;
@@ -563,7 +572,7 @@ body {
 
 /* ===== Features ===== */
 .features {
-  padding: 120px 0;
+  padding: 100px 0; /* Adjusted padding to match new hero height */
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   position: relative;
   overflow: hidden;
@@ -667,7 +676,7 @@ body {
 
 /* ===== CTA ===== */
 .cta {
-  padding: 140px 0;
+  padding: 120px 0; /* Adjusted padding to match new hero height */
   background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #0f172a 100%);
   color: white;
   position: relative;
@@ -761,7 +770,7 @@ body {
 
 /* ===== Footer ===== */
 .footer {
-  padding: 100px 0 60px;
+  padding: 80px 0 60px; /* Adjusted padding to match new hero height */
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   color: white;
   position: relative;
@@ -797,26 +806,6 @@ body {
   gap: 24px;
   flex: 1;
   min-width: 320px;
-}
-
-.footer-logo-container {
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-}
-
-.footer-logo {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
 }
 
 .footer-logo-text {
@@ -946,11 +935,16 @@ body {
     width: 340px;
     height: 340px;
   }
+  
+  .qr-logo {
+    width: 120px;
+    height: 120px;
+  }
 }
 
 @media (max-width: 992px) {
   .hero {
-    padding: 100px 0;
+    padding: 60px 0; /* Adjusted for mobile */
   }
   
   .hero-content {
@@ -991,6 +985,10 @@ body {
 }
 
 @media (max-width: 768px) {
+  .header {
+    padding: 16px 0; /* Reduced padding for mobile */
+  }
+  
   .header-content {
     flex-direction: column;
     gap: 20px;
@@ -1083,6 +1081,10 @@ body {
     padding: 0 16px;
   }
   
+  .hero {
+    padding: 50px 0; /* Further reduced for small screens */
+  }
+  
   .hero-text h1 {
     font-size: 1.875rem;
   }
@@ -1119,7 +1121,7 @@ body {
   }
   
   .cta {
-    padding: 80px 0;
+    padding: 70px 0; /* Adjusted for mobile */
   }
   
   .cta-content h2 {
