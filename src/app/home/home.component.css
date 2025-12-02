@@ -335,8 +335,8 @@ body {
 }
 
 .qr-logo {
-  width: 300px; /* Increased size */
-  height: 3000px; /* Increased size */
+  width: 380px; /* Increased size */
+  height: 380px; /* Increased size */
   position: absolute;
   z-index: 3;
   background: rgba(255, 255, 255, 0.1);
