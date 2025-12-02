@@ -1,1 +1,156 @@
+<div class="homepage-container">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-background"></div>
+    <div class="hero-content">
+      <div class="hero-text">
+        <h1 class="hero-title">Your Medical Information,<br>Always Accessible</h1>
+        <p class="hero-subtitle">HealthScanQR provides instant, secure access to critical medical information through a simple QR code scan. Emergency responders can access vital details when seconds matter.</p>
+        <div class="hero-buttons">
+          <button class="btn-primary" (click)="navigateToLogin()">
+            <i class="fas fa-sign-in-alt"></i> Login
+          </button>
+          <button class="btn-secondary" (click)="navigateToRegister()">
+            <i class="fas fa-user-plus"></i> Get Started Free
+          </button>
+        </div>
+      </div>
+      <div class="hero-image">
+        <div class="qr-animation">
+          <div class="qr-code">
+            <div class="qr-pattern"></div>
+            <div class="qr-scan-line"></div>
+          </div>
+          <div class="medical-icons">
+            <i class="fas fa-heartbeat"></i>
+            <i class="fas fa-prescription-bottle-alt"></i>
+            <i class="fas fa-allergies"></i>
+            <i class="fas fa-user-md"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
+  <!-- Features Section -->
+  <section class="features-section">
+    <div class="container">
+      <h2 class="section-title">Why Choose HealthScanQR?</h2>
+      <p class="section-subtitle">Designed for patients, trusted by healthcare professionals</p>
+      
+      <div class="features-grid">
+        <div class="feature-card" *ngFor="let feature of features">
+          <div class="feature-icon">
+            <i [class]="feature.icon"></i>
+          </div>
+          <h3 class="feature-title">{{feature.title}}</h3>
+          <p class="feature-description">{{feature.description}}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how-it-works">
+    <div class="container">
+      <h2 class="section-title">How It Works</h2>
+      <div class="steps-container">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3>Create Your Profile</h3>
+            <p>Sign up and enter your medical information securely</p>
+          </div>
+        </div>
+        <div class="step-arrow">
+          <i class="fas fa-arrow-right"></i>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3>Generate QR Code</h3>
+            <p>Get your personalized QR code to carry with you</p>
+          </div>
+        </div>
+        <div class="step-arrow">
+          <i class="fas fa-arrow-right"></i>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h3>Scan When Needed</h3>
+            <p>Emergency responders scan to access critical information</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="testimonials-section">
+    <div class="container">
+      <h2 class="section-title">Trusted by Thousands</h2>
+      <div class="testimonials-grid">
+        <div class="testimonial-card" *ngFor="let testimonial of testimonials">
+          <div class="testimonial-content">
+            <i class="fas fa-quote-left quote-icon"></i>
+            <p class="testimonial-text">{{testimonial.quote}}</p>
+          </div>
+          <div class="testimonial-author">
+            <div class="author-info">
+              <h4>{{testimonial.author}}</h4>
+              <p>{{testimonial.role}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <h2 class="cta-title">Ready to Secure Your Medical Information?</h2>
+        <p class="cta-subtitle">Join thousands of users who trust HealthScanQR with their critical health data</p>
+        <div class="cta-buttons">
+          <button class="btn-primary-lg" (click)="navigateToRegister()">
+            <i class="fas fa-rocket"></i> Start Free Trial
+          </button>
+          <button class="btn-outline-lg" (click)="navigateToLogin()">
+            <i class="fas fa-user"></i> Existing User Login
+          </button>
+        </div>
+        <p class="cta-note">No credit card required • Free forever for personal use</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <h3>HealthScanQR</h3>
+          <p>One Quick Scan. That's All It Takes.</p>
+        </div>
+        <div class="footer-links">
+          <a [routerLink]="['/login']">Login</a>
+          <a [routerLink]="['/register']">Register</a>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Contact Us</a>
+        </div>
+        <div class="footer-social">
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-facebook"></i></a>
+          <a href="#"><i class="fab fa-linkedin"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2024 HealthScanQR. All rights reserved. Made with <i class="fas fa-heart"></i> for better healthcare.</p>
+      </div>
+    </div>
+  </footer>
+</div>
