@@ -7,10 +7,10 @@
           <img src="assets/images/healthscanqr1.png" alt="HealthScanQR" class="logo-img">
           <span class="logo-text">HealthScanQR</span>
         </div>
-        <nav class="header-actions">
+        <div class="header-actions">
           <button class="btn-link" (click)="navigateToLogin()">Professional Login</button>
           <button class="btn-primary-sm" (click)="navigateToRegister()">Get Started</button>
-        </nav>
+        </div>
       </div>
     </div>
   </header>
@@ -29,34 +29,15 @@
             <button class="btn-primary" (click)="navigateToRegister()">Start Free Trial</button>
             <button class="btn-secondary" (click)="navigateToLogin()">Professional Login</button>
           </div>
-          <div class="hero-stats">
-            <div class="stat">
-              <span class="stat-number">99.9%</span>
-              <span class="stat-label">Uptime</span>
-            </div>
-            <div class="stat">
-              <span class="stat-number">24/7</span>
-              <span class="stat-label">Support</span>
-            </div>
-            <div class="stat">
-              <span class="stat-number">HIPAA</span>
-              <span class="stat-label">Compliant</span>
-            </div>
-          </div>
         </div>
         <div class="hero-visual">
           <div class="qr-visual">
             <div class="qr-frame">
+              <div class="qr-logo">
+                <img src="assets/images/healthscanqr1.png" alt="HealthScanQR Logo">
+              </div>
               <div class="qr-pattern"></div>
               <div class="qr-scan"></div>
-            </div>
-          </div>
-          <div class="medical-imagery">
-            <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                 alt="Medical Technology" class="medical-img">
-            <div class="floating-badge">
-              <i class="badge-icon">⚕️</i>
-              <span>Instant Access</span>
             </div>
           </div>
         </div>
@@ -67,27 +48,20 @@
   <!-- Process -->
   <section class="process">
     <div class="container">
-      <div class="section-header">
-        <span class="section-subtitle">HOW IT WORKS</span>
-        <h2 class="section-title">Simple & Secure Process</h2>
-        <p class="section-description">Three easy steps to secure medical information access</p>
-      </div>
+      <h2 class="section-title">Simple & Secure Process</h2>
       <div class="process-steps">
         <div class="step">
           <div class="step-number">1</div>
-          <div class="step-icon">📋</div>
           <h3>Create Secure Profile</h3>
           <p>Upload medical history with advanced encryption and privacy controls</p>
         </div>
         <div class="step">
           <div class="step-number">2</div>
-          <div class="step-icon">🔐</div>
           <h3>Get Encrypted QR</h3>
           <p>Receive unique QR code with military-grade encryption</p>
         </div>
         <div class="step">
           <div class="step-number">3</div>
-          <div class="step-icon">🚑</div>
           <h3>Emergency Access</h3>
           <p>Healthcare providers scan for instant, secure information access</p>
         </div>
@@ -98,61 +72,11 @@
   <!-- Features -->
   <section class="features">
     <div class="container">
-      <div class="section-header">
-        <span class="section-subtitle">WHY CHOOSE US</span>
-        <h2 class="section-title">Advanced Security Features</h2>
-        <p class="section-description">Built for healthcare professionals and patient safety</p>
-      </div>
+      <h2 class="section-title">Advanced Security Features</h2>
       <div class="features-grid">
-        <div class="feature">
-          <div class="feature-icon">🚨</div>
-          <h3>Emergency Access</h3>
-          <p>Critical medical information instantly available to authorized responders with zero delays</p>
-        </div>
-        <div class="feature">
-          <div class="feature-icon">🛡️</div>
-          <h3>Military-Grade Security</h3>
-          <p>End-to-end HIPAA-compliant encryption with multi-factor authentication</p>
-        </div>
-        <div class="feature">
-          <div class="feature-icon">🔄</div>
-          <h3>Real-time Updates</h3>
-          <p>Dynamic QR codes update automatically with latest medical information</p>
-        </div>
-        <div class="feature">
-          <div class="feature-icon">📱</div>
-          <h3>Cross-platform Access</h3>
-          <p>Accessible on any device with instant scanning capability</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Testimonials -->
-  <section class="testimonials">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-subtitle">TRUSTED BY PROFESSIONALS</span>
-        <h2 class="section-title">What Healthcare Providers Say</h2>
-      </div>
-      <div class="testimonials-grid">
-        <div class="testimonial">
-          <div class="testimonial-content">
-            "HealthScanQR reduced our emergency response time by 65%. Game changer for our ER department."
-          </div>
-          <div class="testimonial-author">
-            <strong>Dr. Sarah Chen</strong>
-            <span>Emergency Physician</span>
-          </div>
-        </div>
-        <div class="testimonial">
-          <div class="testimonial-content">
-            "The security features give us peace of mind while providing instant access to critical information."
-          </div>
-          <div class="testimonial-author">
-            <strong>Michael Rodriguez</strong>
-            <span>Hospital Administrator</span>
-          </div>
+        <div class="feature" *ngFor="let feature of features">
+          <h3>{{feature.title}}</h3>
+          <p>{{feature.description}}</p>
         </div>
       </div>
     </div>
@@ -180,33 +104,14 @@
           <img src="assets/images/healthscanqr1.png" alt="HealthScanQR" class="footer-logo">
           <span class="footer-logo-text">HealthScanQR</span>
           <p class="footer-tag">Advanced medical information security platform using cutting-edge QR technology for emergency healthcare access.</p>
-          <div class="social-links">
-            <a href="#" class="social-link">📘</a>
-            <a href="#" class="social-link">🐦</a>
-            <a href="#" class="social-link">💼</a>
-            <a href="#" class="social-link">📧</a>
-          </div>
         </div>
         <div class="footer-links">
-          <div class="link-group">
-            <h4>Product</h4>
-            <a [routerLink]="['/login']">Login</a>
-            <a [routerLink]="['/register']">Register</a>
-            <a href="#">Features</a>
-            <a href="#">Pricing</a>
-          </div>
-          <div class="link-group">
-            <h4>Legal</h4>
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
-            <a href="#">HIPAA Compliance</a>
-          </div>
-          <div class="link-group">
-            <h4>Support</h4>
-            <a href="#">Contact Support</a>
-            <a href="#">Documentation</a>
-            <a href="#">API Reference</a>
-          </div>
+          <a [routerLink]="['/login']">Login</a>
+          <a [routerLink]="['/register']">Register</a>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">HIPAA Compliance</a>
+          <a href="#">Contact Support</a>
         </div>
       </div>
       <div class="footer-copyright">
