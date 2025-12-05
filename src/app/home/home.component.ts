@@ -16,10 +16,7 @@ export class HomeComponent {
       title: 'Emergency Access',
       description: 'Critical medical information instantly available to authorized responders with zero delays'
     },
-    {
-      title: 'Military-Grade Security',
-      description: 'End-to-end HIPAA-compliant encryption with multi-factor authentication'
-    },
+
     {
       title: 'Real-time Updates',
       description: 'Dynamic QR codes update automatically with latest medical information'
