@@ -38,7 +38,7 @@ export class HomeComponent {
   }
 
   getFeatureIcon(index: number): string {
-    const icons = ['🚨', '🛡️', '🔄', '📱'];
+    const icons = ['🚨', '🔄', '📱', ''];
     return icons[index] || '⭐';
   }
 }
