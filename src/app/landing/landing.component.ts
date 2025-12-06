@@ -619,7 +619,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     return `
       <div class="print-container">
         <div class="print-header">
-          <h1 class="print-title">HEALTHSCANQR MEDICAL INFO</h1>
+          <h1 class="print-title">HEALTHSCANQR MEDICAL CERT</h1>
           <div class="print-subtitle">Emergency Medical Information</div>
         </div>
         
@@ -672,7 +672,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
 
         <div class="footer">
           <p>Last Updated: ${lastUpdated}</p>
-          <p>HealthScanQR Medical ID • Generated on ${new Date().toLocaleDateString()}</p>
+          <p>HealthScanQR Medical CERT • Generated on ${new Date().toLocaleDateString()}</p>
         </div>
       </div>
     `;
