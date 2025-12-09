@@ -669,7 +669,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     
     console.log('🔄 Loading activity logs...');
 
-    // ✅ FIXED: Removed duplicate /api
     const url = `${environment.apiUrl}/admin/activity-logs`;
 
     this.http.get(url).subscribe({
@@ -713,7 +712,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   private tryAlternativeLogsEndpoint(): void {
     console.log('🔄 Trying alternative logs endpoint...');
     
-    // ✅ FIXED: Removed duplicate /api
     this.http.get(`${environment.apiUrl}/admin/logs`).subscribe({
       next: (res: any) => {
         console.log('✅ Alternative logs response:', res);
@@ -837,7 +835,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
 
     console.log('📝 Logging activity:', logData);
 
-    // ✅ FIXED: Removed duplicate /api
     this.http.post(`${environment.apiUrl}/admin/log-activity`, logData).subscribe({
       next: (res: any) => {
         console.log('✅ Activity logged successfully:', res);
@@ -868,7 +865,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
 
   clearLogs(): void {
     if (confirm('Are you sure you want to clear all activity logs? This action cannot be undone.')) {
-      // ✅ FIXED: Removed duplicate /api
       this.http.delete(`${environment.apiUrl}/admin/clear-logs`).subscribe({
         next: (res: any) => {
           console.log('✅ Logs cleared successfully:', res);
@@ -937,7 +933,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   }
 
   loadUsers(): void {
-    // ✅ FIXED: Removed duplicate /api
     this.http.get(`${environment.apiUrl}/admin/users`).subscribe({
       next: (res: any) => {
         this.users = res.users || [];
@@ -1047,7 +1042,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     }
 
     this.isUserActionLoading = true;
-    // ✅ FIXED: Removed duplicate /api
     this.http.post(`${environment.apiUrl}/admin/approve-user`, {
       user_id: user.user_id,
       admin_id: this.adminId
@@ -1079,7 +1073,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     }
 
     this.isUserActionLoading = true;
-    // ✅ FIXED: Removed duplicate /api
     this.http.post(`${environment.apiUrl}/admin/unapprove-user`, {
       user_id: user.user_id,
       admin_id: this.adminId
@@ -1111,7 +1104,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     }
 
     this.isUserActionLoading = true;
-    // ✅ FIXED: Removed duplicate /api
     this.http.delete(`${environment.apiUrl}/admin/delete-user/${user.user_id}`, {
       body: { admin_id: this.adminId }
     }).subscribe({
@@ -1303,7 +1295,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       console.log('📸 Changing profile photo for user:', userId);
       console.log('📁 Base64 image size:', base64Image.length);
 
-      // ✅ FIXED: Removed duplicate /api
       this.http.post(`${environment.apiUrl}/admin/change-user-profile-base64`, {
         user_id: userId,
         profile_photo: base64Image,
@@ -1572,7 +1563,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     this.scanStatus = 'Fetching medical data...';
     this.scanStatusClass = 'status-scanning';
     
-    // ✅ FIXED: This one is correct - medical routes are at /api/medical
     this.http.get(`${environment.apiUrl}/medical/${userId}`).subscribe({
       next: (res: any) => {
         if (res) {
@@ -1828,7 +1818,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
 
   async findUserIdByMedicalInfo(medicalData: any): Promise<string> {
     try {
-      // ✅ FIXED: Removed duplicate /api
       const response: any = await this.http.post(`${environment.apiUrl}/admin/find-user-by-medical`, {
         full_name: medicalData.full_name,
         dob: medicalData.dob
@@ -1857,7 +1846,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       admin_id: this.adminId
     };
 
-    // ✅ FIXED: Removed duplicate /api
     this.http.put(`${environment.apiUrl}/admin/update-medical/${updateData.user_id}`, payload).subscribe({
       next: (res: any) => {
         const isSuccess = this.checkUpdateSuccess(res);
@@ -1968,7 +1956,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   forceUserDataRefresh(userId: string): void {
     if (!userId) return;
     
-    // ✅ FIXED: Removed duplicate /api
     this.http.post(`${environment.apiUrl}/admin/refresh-user-data`, { 
       user_id: userId 
     }).subscribe({
