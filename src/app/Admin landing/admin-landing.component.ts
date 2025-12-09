@@ -241,13 +241,13 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       }));
     }
     
-    // Process top conditions data
+    // Process top conditions data - REMOVED RANDOM SEVERITY/STATUS
     if (this.analyticsData.topConditions && this.analyticsData.topConditions.length > 0) {
       this.analyticsData.topConditions = this.analyticsData.topConditions.map((condition: any) => ({
         condition: condition.condition || 'Unknown',
-        patient_count: parseInt(condition.patient_count) || parseInt(condition.patients) || 0,
-        severity: this.getRandomSeverity(),
-        status: this.getRandomStatus()
+        patient_count: parseInt(condition.patient_count) || parseInt(condition.patients) || 0
+        // Removed: severity: this.getRandomSeverity(),
+        // Removed: status: this.getRandomStatus()
       }));
     }
     
@@ -271,16 +271,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   getRandomTrend(): string {
     const trends = ['up', 'down', 'stable'];
     return trends[Math.floor(Math.random() * trends.length)];
-  }
-
-  getRandomSeverity(): string {
-    const severities = ['low', 'medium', 'high'];
-    return severities[Math.floor(Math.random() * severities.length)];
-  }
-
-  getRandomStatus(): string {
-    const statuses = ['active', 'managed', 'monitored'];
-    return statuses[Math.floor(Math.random() * statuses.length)];
   }
 
   refreshAnalytics(): void {
@@ -330,14 +320,14 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
         { blood_type: 'A-', count: 8, average_age: '40', trend: 'stable' }
       ],
       
-      // Top conditions (no percentages)
+      // Top conditions (no percentages, no severity/status)
       topConditions: [
-        { condition: 'Hypertension', patient_count: 45, severity: 'high', status: 'managed' },
-        { condition: 'Diabetes', patient_count: 32, severity: 'high', status: 'monitored' },
-        { condition: 'Asthma', patient_count: 28, severity: 'medium', status: 'active' },
-        { condition: 'Arthritis', patient_count: 22, severity: 'medium', status: 'managed' },
-        { condition: 'Allergies', patient_count: 56, severity: 'low', status: 'active' },
-        { condition: 'Migraine', patient_count: 18, severity: 'medium', status: 'managed' }
+        { condition: 'Hypertension', patient_count: 45 },
+        { condition: 'Diabetes', patient_count: 32 },
+        { condition: 'Asthma', patient_count: 28 },
+        { condition: 'Arthritis', patient_count: 22 },
+        { condition: 'Allergies', patient_count: 56 },
+        { condition: 'Migraine', patient_count: 18 }
       ],
       
       // Recent activity
@@ -361,16 +351,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     const date = new Date();
     date.setDate(date.getDate() - days);
     return date.toISOString().split('T')[0];
-  }
-
-  getSeverityClass(condition: any): string {
-    const severity = condition.severity || 'medium';
-    return `severity-${severity}`;
-  }
-
-  getSeverityText(condition: any): string {
-    const severity = condition.severity || 'medium';
-    return severity.charAt(0).toUpperCase() + severity.slice(1);
   }
 
   exportAnalyticsToPDF(): void {
@@ -543,7 +523,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
           <tr>
             <th>Condition</th>
             <th>Patients</th>
-            <th>Severity</th>
           </tr>
         </thead>
         <tbody>
@@ -555,12 +534,11 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
           <tr>
             <td>${condition.condition || 'Unknown'}</td>
             <td>${condition.patient_count || 0}</td>
-            <td>${this.getSeverityText(condition)}</td>
           </tr>
         `;
       });
     } else {
-      html += `<tr><td colspan="3" style="text-align: center;">No medical conditions data available</td></tr>`;
+      html += `<tr><td colspan="2" style="text-align: center;">No medical conditions data available</td></tr>`;
     }
     
     html += `
@@ -630,15 +608,15 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     // Add empty row
     rows.push(['', '', '']);
     rows.push(['Common Medical Conditions', '', '']);
-    rows.push(['Condition', 'Patients', 'Severity']);
+    rows.push(['Condition', 'Patients']);
     
     // Top conditions
     if (this.analyticsData.topConditions && this.analyticsData.topConditions.length > 0) {
       this.analyticsData.topConditions.forEach((condition: any) => {
-        rows.push([condition.condition, condition.patient_count, this.getSeverityText(condition)]);
+        rows.push([condition.condition, condition.patient_count]);
       });
     } else {
-      rows.push(['No medical conditions data available', '', '']);
+      rows.push(['No medical conditions data available', '']);
     }
     
     return [headers, ...rows].map(row => row.map(field => `"${field || ''}"`).join(',')).join('\n');
