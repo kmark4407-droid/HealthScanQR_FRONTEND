@@ -64,6 +64,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   analyticsData: any = null;
   analyticsLoading: boolean = false;
   analyticsDateRange: string = '30days';
+  isRealAnalyticsData: boolean = false;
 
   // Admin info
   adminName: string = 'Administrator';
@@ -204,23 +205,30 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
 
   loadAnalytics(): void {
     this.analyticsLoading = true;
-    console.log('📊 Loading real analytics data...');
+    this.isRealAnalyticsData = false;
+    console.log('📊 Loading REAL analytics data from backend...');
     
     const url = `${environment.apiUrl}/admin/analytics?dateRange=${this.analyticsDateRange}`;
     
     this.http.get(url).subscribe({
       next: (res: any) => {
-        console.log('✅ Analytics response:', res);
+        console.log('✅ Analytics API response:', res);
         
         if (res && res.success && res.analytics) {
           this.analyticsData = res.analytics;
-          console.log('📊 Real analytics data loaded:', {
-            totalUsers: this.analyticsData.totalUsers,
-            totalScans: this.analyticsData.totalScans,
-            approvedUsers: this.analyticsData.approvedUsers,
-            approvalRate: this.analyticsData.approvalRate,
-            dateRange: this.analyticsDateRange
-          });
+          this.isRealAnalyticsData = !res.note || !res.note.includes('sample data');
+          
+          if (this.isRealAnalyticsData) {
+            console.log('📊 REAL DATABASE ANALYTICS LOADED:', {
+              totalUsers: this.analyticsData.totalUsers,
+              totalScans: this.analyticsData.totalScans,
+              approvedUsers: this.analyticsData.approvedUsers,
+              dateRange: this.analyticsDateRange,
+              dataSource: 'DATABASE'
+            });
+          } else {
+            console.warn('⚠️ Backend returned SAMPLE data, not real database data');
+          }
         } else {
           console.warn('⚠️ No analytics data in response, using sample data');
           this.generateSampleAnalyticsData();
@@ -229,15 +237,50 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
         this.analyticsLoading = false;
       },
       error: (err) => {
-        console.error('❌ Error loading analytics:', err);
-        console.log('🔄 Falling back to sample analytics data');
-        this.generateSampleAnalyticsData();
-        this.analyticsLoading = false;
+        console.error('❌ Error loading analytics from API:', err);
+        
+        // Test if backend is reachable
+        this.testBackendConnection().then(isConnected => {
+          if (!isConnected) {
+            console.error('❌ Backend is not reachable. Check if server is running.');
+            alert('Cannot connect to analytics server. Please check if the backend server is running.');
+          }
+          
+          console.log('🔄 Falling back to sample analytics data');
+          this.generateSampleAnalyticsData();
+          this.analyticsLoading = false;
+        });
       }
     });
   }
 
+  async testBackendConnection(): Promise<boolean> {
+    try {
+      console.log('🔍 Testing backend connection...');
+      const testUrl = `${environment.apiUrl}/health`;
+      const response = await fetch(testUrl, { method: 'GET' });
+      const data = await response.json();
+      console.log('✅ Backend connection test:', data);
+      return response.ok;
+    } catch (error) {
+      console.error('❌ Backend connection test failed:', error);
+      return false;
+    }
+  }
+
+  refreshAnalytics(): void {
+    console.log('🔄 Manually refreshing analytics...');
+    this.loadAnalytics();
+  }
+
+  updateAnalyticsDateRange(): void {
+    console.log('📅 Updating analytics date range to:', this.analyticsDateRange);
+    this.loadAnalytics();
+  }
+
   generateSampleAnalyticsData(): void {
+    console.warn('⚠️ GENERATING SAMPLE ANALYTICS DATA (not real database data)');
+    this.isRealAnalyticsData = false;
     const currentDate = new Date();
     
     this.analyticsData = {
@@ -268,21 +311,21 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       
       // Demographics
       demographics: [
-        { blood_type: 'O+', count: 56, percentage: 35.9, avg_age: 42 },
-        { blood_type: 'A+', count: 34, percentage: 21.8, avg_age: 38 },
-        { blood_type: 'B+', count: 28, percentage: 17.9, avg_age: 45 },
-        { blood_type: 'AB+', count: 12, percentage: 7.7, avg_age: 50 },
-        { blood_type: 'O-', count: 18, percentage: 11.5, avg_age: 35 },
-        { blood_type: 'A-', count: 8, percentage: 5.1, avg_age: 40 }
+        { blood_type: 'O+', count: 56, percentage: 35.9, average_age: '42' },
+        { blood_type: 'A+', count: 34, percentage: 21.8, average_age: '38' },
+        { blood_type: 'B+', count: 28, percentage: 17.9, average_age: '45' },
+        { blood_type: 'AB+', count: 12, percentage: 7.7, average_age: '50' },
+        { blood_type: 'O-', count: 18, percentage: 11.5, average_age: '35' },
+        { blood_type: 'A-', count: 8, percentage: 5.1, average_age: '40' }
       ],
       
       // Top conditions
       topConditions: [
-        { condition: 'Hypertension', patients: 45, prevalence: 28.8, trend: 'up' },
-        { condition: 'Diabetes', patients: 32, prevalence: 20.5, trend: 'stable' },
-        { condition: 'Asthma', patients: 28, prevalence: 17.9, trend: 'down' },
-        { condition: 'Arthritis', patients: 22, prevalence: 14.1, trend: 'stable' },
-        { condition: 'Allergies', patients: 56, prevalence: 35.9, trend: 'up' }
+        { condition: 'Hypertension', patient_count: 45, prevalence_percentage: 28.8, trend: 'up' },
+        { condition: 'Diabetes', patient_count: 32, prevalence_percentage: 20.5, trend: 'stable' },
+        { condition: 'Asthma', patient_count: 28, prevalence_percentage: 17.9, trend: 'down' },
+        { condition: 'Arthritis', patient_count: 22, prevalence_percentage: 14.1, trend: 'stable' },
+        { condition: 'Allergies', patient_count: 56, prevalence_percentage: 35.9, trend: 'up' }
       ],
       
       // Insights
@@ -317,14 +360,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
         }
       ]
     };
-  }
-
-  refreshAnalytics(): void {
-    this.loadAnalytics();
-  }
-
-  updateAnalyticsDateRange(): void {
-    this.loadAnalytics();
   }
 
   exportAnalyticsToPDF(): void {
@@ -383,6 +418,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
             <p>Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
             <p>Generated by: ${this.adminName}</p>
             <p>Date Range: ${this.getDateRangeLabel()}</p>
+            <p>Data Source: ${this.isRealAnalyticsData ? 'REAL DATABASE' : 'SAMPLE DATA'}</p>
             
             ${analyticsContent}
             
@@ -526,7 +562,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
             <td>${demo.blood_type || 'Unknown'}</td>
             <td>${demo.count || 0}</td>
             <td>${demo.percentage || 0}%</td>
-            <td>${demo.avg_age || 'N/A'}</td>
+            <td>${demo.average_age || demo.avg_age || 'N/A'}</td>
           </tr>
         `;
       });
@@ -553,13 +589,17 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
     
     if (this.analyticsData.topConditions && this.analyticsData.topConditions.length > 0) {
       this.analyticsData.topConditions.forEach((condition: any) => {
+        const patientCount = condition.patient_count || condition.patients || 0;
+        const prevalence = condition.prevalence_percentage || condition.prevalence || 0;
+        const trend = condition.trend || 'stable';
+        
         html += `
           <tr>
             <td>${condition.condition || 'Unknown'}</td>
-            <td>${condition.patients || 0}</td>
-            <td>${condition.prevalence || 0}%</td>
-            <td class="${condition.trend === 'up' ? 'positive' : condition.trend === 'down' ? 'negative' : ''}">
-              ${condition.trend === 'up' ? '↑' : condition.trend === 'down' ? '↓' : '↔'} ${condition.trend || 'stable'}
+            <td>${patientCount}</td>
+            <td>${prevalence}%</td>
+            <td class="${trend === 'up' ? 'positive' : trend === 'down' ? 'negative' : ''}">
+              ${trend === 'up' ? '↑' : trend === 'down' ? '↓' : '↔'} ${trend}
             </td>
           </tr>
         `;
@@ -617,50 +657,53 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   convertAnalyticsToCSV(): string {
     if (!this.analyticsData) return '';
     
-    const headers = ['Metric', 'Value', 'Change', 'Date'];
+    const headers = ['Metric', 'Value', 'Change', 'Date', 'Data Source'];
     const rows = [];
     const today = new Date().toLocaleDateString();
+    const dataSource = this.isRealAnalyticsData ? 'REAL DATABASE' : 'SAMPLE DATA';
     
     // Key metrics
-    rows.push(['Total Users', this.analyticsData.totalUsers, `${this.analyticsData.userGrowthRate}%`, today]);
-    rows.push(['Total Scans', this.analyticsData.totalScans, `${this.analyticsData.scanGrowthRate}%`, today]);
-    rows.push(['Approved Users', this.analyticsData.approvedUsers, `${this.analyticsData.approvalRate}%`, today]);
-    rows.push(['Avg Response Time', this.analyticsData.avgResponseTime, `${this.analyticsData.responseTimeChange}%`, today]);
+    rows.push(['Total Users', this.analyticsData.totalUsers, `${this.analyticsData.userGrowthRate}%`, today, dataSource]);
+    rows.push(['Total Scans', this.analyticsData.totalScans, `${this.analyticsData.scanGrowthRate}%`, today, dataSource]);
+    rows.push(['Approved Users', this.analyticsData.approvedUsers, `${this.analyticsData.approvalRate}%`, today, dataSource]);
+    rows.push(['Avg Response Time', this.analyticsData.avgResponseTime, `${this.analyticsData.responseTimeChange}%`, today, dataSource]);
     
     // Add empty row
-    rows.push(['', '', '', '']);
-    rows.push(['Activity Summary', '', '', '']);
+    rows.push(['', '', '', '', '']);
+    rows.push(['Activity Summary', '', '', '', '']);
     rows.push(['Activity Type', 'Today', 'This Week', 'This Month', 'Growth']);
     rows.push(['QR Scans', this.analyticsData.dailyScans, this.analyticsData.weeklyScans, this.analyticsData.monthlyScans, `${this.analyticsData.scanGrowth}%`]);
     rows.push(['User Registrations', this.analyticsData.dailyRegistrations, this.analyticsData.weeklyRegistrations, this.analyticsData.monthlyRegistrations, `${this.analyticsData.registrationGrowth}%`]);
     rows.push(['Profile Updates', this.analyticsData.dailyUpdates, this.analyticsData.weeklyUpdates, this.analyticsData.monthlyUpdates, `${this.analyticsData.updateGrowth}%`]);
     
     // Add empty row
-    rows.push(['', '', '', '']);
-    rows.push(['Demographics', '', '', '']);
-    rows.push(['Blood Type', 'Count', 'Percentage', 'Avg Age']);
+    rows.push(['', '', '', '', '']);
+    rows.push(['Demographics', '', '', '', '']);
+    rows.push(['Blood Type', 'Count', 'Percentage', 'Avg Age', '']);
     
     // Demographics
     if (this.analyticsData.demographics && this.analyticsData.demographics.length > 0) {
       this.analyticsData.demographics.forEach((demo: any) => {
-        rows.push([demo.blood_type, demo.count, `${demo.percentage}%`, demo.avg_age]);
+        rows.push([demo.blood_type, demo.count, `${demo.percentage}%`, demo.average_age || demo.avg_age || 'N/A', '']);
       });
     } else {
-      rows.push(['No demographic data available', '', '', '']);
+      rows.push(['No demographic data available', '', '', '', '']);
     }
     
     // Add empty row
-    rows.push(['', '', '', '']);
-    rows.push(['Top Medical Conditions', '', '', '']);
-    rows.push(['Condition', 'Patients', 'Prevalence', 'Trend']);
+    rows.push(['', '', '', '', '']);
+    rows.push(['Top Medical Conditions', '', '', '', '']);
+    rows.push(['Condition', 'Patients', 'Prevalence', 'Trend', '']);
     
     // Top conditions
     if (this.analyticsData.topConditions && this.analyticsData.topConditions.length > 0) {
       this.analyticsData.topConditions.forEach((condition: any) => {
-        rows.push([condition.condition, condition.patients, `${condition.prevalence}%`, condition.trend]);
+        const patientCount = condition.patient_count || condition.patients || 0;
+        const prevalence = condition.prevalence_percentage || condition.prevalence || 0;
+        rows.push([condition.condition, patientCount, `${prevalence}%`, condition.trend || 'stable', '']);
       });
     } else {
-      rows.push(['No medical conditions data available', '', '', '']);
+      rows.push(['No medical conditions data available', '', '', '', '']);
     }
     
     return [headers, ...rows].map(row => row.map(field => `"${field || ''}"`).join(',')).join('\n');
@@ -698,6 +741,7 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
         <p>Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
         <p>Generated by: ${this.adminName}</p>
         <p>Date Range: ${this.getDateRangeLabel()}</p>
+        <p>Data Source: ${this.isRealAnalyticsData ? 'REAL DATABASE' : 'SAMPLE DATA'}</p>
         ${analyticsContent}
       </body>
       </html>
