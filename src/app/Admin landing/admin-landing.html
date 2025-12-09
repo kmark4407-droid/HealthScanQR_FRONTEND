@@ -684,26 +684,41 @@
             </div>
           </div>
 
-          <!-- Charts Section -->
+          <!-- Activity Trends Section -->
           <div class="analytics-section">
             <h3 class="section-title"><i class="fas fa-chart-line"></i> Activity Trends</h3>
-            <div class="charts-grid">
-              <div class="chart-container">
-                <h4>User Registrations</h4>
-                <div class="chart-placeholder" *ngIf="!chartLoaded">
-                  <i class="fas fa-chart-bar"></i>
-                  <p>Chart loading...</p>
+            <div class="stats-display">
+              <div class="stat-item">
+                <div class="stat-label">User Registrations (30 days)</div>
+                <div class="stat-value">{{ analyticsData?.monthlyRegistrations || 0 }}</div>
+                <div class="stat-change" [class.positive]="analyticsData?.registrationGrowth > 0" 
+                     [class.negative]="analyticsData?.registrationGrowth < 0">
+                  <i class="fas" [class.fa-arrow-up]="analyticsData?.registrationGrowth > 0" 
+                     [class.fa-arrow-down]="analyticsData?.registrationGrowth <= 0"></i>
+                  {{ Math.abs(analyticsData?.registrationGrowth || 0) }}%
                 </div>
-                <canvas #userRegistrationsChart id="userRegistrationsChart" class="analytics-chart"></canvas>
               </div>
               
-              <div class="chart-container">
-                <h4>QR Scans by Day</h4>
-                <div class="chart-placeholder" *ngIf="!chartLoaded">
-                  <i class="fas fa-chart-line"></i>
-                  <p>Chart loading...</p>
+              <div class="stat-item">
+                <div class="stat-label">QR Scans (30 days)</div>
+                <div class="stat-value">{{ analyticsData?.monthlyScans || 0 }}</div>
+                <div class="stat-change" [class.positive]="analyticsData?.scanGrowth > 0" 
+                     [class.negative]="analyticsData?.scanGrowth < 0">
+                  <i class="fas" [class.fa-arrow-up]="analyticsData?.scanGrowth > 0" 
+                     [class.fa-arrow-down]="analyticsData?.scanGrowth <= 0"></i>
+                  {{ Math.abs(analyticsData?.scanGrowth || 0) }}%
                 </div>
-                <canvas #scanActivityChart id="scanActivityChart" class="analytics-chart"></canvas>
+              </div>
+              
+              <div class="stat-item">
+                <div class="stat-label">Profile Updates (30 days)</div>
+                <div class="stat-value">{{ analyticsData?.monthlyUpdates || 0 }}</div>
+                <div class="stat-change" [class.positive]="analyticsData?.updateGrowth > 0" 
+                     [class.negative]="analyticsData?.updateGrowth < 0">
+                  <i class="fas" [class.fa-arrow-up]="analyticsData?.updateGrowth > 0" 
+                     [class.fa-arrow-down]="analyticsData?.updateGrowth <= 0"></i>
+                  {{ Math.abs(analyticsData?.updateGrowth || 0) }}%
+                </div>
               </div>
             </div>
           </div>
