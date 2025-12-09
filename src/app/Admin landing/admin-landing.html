@@ -695,6 +695,7 @@
                      [class.negative]="analyticsData?.registrationGrowth < 0">
                   <i class="fas" [class.fa-arrow-up]="analyticsData?.registrationGrowth > 0" 
                      [class.fa-arrow-down]="analyticsData?.registrationGrowth <= 0"></i>
+                  <!-- FIXED LINE 698: Added Math reference -->
                   {{ Math.abs(analyticsData?.registrationGrowth || 0) }}%
                 </div>
               </div>
@@ -706,6 +707,7 @@
                      [class.negative]="analyticsData?.scanGrowth < 0">
                   <i class="fas" [class.fa-arrow-up]="analyticsData?.scanGrowth > 0" 
                      [class.fa-arrow-down]="analyticsData?.scanGrowth <= 0"></i>
+                  <!-- FIXED LINE 709: Added Math reference -->
                   {{ Math.abs(analyticsData?.scanGrowth || 0) }}%
                 </div>
               </div>
@@ -717,6 +719,7 @@
                      [class.negative]="analyticsData?.updateGrowth < 0">
                   <i class="fas" [class.fa-arrow-up]="analyticsData?.updateGrowth > 0" 
                      [class.fa-arrow-down]="analyticsData?.updateGrowth <= 0"></i>
+                  <!-- FIXED LINE 720: Added Math reference -->
                   {{ Math.abs(analyticsData?.updateGrowth || 0) }}%
                 </div>
               </div>
