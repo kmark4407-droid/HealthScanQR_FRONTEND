@@ -1,4 +1,4 @@
-<!-- admin-landing.html - SIMPLIFIED ANALYTICS VERSION -->
+<!-- admin-landing.html - FIXED ANALYTICS VERSION -->
 <div class="admin-landing">
   <!-- Header -->
 <header class="admin-header">
@@ -581,7 +581,7 @@
       </div>
     </div>
 
-    <!-- Analytics Tab - SIMPLIFIED VERSION -->
+    <!-- Analytics Tab - FIXED VERSION -->
     <div class="tab-content" [class.active]="activeTab === 'analytics'">
       <div class="card">
         <div class="analytics-header">
@@ -807,7 +807,7 @@
                 </div>
               </div>
 
-              <!-- Common Medical Conditions -->
+              <!-- Common Medical Conditions - FIXED: REMOVED SEVERITY COLUMN -->
               <div class="data-table-container">
                 <div class="table-header">
                   <h4><i class="fas fa-stethoscope"></i> Common Conditions</h4>
@@ -819,7 +819,7 @@
                       <tr>
                         <th>Condition</th>
                         <th>Patients</th>
-                        <th>Severity</th>
+                        <!-- REMOVED: <th>Severity</th> -->
                       </tr>
                     </thead>
                     <tbody>
@@ -828,15 +828,12 @@
                           <span class="condition-name">{{ condition.condition || 'Unknown' }}</span>
                         </td>
                         <td><strong>{{ condition.patient_count || 0 }}</strong></td>
-                        <td>
-                          <span class="severity-badge" [class]="getSeverityClass(condition)">
-                            {{ getSeverityText(condition) }}
-                          </span>
-                        </td>
+                        <!-- REMOVED: Severity badge cell -->
                       </tr>
                       <ng-template #noConditions>
                         <tr>
-                          <td colspan="3" class="no-data-cell">
+                          <!-- UPDATED: colspan="2" instead of colspan="3" -->
+                          <td colspan="2" class="no-data-cell">
                             <i class="fas fa-info-circle"></i>
                             No medical conditions data
                           </td>
