@@ -57,6 +57,11 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   showUserDetails: boolean = false;
   userManagementTab: string = 'pending';
 
+  // Analytics variables
+  analyticsData: any = null;
+  analyticsLoading: boolean = false;
+  analyticsDateRange: string = '30days';
+
   // Admin info
   adminName: string = 'Administrator';
   adminId: string = '';
@@ -187,6 +192,473 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       this.showUserDetails = false;
       this.userManagementTab = 'pending';
     }
+    if (tabName === 'analytics') {
+      this.loadAnalytics();
+    }
+  }
+
+  // ==================== BUSINESS ANALYTICS METHODS ====================
+
+  loadAnalytics(): void {
+    this.analyticsLoading = true;
+    console.log('📊 Loading analytics data...');
+    
+    // Generate sample analytics data
+    setTimeout(() => {
+      this.generateSampleAnalyticsData();
+      this.analyticsLoading = false;
+    }, 500);
+  }
+
+  generateSampleAnalyticsData(): void {
+    const currentDate = new Date();
+    
+    this.analyticsData = {
+      totalUsers: 156,
+      userGrowthRate: 12.5,
+      totalScans: 423,
+      scanGrowthRate: 8.3,
+      approvedUsers: 134,
+      approvalRate: 85.9,
+      avgResponseTime: '2.4s',
+      responseTimeChange: -5.2,
+      
+      // Activity data
+      dailyScans: 15,
+      weeklyScans: 87,
+      monthlyScans: 423,
+      scanGrowth: 8.3,
+      
+      dailyRegistrations: 3,
+      weeklyRegistrations: 18,
+      monthlyRegistrations: 56,
+      registrationGrowth: 12.5,
+      
+      dailyUpdates: 8,
+      weeklyUpdates: 45,
+      monthlyUpdates: 192,
+      updateGrowth: 15.7,
+      
+      // Demographics
+      demographics: [
+        { blood_type: 'O+', count: 56, percentage: 35.9, avg_age: 42 },
+        { blood_type: 'A+', count: 34, percentage: 21.8, avg_age: 38 },
+        { blood_type: 'B+', count: 28, percentage: 17.9, avg_age: 45 },
+        { blood_type: 'AB+', count: 12, percentage: 7.7, avg_age: 50 },
+        { blood_type: 'O-', count: 18, percentage: 11.5, avg_age: 35 },
+        { blood_type: 'A-', count: 8, percentage: 5.1, avg_age: 40 }
+      ],
+      
+      // Top conditions
+      topConditions: [
+        { condition: 'Hypertension', patients: 45, prevalence: 28.8, trend: 'up' },
+        { condition: 'Diabetes', patients: 32, prevalence: 20.5, trend: 'stable' },
+        { condition: 'Asthma', patients: 28, prevalence: 17.9, trend: 'down' },
+        { condition: 'Arthritis', patients: 22, prevalence: 14.1, trend: 'stable' },
+        { condition: 'Allergies', patients: 56, prevalence: 35.9, trend: 'up' }
+      ],
+      
+      // Insights
+      insights: [
+        {
+          title: 'High Registration Growth',
+          description: 'User registrations increased by 12.5% this month compared to last month.',
+          type: 'success',
+          date: 'Today',
+          impact: 'high'
+        },
+        {
+          title: 'Scan Frequency Decreasing',
+          description: 'Average scans per user decreased by 15% this week.',
+          type: 'warning',
+          date: '2 days ago',
+          impact: 'medium'
+        },
+        {
+          title: 'High Blood Type O+ Prevalence',
+          description: '35.9% of users have O+ blood type, which is above national average.',
+          type: 'info',
+          date: '1 week ago',
+          impact: 'low'
+        },
+        {
+          title: 'Approval Rate Improving',
+          description: 'User approval rate increased to 85.9%, up from 78% last month.',
+          type: 'trend',
+          date: '3 days ago',
+          impact: 'high'
+        }
+      ]
+    };
+  }
+
+  refreshAnalytics(): void {
+    this.loadAnalytics();
+  }
+
+  updateAnalyticsDateRange(): void {
+    this.loadAnalytics();
+  }
+
+  exportAnalyticsToPDF(): void {
+    this.analyticsLoading = true;
+    
+    try {
+      // Create a simple HTML table for PDF
+      const analyticsContent = this.generateAnalyticsHTML();
+      
+      // Open print dialog
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>HealthScanQR Analytics Report</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              h1 { color: #4b6cb7; text-align: center; }
+              h2 { color: #333; border-bottom: 2px solid #4b6cb7; padding-bottom: 10px; }
+              h3 { color: #555; }
+              table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+              th { background-color: #4b6cb7; color: white; padding: 12px; text-align: left; }
+              td { padding: 10px; border-bottom: 1px solid #ddd; }
+              tr:nth-child(even) { background-color: #f8f9fa; }
+              .metric-card { 
+                background: #f8fafc; 
+                border: 1px solid #e2e8f0; 
+                border-radius: 8px; 
+                padding: 15px; 
+                margin: 10px 0;
+              }
+              .metric-value { font-size: 24px; font-weight: bold; color: #4b6cb7; }
+              .metric-label { color: #64748b; font-size: 14px; }
+              .positive { color: #10b981; }
+              .negative { color: #ef4444; }
+              .insight-card { 
+                border-left: 4px solid; 
+                padding-left: 15px; 
+                margin: 15px 0; 
+                padding: 10px;
+              }
+              .warning { border-color: #f59e0b; background: #fef3c7; }
+              .success { border-color: #10b981; background: #d1fae5; }
+              .info { border-color: #3b82f6; background: #dbeafe; }
+              .trend { border-color: #8b5cf6; background: #ede9fe; }
+              @media print {
+                body { margin: 0; padding: 20px; }
+                button { display: none; }
+              }
+            </style>
+          </head>
+          <body>
+            <h1>HealthScanQR Analytics Report</h1>
+            <p>Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
+            <p>Generated by: ${this.adminName}</p>
+            
+            ${analyticsContent}
+            
+            <br><br>
+            <div style="text-align: center; color: #666; font-size: 12px;">
+              <hr>
+              <p>Confidential - For internal use only</p>
+              <p>© ${new Date().getFullYear()} HealthScanQR. All rights reserved.</p>
+            </div>
+            
+            <script>
+              window.onload = function() {
+                window.print();
+                setTimeout(function() {
+                  window.close();
+                }, 1000);
+              };
+            </script>
+          </body>
+          </html>
+        `);
+        printWindow.document.close();
+        
+        this.logActivity('EXPORT', 'Exported analytics report to PDF');
+      }
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating report. Please try the print option instead.');
+    } finally {
+      this.analyticsLoading = false;
+    }
+  }
+
+  generateAnalyticsHTML(): string {
+    if (!this.analyticsData) return '<p>No analytics data available.</p>';
+    
+    let html = `
+      <h2>Key Metrics</h2>
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px 0;">
+        <div class="metric-card">
+          <div class="metric-value">${this.analyticsData.totalUsers}</div>
+          <div class="metric-label">Total Users</div>
+          <div class="${this.analyticsData.userGrowthRate > 0 ? 'positive' : 'negative'}">
+            ${this.analyticsData.userGrowthRate > 0 ? '↑' : '↓'} ${this.analyticsData.userGrowthRate}%
+          </div>
+        </div>
+        
+        <div class="metric-card">
+          <div class="metric-value">${this.analyticsData.totalScans}</div>
+          <div class="metric-label">Total Scans</div>
+          <div class="${this.analyticsData.scanGrowthRate > 0 ? 'positive' : 'negative'}">
+            ${this.analyticsData.scanGrowthRate > 0 ? '↑' : '↓'} ${this.analyticsData.scanGrowthRate}%
+          </div>
+        </div>
+        
+        <div class="metric-card">
+          <div class="metric-value">${this.analyticsData.approvedUsers}</div>
+          <div class="metric-label">Approved Users</div>
+          <div class="positive">${this.analyticsData.approvalRate}%</div>
+        </div>
+        
+        <div class="metric-card">
+          <div class="metric-value">${this.analyticsData.avgResponseTime}</div>
+          <div class="metric-label">Avg Response Time</div>
+          <div class="${this.analyticsData.responseTimeChange < 0 ? 'positive' : 'negative'}">
+            ${this.analyticsData.responseTimeChange < 0 ? '↑' : '↓'} ${Math.abs(this.analyticsData.responseTimeChange)}%
+          </div>
+        </div>
+      </div>
+      
+      <h2>Activity Summary</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Activity Type</th>
+            <th>Today</th>
+            <th>This Week</th>
+            <th>This Month</th>
+            <th>Growth</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>QR Scans</td>
+            <td>${this.analyticsData.dailyScans}</td>
+            <td>${this.analyticsData.weeklyScans}</td>
+            <td>${this.analyticsData.monthlyScans}</td>
+            <td class="${this.analyticsData.scanGrowth > 0 ? 'positive' : 'negative'}">
+              ${this.analyticsData.scanGrowth > 0 ? '↑' : '↓'} ${Math.abs(this.analyticsData.scanGrowth)}%
+            </td>
+          </tr>
+          <tr>
+            <td>User Registrations</td>
+            <td>${this.analyticsData.dailyRegistrations}</td>
+            <td>${this.analyticsData.weeklyRegistrations}</td>
+            <td>${this.analyticsData.monthlyRegistrations}</td>
+            <td class="${this.analyticsData.registrationGrowth > 0 ? 'positive' : 'negative'}">
+              ${this.analyticsData.registrationGrowth > 0 ? '↑' : '↓'} ${Math.abs(this.analyticsData.registrationGrowth)}%
+            </td>
+          </tr>
+          <tr>
+            <td>Profile Updates</td>
+            <td>${this.analyticsData.dailyUpdates}</td>
+            <td>${this.analyticsData.weeklyUpdates}</td>
+            <td>${this.analyticsData.monthlyUpdates}</td>
+            <td class="${this.analyticsData.updateGrowth > 0 ? 'positive' : 'negative'}">
+              ${this.analyticsData.updateGrowth > 0 ? '↑' : '↓'} ${Math.abs(this.analyticsData.updateGrowth)}%
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <h2>User Demographics</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Blood Type</th>
+            <th>Count</th>
+            <th>Percentage</th>
+            <th>Avg Age</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    
+    this.analyticsData.demographics.forEach((demo: any) => {
+      html += `
+        <tr>
+          <td>${demo.blood_type || 'Unknown'}</td>
+          <td>${demo.count || 0}</td>
+          <td>${demo.percentage || 0}%</td>
+          <td>${demo.avg_age || 'N/A'}</td>
+        </tr>
+      `;
+    });
+    
+    html += `
+        </tbody>
+      </table>
+      
+      <h2>Top Medical Conditions</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Condition</th>
+            <th>Patients</th>
+            <th>Prevalence</th>
+            <th>Trend</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    
+    this.analyticsData.topConditions.forEach((condition: any) => {
+      html += `
+        <tr>
+          <td>${condition.condition || 'Unknown'}</td>
+          <td>${condition.patients || 0}</td>
+          <td>${condition.prevalence || 0}%</td>
+          <td class="${condition.trend === 'up' ? 'positive' : condition.trend === 'down' ? 'negative' : ''}">
+            ${condition.trend === 'up' ? '↑' : condition.trend === 'down' ? '↓' : '↔'} ${condition.trend || 'stable'}
+          </td>
+        </tr>
+      `;
+    });
+    
+    html += `
+        </tbody>
+      </table>
+      
+      <h2>Key Insights</h2>
+    `;
+    
+    this.analyticsData.insights.forEach((insight: any) => {
+      html += `
+        <div class="insight-card ${insight.type}">
+          <h3>${insight.title}</h3>
+          <p>${insight.description}</p>
+          <div style="font-size: 12px; color: #666;">
+            ${insight.date} | ${insight.impact} impact
+          </div>
+        </div>
+      `;
+    });
+    
+    return html;
+  }
+
+  exportAnalyticsToCSV(): void {
+    if (!this.analyticsData) {
+      alert('No analytics data to export.');
+      return;
+    }
+    
+    const csvContent = this.convertAnalyticsToCSV();
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `healthscanqr-analytics-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+    
+    this.logActivity('EXPORT', 'Exported analytics data to CSV');
+  }
+
+  convertAnalyticsToCSV(): string {
+    if (!this.analyticsData) return '';
+    
+    const headers = ['Metric', 'Value', 'Change', 'Date'];
+    const rows = [];
+    
+    // Key metrics
+    rows.push(['Total Users', this.analyticsData.totalUsers, `${this.analyticsData.userGrowthRate}%`, new Date().toLocaleDateString()]);
+    rows.push(['Total Scans', this.analyticsData.totalScans, `${this.analyticsData.scanGrowthRate}%`, new Date().toLocaleDateString()]);
+    rows.push(['Approved Users', this.analyticsData.approvedUsers, `${this.analyticsData.approvalRate}%`, new Date().toLocaleDateString()]);
+    rows.push(['Avg Response Time', this.analyticsData.avgResponseTime, `${this.analyticsData.responseTimeChange}%`, new Date().toLocaleDateString()]);
+    
+    // Add empty row
+    rows.push(['', '', '', '']);
+    rows.push(['Demographics', '', '', '']);
+    rows.push(['Blood Type', 'Count', 'Percentage', 'Avg Age']);
+    
+    // Demographics
+    this.analyticsData.demographics.forEach((demo: any) => {
+      rows.push([demo.blood_type, demo.count, `${demo.percentage}%`, demo.avg_age]);
+    });
+    
+    // Add empty row
+    rows.push(['', '', '', '']);
+    rows.push(['Top Medical Conditions', '', '', '']);
+    rows.push(['Condition', 'Patients', 'Prevalence', 'Trend']);
+    
+    // Top conditions
+    this.analyticsData.topConditions.forEach((condition: any) => {
+      rows.push([condition.condition, condition.patients, `${condition.prevalence}%`, condition.trend]);
+    });
+    
+    return [headers, ...rows].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
+  }
+
+  exportAnalyticsToExcel(): void {
+    // Use CSV for Excel compatibility
+    this.exportAnalyticsToCSV();
+    this.logActivity('EXPORT', 'Exported analytics data to Excel');
+  }
+
+  printAnalytics(): void {
+    const analyticsContent = this.generateAnalyticsHTML();
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>HealthScanQR Analytics Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; }
+          h1 { color: #4b6cb7; text-align: center; }
+          h2 { color: #333; border-bottom: 2px solid #4b6cb7; padding-bottom: 10px; }
+          table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          th { background-color: #4b6cb7; color: white; padding: 12px; text-align: left; }
+          td { padding: 10px; border-bottom: 1px solid #ddd; }
+          tr:nth-child(even) { background-color: #f8f9fa; }
+          @media print {
+            body { margin: 0; padding: 20px; }
+            button { display: none; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>HealthScanQR Analytics Report</h1>
+        <p>Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
+        ${analyticsContent}
+      </body>
+      </html>
+    `;
+    
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    }
+    
+    this.logActivity('PRINT', 'Printed analytics report');
+  }
+
+  scheduleAnalyticsReport(): void {
+    const email = prompt('Enter email address to schedule weekly reports:');
+    if (email && this.validateEmail(email)) {
+      // In production, make API call to schedule report
+      alert(`Weekly analytics reports will be sent to ${email}\n\nThis feature will be available soon.`);
+      this.logActivity('SCHEDULE', `Scheduled weekly analytics report for ${email}`);
+    } else if (email) {
+      alert('Please enter a valid email address.');
+    }
+  }
+
+  validateEmail(email: string): boolean {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
   }
 
   // ==================== ACTIVITY LOGS METHODS ====================
