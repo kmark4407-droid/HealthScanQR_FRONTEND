@@ -1,4 +1,4 @@
-<!-- admin-landing.html -->
+<!-- admin-landing.html - FIXED ANALYTICS SECTION -->
 <div class="admin-landing">
   <!-- Header -->
 <header class="admin-header">
@@ -581,13 +581,17 @@
       </div>
     </div>
 
-    <!-- Business Analytics Tab -->
+    <!-- Business Analytics Tab - FIXED TO SHOW REAL DATA -->
     <div class="tab-content" [class.active]="activeTab === 'analytics'">
       <div class="card">
         <div class="analytics-header">
           <h2 class="card-title">
             <i class="fas fa-chart-bar"></i>
             Business Analytics Dashboard
+            <span class="data-source-badge" [class.real-data]="isRealAnalyticsData" [class.sample-data]="!isRealAnalyticsData">
+              <i class="fas" [class.fa-database]="isRealAnalyticsData" [class.fa-flask]="!isRealAnalyticsData"></i>
+              {{ isRealAnalyticsData ? 'REAL DATABASE' : 'SAMPLE DATA' }}
+            </span>
           </h2>
           <div class="analytics-actions">
             <button (click)="exportAnalyticsToPDF()" class="primary">
@@ -612,10 +616,17 @@
         <div class="analytics-loading" *ngIf="analyticsLoading">
           <i class="fas fa-spinner fa-spin"></i>
           <span>Loading analytics data...</span>
+          <p class="loading-note">Querying database for real-time statistics</p>
         </div>
 
         <!-- Analytics Grid -->
-        <div class="analytics-grid" *ngIf="!analyticsLoading">
+        <div class="analytics-grid" *ngIf="!analyticsLoading && analyticsData">
+          <!-- Data Source Indicator -->
+          <div class="data-source-indicator" *ngIf="!isRealAnalyticsData">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>Displaying sample data. Check database connection for real statistics.</span>
+          </div>
+
           <!-- Key Metrics Cards -->
           <div class="analytics-section">
             <h3 class="section-title"><i class="fas fa-tachometer-alt"></i> Key Metrics</h3>
@@ -625,13 +636,13 @@
                   <i class="fas fa-users"></i>
                 </div>
                 <div class="metric-content">
-                  <div class="metric-value">{{ analyticsData?.totalUsers || 0 }}</div>
+                  <div class="metric-value">{{ analyticsData.totalUsers || 0 }}</div>
                   <div class="metric-label">Total Users</div>
-                  <div class="metric-change" [class.positive]="analyticsData?.userGrowthRate > 0" 
-                       [class.negative]="analyticsData?.userGrowthRate < 0">
-                    <i class="fas" [class.fa-arrow-up]="analyticsData?.userGrowthRate > 0" 
-                       [class.fa-arrow-down]="analyticsData?.userGrowthRate <= 0"></i>
-                    {{ analyticsData?.userGrowthRate || 0 }}%
+                  <div class="metric-change" [class.positive]="analyticsData.userGrowthRate > 0" 
+                       [class.negative]="analyticsData.userGrowthRate < 0">
+                    <i class="fas" [class.fa-arrow-up]="analyticsData.userGrowthRate > 0" 
+                       [class.fa-arrow-down]="analyticsData.userGrowthRate <= 0"></i>
+                    {{ Math.abs(analyticsData.userGrowthRate || 0) }}%
                   </div>
                 </div>
               </div>
@@ -641,13 +652,13 @@
                   <i class="fas fa-qrcode"></i>
                 </div>
                 <div class="metric-content">
-                  <div class="metric-value">{{ analyticsData?.totalScans || 0 }}</div>
+                  <div class="metric-value">{{ analyticsData.totalScans || 0 }}</div>
                   <div class="metric-label">Total Scans</div>
-                  <div class="metric-change" [class.positive]="analyticsData?.scanGrowthRate > 0" 
-                       [class.negative]="analyticsData?.scanGrowthRate < 0">
-                    <i class="fas" [class.fa-arrow-up]="analyticsData?.scanGrowthRate > 0" 
-                       [class.fa-arrow-down]="analyticsData?.scanGrowthRate <= 0"></i>
-                    {{ analyticsData?.scanGrowthRate || 0 }}%
+                  <div class="metric-change" [class.positive]="analyticsData.scanGrowthRate > 0" 
+                       [class.negative]="analyticsData.scanGrowthRate < 0">
+                    <i class="fas" [class.fa-arrow-up]="analyticsData.scanGrowthRate > 0" 
+                       [class.fa-arrow-down]="analyticsData.scanGrowthRate <= 0"></i>
+                    {{ Math.abs(analyticsData.scanGrowthRate || 0) }}%
                   </div>
                 </div>
               </div>
@@ -657,11 +668,10 @@
                   <i class="fas fa-check-circle"></i>
                 </div>
                 <div class="metric-content">
-                  <div class="metric-value">{{ analyticsData?.approvedUsers || 0 }}</div>
+                  <div class="metric-value">{{ analyticsData.approvedUsers || 0 }}</div>
                   <div class="metric-label">Approved Users</div>
-                  <div class="metric-change" [class.positive]="analyticsData?.approvalRate > 0" 
-                       [class.negative]="analyticsData?.approvalRate < 0">
-                    {{ analyticsData?.approvalRate || 0 }}%
+                  <div class="metric-change positive">
+                    {{ analyticsData.approvalRate || 0 }}%
                   </div>
                 </div>
               </div>
@@ -671,13 +681,13 @@
                   <i class="fas fa-clock"></i>
                 </div>
                 <div class="metric-content">
-                  <div class="metric-value">{{ analyticsData?.avgResponseTime || 'N/A' }}</div>
+                  <div class="metric-value">{{ analyticsData.avgResponseTime || 'N/A' }}</div>
                   <div class="metric-label">Avg Response Time</div>
-                  <div class="metric-change" [class.positive]="analyticsData?.responseTimeChange < 0" 
-                       [class.negative]="analyticsData?.responseTimeChange > 0">
-                    <i class="fas" [class.fa-arrow-up]="analyticsData?.responseTimeChange > 0" 
-                       [class.fa-arrow-down]="analyticsData?.responseTimeChange <= 0"></i>
-                    {{ analyticsData?.responseTimeChange || 0 }}%
+                  <div class="metric-change" [class.positive]="analyticsData.responseTimeChange < 0" 
+                       [class.negative]="analyticsData.responseTimeChange > 0">
+                    <i class="fas" [class.fa-arrow-up]="analyticsData.responseTimeChange > 0" 
+                       [class.fa-arrow-down]="analyticsData.responseTimeChange <= 0"></i>
+                    {{ Math.abs(analyticsData.responseTimeChange || 0) }}%
                   </div>
                 </div>
               </div>
@@ -686,41 +696,38 @@
 
           <!-- Activity Trends Section -->
           <div class="analytics-section">
-            <h3 class="section-title"><i class="fas fa-chart-line"></i> Activity Trends</h3>
+            <h3 class="section-title"><i class="fas fa-chart-line"></i> Activity Trends ({{ getDateRangeLabel() }})</h3>
             <div class="stats-display">
               <div class="stat-item">
-                <div class="stat-label">User Registrations (30 days)</div>
-                <div class="stat-value">{{ analyticsData?.monthlyRegistrations || 0 }}</div>
-                <div class="stat-change" [class.positive]="analyticsData?.registrationGrowth > 0" 
-                     [class.negative]="analyticsData?.registrationGrowth < 0">
-                  <i class="fas" [class.fa-arrow-up]="analyticsData?.registrationGrowth > 0" 
-                     [class.fa-arrow-down]="analyticsData?.registrationGrowth <= 0"></i>
-                  <!-- FIXED LINE 698: Added Math reference -->
-                  {{ Math.abs(analyticsData?.registrationGrowth || 0) }}%
+                <div class="stat-label">User Registrations</div>
+                <div class="stat-value">{{ analyticsData.monthlyRegistrations || 0 }}</div>
+                <div class="stat-change" [class.positive]="analyticsData.registrationGrowth > 0" 
+                     [class.negative]="analyticsData.registrationGrowth < 0">
+                  <i class="fas" [class.fa-arrow-up]="analyticsData.registrationGrowth > 0" 
+                     [class.fa-arrow-down]="analyticsData.registrationGrowth <= 0"></i>
+                  {{ Math.abs(analyticsData.registrationGrowth || 0) }}%
                 </div>
               </div>
               
               <div class="stat-item">
-                <div class="stat-label">QR Scans (30 days)</div>
-                <div class="stat-value">{{ analyticsData?.monthlyScans || 0 }}</div>
-                <div class="stat-change" [class.positive]="analyticsData?.scanGrowth > 0" 
-                     [class.negative]="analyticsData?.scanGrowth < 0">
-                  <i class="fas" [class.fa-arrow-up]="analyticsData?.scanGrowth > 0" 
-                     [class.fa-arrow-down]="analyticsData?.scanGrowth <= 0"></i>
-                  <!-- FIXED LINE 709: Added Math reference -->
-                  {{ Math.abs(analyticsData?.scanGrowth || 0) }}%
+                <div class="stat-label">QR Scans</div>
+                <div class="stat-value">{{ analyticsData.monthlyScans || 0 }}</div>
+                <div class="stat-change" [class.positive]="analyticsData.scanGrowth > 0" 
+                     [class.negative]="analyticsData.scanGrowth < 0">
+                  <i class="fas" [class.fa-arrow-up]="analyticsData.scanGrowth > 0" 
+                     [class.fa-arrow-down]="analyticsData.scanGrowth <= 0"></i>
+                  {{ Math.abs(analyticsData.scanGrowth || 0) }}%
                 </div>
               </div>
               
               <div class="stat-item">
-                <div class="stat-label">Profile Updates (30 days)</div>
-                <div class="stat-value">{{ analyticsData?.monthlyUpdates || 0 }}</div>
-                <div class="stat-change" [class.positive]="analyticsData?.updateGrowth > 0" 
-                     [class.negative]="analyticsData?.updateGrowth < 0">
-                  <i class="fas" [class.fa-arrow-up]="analyticsData?.updateGrowth > 0" 
-                     [class.fa-arrow-down]="analyticsData?.updateGrowth <= 0"></i>
-                  <!-- FIXED LINE 720: Added Math reference -->
-                  {{ Math.abs(analyticsData?.updateGrowth || 0) }}%
+                <div class="stat-label">Profile Updates</div>
+                <div class="stat-value">{{ analyticsData.monthlyUpdates || 0 }}</div>
+                <div class="stat-change" [class.positive]="analyticsData.updateGrowth > 0" 
+                     [class.negative]="analyticsData.updateGrowth < 0">
+                  <i class="fas" [class.fa-arrow-up]="analyticsData.updateGrowth > 0" 
+                     [class.fa-arrow-down]="analyticsData.updateGrowth <= 0"></i>
+                  {{ Math.abs(analyticsData.updateGrowth || 0) }}%
                 </div>
               </div>
             </div>
@@ -744,17 +751,20 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr *ngFor="let demo of analyticsData?.demographics">
-                      <td>{{ demo.blood_type || 'Unknown' }}</td>
-                      <td>{{ demo.count || 0 }}</td>
-                      <td>
-                        <div class="percentage-bar-container">
-                          <div class="percentage-bar" [style.width]="(demo.percentage || 0) + '%'"></div>
-                          <span class="percentage-text">{{ demo.percentage || 0 }}%</span>
-                        </div>
+                    <tr *ngIf="analyticsData.demographics && analyticsData.demographics.length > 0; else noDemographics">
+                      <td colspan="4" class="no-data-cell">
+                        <i class="fas fa-info-circle"></i>
+                        No demographic data available in database
                       </td>
-                      <td>{{ demo.avg_age || 'N/A' }}</td>
                     </tr>
+                    <ng-template #noDemographics>
+                      <tr>
+                        <td colspan="4" class="no-data-cell">
+                          <i class="fas fa-info-circle"></i>
+                          No demographic data available in database
+                        </td>
+                      </tr>
+                    </ng-template>
                   </tbody>
                 </table>
               </div>
@@ -774,19 +784,20 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr *ngFor="let condition of analyticsData?.topConditions">
-                      <td>{{ condition.condition || 'Unknown' }}</td>
-                      <td>{{ condition.patients || 0 }}</td>
-                      <td>{{ condition.prevalence || 0 }}%</td>
-                      <td>
-                        <span class="trend-indicator" [class.positive]="condition.trend === 'up'" 
-                              [class.negative]="condition.trend === 'down'">
-                          <i class="fas" [class.fa-arrow-up]="condition.trend === 'up'" 
-                             [class.fa-arrow-down]="condition.trend === 'down'"></i>
-                          {{ condition.trend || 'stable' }}
-                        </span>
+                    <tr *ngIf="analyticsData.topConditions && analyticsData.topConditions.length > 0; else noConditions">
+                      <td colspan="4" class="no-data-cell">
+                        <i class="fas fa-info-circle"></i>
+                        No medical conditions data available in database
                       </td>
                     </tr>
+                    <ng-template #noConditions>
+                      <tr>
+                        <td colspan="4" class="no-data-cell">
+                          <i class="fas fa-info-circle"></i>
+                          No medical conditions data available in database
+                        </td>
+                      </tr>
+                    </ng-template>
                   </tbody>
                 </table>
               </div>
@@ -809,43 +820,43 @@
                   <tbody>
                     <tr>
                       <td>QR Scans</td>
-                      <td>{{ analyticsData?.dailyScans || 0 }}</td>
-                      <td>{{ analyticsData?.weeklyScans || 0 }}</td>
-                      <td>{{ analyticsData?.monthlyScans || 0 }}</td>
+                      <td>{{ analyticsData.dailyScans || 0 }}</td>
+                      <td>{{ analyticsData.weeklyScans || 0 }}</td>
+                      <td>{{ analyticsData.monthlyScans || 0 }}</td>
                       <td>
-                        <span class="growth-indicator" [class.positive]="analyticsData?.scanGrowth > 0" 
-                              [class.negative]="analyticsData?.scanGrowth < 0">
-                          <i class="fas" [class.fa-arrow-up]="analyticsData?.scanGrowth > 0" 
-                             [class.fa-arrow-down]="analyticsData?.scanGrowth <= 0"></i>
-                          {{ analyticsData?.scanGrowth || 0 }}%
+                        <span class="growth-indicator" [class.positive]="analyticsData.scanGrowth > 0" 
+                              [class.negative]="analyticsData.scanGrowth < 0">
+                          <i class="fas" [class.fa-arrow-up]="analyticsData.scanGrowth > 0" 
+                             [class.fa-arrow-down]="analyticsData.scanGrowth <= 0"></i>
+                          {{ Math.abs(analyticsData.scanGrowth || 0) }}%
                         </span>
                       </td>
                     </tr>
                     <tr>
                       <td>User Registrations</td>
-                      <td>{{ analyticsData?.dailyRegistrations || 0 }}</td>
-                      <td>{{ analyticsData?.weeklyRegistrations || 0 }}</td>
-                      <td>{{ analyticsData?.monthlyRegistrations || 0 }}</td>
+                      <td>{{ analyticsData.dailyRegistrations || 0 }}</td>
+                      <td>{{ analyticsData.weeklyRegistrations || 0 }}</td>
+                      <td>{{ analyticsData.monthlyRegistrations || 0 }}</td>
                       <td>
-                        <span class="growth-indicator" [class.positive]="analyticsData?.registrationGrowth > 0" 
-                              [class.negative]="analyticsData?.registrationGrowth < 0">
-                          <i class="fas" [class.fa-arrow-up]="analyticsData?.registrationGrowth > 0" 
-                             [class.fa-arrow-down]="analyticsData?.registrationGrowth <= 0"></i>
-                          {{ analyticsData?.registrationGrowth || 0 }}%
+                        <span class="growth-indicator" [class.positive]="analyticsData.registrationGrowth > 0" 
+                              [class.negative]="analyticsData.registrationGrowth < 0">
+                          <i class="fas" [class.fa-arrow-up]="analyticsData.registrationGrowth > 0" 
+                             [class.fa-arrow-down]="analyticsData.registrationGrowth <= 0"></i>
+                          {{ Math.abs(analyticsData.registrationGrowth || 0) }}%
                         </span>
                       </td>
                     </tr>
                     <tr>
                       <td>Profile Updates</td>
-                      <td>{{ analyticsData?.dailyUpdates || 0 }}</td>
-                      <td>{{ analyticsData?.weeklyUpdates || 0 }}</td>
-                      <td>{{ analyticsData?.monthlyUpdates || 0 }}</td>
+                      <td>{{ analyticsData.dailyUpdates || 0 }}</td>
+                      <td>{{ analyticsData.weeklyUpdates || 0 }}</td>
+                      <td>{{ analyticsData.monthlyUpdates || 0 }}</td>
                       <td>
-                        <span class="growth-indicator" [class.positive]="analyticsData?.updateGrowth > 0" 
-                              [class.negative]="analyticsData?.updateGrowth < 0">
-                          <i class="fas" [class.fa-arrow-up]="analyticsData?.updateGrowth > 0" 
-                             [class.fa-arrow-down]="analyticsData?.updateGrowth <= 0"></i>
-                          {{ analyticsData?.updateGrowth || 0 }}%
+                        <span class="growth-indicator" [class.positive]="analyticsData.updateGrowth > 0" 
+                              [class.negative]="analyticsData.updateGrowth < 0">
+                          <i class="fas" [class.fa-arrow-up]="analyticsData.updateGrowth > 0" 
+                             [class.fa-arrow-down]="analyticsData.updateGrowth <= 0"></i>
+                          {{ Math.abs(analyticsData.updateGrowth || 0) }}%
                         </span>
                       </td>
                     </tr>
@@ -859,7 +870,7 @@
           <div class="analytics-section">
             <h3 class="section-title"><i class="fas fa-lightbulb"></i> Key Insights</h3>
             <div class="insights-grid">
-              <div class="insight-card" *ngFor="let insight of analyticsData?.insights">
+              <div class="insight-card" *ngFor="let insight of analyticsData.insights; let i = index">
                 <div class="insight-icon" [class]="insight.type">
                   <i class="fas" [class.fa-exclamation-circle]="insight.type === 'warning'"
                      [class.fa-check-circle]="insight.type === 'success'"
@@ -901,7 +912,30 @@
                 Schedule Report
               </button>
             </div>
+            <div class="data-source-info">
+              <p><i class="fas fa-info-circle"></i> 
+                <strong>Data Source:</strong> 
+                <span [class.real-data-text]="isRealAnalyticsData" [class.sample-data-text]="!isRealAnalyticsData">
+                  {{ isRealAnalyticsData ? 'Real Database Data' : 'Sample Data (Database connection issue)' }}
+                </span>
+              </p>
+              <p *ngIf="!isRealAnalyticsData" class="data-source-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                To see real database statistics, ensure your database has medical_info records with blood_type data.
+              </p>
+            </div>
           </div>
+        </div>
+
+        <!-- No Data State -->
+        <div class="no-analytics-data" *ngIf="!analyticsLoading && !analyticsData">
+          <i class="fas fa-chart-line"></i>
+          <h3>No Analytics Data Available</h3>
+          <p>Unable to load analytics data. Please check your database connection.</p>
+          <button (click)="refreshAnalytics()" class="primary">
+            <i class="fas fa-redo"></i>
+            Try Again
+          </button>
         </div>
       </div>
     </div>
