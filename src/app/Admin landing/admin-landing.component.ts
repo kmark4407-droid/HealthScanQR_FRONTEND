@@ -25,6 +25,9 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   @ViewChild('canvasElement') canvasElement!: ElementRef;
   @ViewChild('uploadPreview') uploadPreview!: ElementRef;
 
+  // Add Math reference for template use
+  Math = Math;
+
   activeTab: string = 'scanner';
   editForm: FormGroup;
   scannedData: any = null;
