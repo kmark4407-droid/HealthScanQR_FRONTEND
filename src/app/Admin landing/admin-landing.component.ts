@@ -216,7 +216,13 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
         
         if (res && res.success && res.analytics) {
           this.analyticsData = res.analytics;
-          this.isRealAnalyticsData = !res.note || !res.note.includes('sample data');
+          
+          // Check if it's real database data based on the note
+          this.isRealAnalyticsData = !res.note || 
+                                    res.note.includes('Real database') || 
+                                    res.note.includes('Simplified database') ||
+                                    res.note.includes('database data loaded') ||
+                                    res.note.includes('Real database data');
           
           if (this.isRealAnalyticsData) {
             console.log('📊 REAL DATABASE ANALYTICS LOADED:', {
@@ -224,7 +230,8 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
               totalScans: this.analyticsData.totalScans,
               approvedUsers: this.analyticsData.approvedUsers,
               dateRange: this.analyticsDateRange,
-              dataSource: 'DATABASE'
+              dataSource: 'DATABASE',
+              note: res.note || 'Real data'
             });
           } else {
             console.warn('⚠️ Backend returned SAMPLE data, not real database data');
