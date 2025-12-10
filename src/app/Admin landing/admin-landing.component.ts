@@ -76,6 +76,11 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
   private logDebounceTime: number = 1000;
   private lastScanLog: { user: string, timestamp: number } = { user: '', timestamp: 0 };
 
+  // Date variables for analytics
+  private todayDate: string = '';
+  private weekStartDate: string = '';
+  private monthStartDate: string = '';
+
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
@@ -114,6 +119,9 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       adminData: this.currentAdmin 
     });
 
+    // Initialize dates
+    this.initializeDates();
+
     this.loadActivityLogs();
     this.loadUsers();
   }
@@ -129,6 +137,73 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       });
   }
 
+  // ==================== DATE HELPER METHODS ====================
+
+  initializeDates(): void {
+    const today = new Date();
+    
+    // Today's date
+    this.todayDate = this.formatDateForDisplay(today.toISOString());
+    
+    // Week start date (Monday)
+    const dayOfWeek = today.getDay();
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Adjust for Sunday
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + diffToMonday);
+    this.weekStartDate = this.formatDateForDisplay(monday.toISOString());
+    
+    // Month start date
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    this.monthStartDate = this.formatDateForDisplay(firstDay.toISOString());
+  }
+
+  getTodayDate(): string {
+    return this.todayDate;
+  }
+
+  getWeekStartDate(): string {
+    return this.weekStartDate;
+  }
+
+  getMonthStartDate(): string {
+    return this.monthStartDate;
+  }
+
+  // Helper to format date as MM/DD
+  formatDateForDisplay(dateString: string): string {
+    if (!dateString) return 'N/A';
+    
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric' 
+      }).replace(',', '');
+    } catch (e) {
+      console.error('Error formatting date for display:', e);
+      return dateString.split('T')[0];
+    }
+  }
+
+  // For print/export formatting (full date)
+  formatDateForExport(dateString: string): string {
+    if (!dateString) return 'N/A';
+    
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric',
+        month: 'short', 
+        day: 'numeric' 
+      });
+    } catch (e) {
+      console.error('Error formatting date for export:', e);
+      return dateString;
+    }
+  }
+
+  // ==================== TAB NAVIGATION ====================
+
   loadScript(src: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (document.querySelector(`script[src="${src}"]`)) {
@@ -143,8 +218,6 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       document.head.appendChild(script);
     });
   }
-
-  // ==================== TAB NAVIGATION ====================
 
   closeHamburgerMenu(): void {
     if (window.innerWidth <= 768) {
@@ -198,509 +271,474 @@ export class AdminLandingComponent implements OnInit, AfterViewInit {
       this.loadAnalytics();
     }
   }
-// ==================== ANALYTICS METHODS ====================
 
-loadAnalytics(): void {
-  this.analyticsLoading = true;
-  console.log('📊 Loading analytics data...');
-  
-  const url = `${environment.apiUrl}/admin/analytics?dateRange=30days`;
-  
-  this.http.get(url).subscribe({
-    next: (res: any) => {
-      console.log('✅ Analytics API response:', res);
-      
-      if (res && res.success && res.analytics) {
-        this.analyticsData = res.analytics;
-        this.processAnalyticsData();
-      } else {
+  // ==================== ANALYTICS METHODS ====================
+
+  loadAnalytics(): void {
+    this.analyticsLoading = true;
+    console.log('📊 Loading analytics data...');
+    
+    const url = `${environment.apiUrl}/admin/analytics?dateRange=30days`;
+    
+    this.http.get(url).subscribe({
+      next: (res: any) => {
+        console.log('✅ Analytics API response:', res);
+        
+        if (res && res.success && res.analytics) {
+          this.analyticsData = res.analytics;
+          this.processAnalyticsData();
+        } else {
+          this.generateAnalyticsData();
+        }
+        
+        this.analyticsLoading = false;
+      },
+      error: (err) => {
+        console.error('❌ Error loading analytics from API:', err);
         this.generateAnalyticsData();
+        this.analyticsLoading = false;
       }
+    });
+  }
+
+  processAnalyticsData(): void {
+    if (!this.analyticsData) return;
+    
+    // Process demographics data
+    if (this.analyticsData.demographics && this.analyticsData.demographics.length > 0) {
+      this.analyticsData.demographics = this.analyticsData.demographics.map((demo: any) => ({
+        blood_type: demo.blood_type || 'Unknown',
+        count: parseInt(demo.count) || 0,
+        average_age: demo.average_age || demo.avg_age || 'N/A',
+        trend: this.getRandomTrend()
+      }));
+    }
+    
+    // Process top conditions data
+    if (this.analyticsData.topConditions && this.analyticsData.topConditions.length > 0) {
+      this.analyticsData.topConditions = this.analyticsData.topConditions.map((condition: any) => ({
+        condition: condition.condition || 'Unknown',
+        patient_count: parseInt(condition.patient_count) || parseInt(condition.patients) || 0
+      }));
+    }
+    
+    // Calculate daily activity
+    this.calculateDailyActivity();
+  }
+
+  calculateDailyActivity(): void {
+    // Track today's scans in real-time
+    const todayScans = parseInt(localStorage.getItem('today_scans') || '0');
+    if (todayScans > 0) {
+      this.analyticsData.dailyScans = todayScans;
+    }
+    
+    // Update weekly scans based on daily
+    if (this.analyticsData.dailyScans) {
+      this.analyticsData.weeklyScans = this.analyticsData.dailyScans * 5; // Estimate
+    }
+  }
+
+  getRandomTrend(): string {
+    const trends = ['up', 'down', 'stable'];
+    return trends[Math.floor(Math.random() * trends.length)];
+  }
+
+  refreshAnalytics(): void {
+    console.log('🔄 Refreshing analytics...');
+    this.loadAnalytics();
+  }
+
+  generateAnalyticsData(): void {
+    console.log('📊 Generating analytics data with actual dates');
+    
+    // Get actual dates
+    const today = new Date();
+    const todayScans = parseInt(localStorage.getItem('today_scans') || '15');
+    
+    // Calculate week start date (Monday)
+    const weekStart = new Date(today);
+    const dayOfWeek = weekStart.getDay();
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Adjust for Sunday
+    weekStart.setDate(weekStart.getDate() + diffToMonday);
+    
+    // Calculate month start date
+    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+    
+    this.analyticsData = {
+      totalUsers: 156,
+      userGrowthRate: 12.5,
+      totalScans: 423,
+      scanGrowthRate: 8.3,
+      approvedUsers: 134,
+      approvalRate: 85.9,
       
-      this.analyticsLoading = false;
-    },
-    error: (err) => {
-      console.error('❌ Error loading analytics from API:', err);
-      this.generateAnalyticsData();
+      // Activity data - updated with actual dates
+      dailyScans: todayScans,
+      weeklyScans: 87,
+      monthlyScans: 423,
+      
+      dailyRegistrations: 3,
+      weeklyRegistrations: 18,
+      monthlyRegistrations: 56,
+      
+      dailyUpdates: 8,
+      weeklyUpdates: 45,
+      monthlyUpdates: 192,
+      
+      scanGrowth: 8.3,
+      registrationGrowth: 12.5,
+      updateGrowth: 15.7,
+      
+      // Demographics
+      demographics: [
+        { blood_type: 'O+', count: 56, average_age: '42', trend: 'up' },
+        { blood_type: 'A+', count: 34, average_age: '38', trend: 'stable' },
+        { blood_type: 'B+', count: 28, average_age: '45', trend: 'down' },
+        { blood_type: 'AB+', count: 12, average_age: '50', trend: 'stable' },
+        { blood_type: 'O-', count: 18, average_age: '35', trend: 'up' },
+        { blood_type: 'A-', count: 8, average_age: '40', trend: 'stable' }
+      ],
+      
+      // Top conditions
+      topConditions: [
+        { condition: 'Hypertension', patient_count: 45 },
+        { condition: 'Diabetes', patient_count: 32 },
+        { condition: 'Asthma', patient_count: 28 },
+        { condition: 'Arthritis', patient_count: 22 },
+        { condition: 'Allergies', patient_count: 56 },
+        { condition: 'Migraine', patient_count: 18 }
+      ],
+      
+      // Date references (for tracking)
+      dateReferences: {
+        today: today.toISOString().split('T')[0],
+        weekStart: weekStart.toISOString().split('T')[0],
+        monthStart: monthStart.toISOString().split('T')[0]
+      }
+    };
+  }
+
+  // ==================== ANALYTICS EXPORT METHODS ====================
+
+  exportAnalyticsToPDF(): void {
+    this.analyticsLoading = true;
+    
+    try {
+      const analyticsContent = this.generateAnalyticsHTML();
+      
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>HealthScanQR Analytics Report</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              h1 { color: #4b6cb7; text-align: center; }
+              h2 { color: #333; border-bottom: 2px solid #4b6cb7; padding-bottom: 10px; }
+              table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+              th { background-color: #4b6cb7; color: white; padding: 12px; text-align: left; }
+              td { padding: 10px; border-bottom: 1px solid #ddd; }
+              tr:nth-child(even) { background-color: #f8f9fa; }
+              .metric-card { 
+                background: #f8fafc; 
+                border: 1px solid #e2e8f0; 
+                border-radius: 8px; 
+                padding: 15px; 
+                margin: 10px 0;
+              }
+              .metric-value { font-size: 24px; font-weight: bold; color: #4b6cb7; }
+              .metric-label { color: #64748b; font-size: 14px; }
+              @media print {
+                body { margin: 0; padding: 20px; }
+                button { display: none; }
+              }
+            </style>
+          </head>
+          <body>
+            <h1>HealthScanQR Analytics Report</h1>
+            <p>Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
+            <p>Generated by: ${this.adminName}</p>
+            <p>Report Period: ${this.monthStartDate} to ${this.todayDate}</p>
+            
+            ${analyticsContent}
+            
+            <br><br>
+            <div style="text-align: center; color: #666; font-size: 12px;">
+              <hr>
+              <p>Confidential - For internal use only</p>
+              <p>© ${new Date().getFullYear()} HealthScanQR. All rights reserved.</p>
+            </div>
+            
+            <script>
+              window.onload = function() {
+                window.print();
+                setTimeout(function() {
+                  window.close();
+                }, 1000);
+              };
+            </script>
+          </body>
+          </html>
+        `);
+        printWindow.document.close();
+        
+        this.logActivity('EXPORT', 'Exported analytics report to PDF');
+      }
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating report. Please try the print option instead.');
+    } finally {
       this.analyticsLoading = false;
     }
-  });
-}
-
-processAnalyticsData(): void {
-  if (!this.analyticsData) return;
-  
-  // Process demographics data
-  if (this.analyticsData.demographics && this.analyticsData.demographics.length > 0) {
-    this.analyticsData.demographics = this.analyticsData.demographics.map((demo: any) => ({
-      blood_type: demo.blood_type || 'Unknown',
-      count: parseInt(demo.count) || 0,
-      average_age: demo.average_age || demo.avg_age || 'N/A',
-      trend: this.getRandomTrend()
-    }));
   }
-  
-  // Process top conditions data
-  if (this.analyticsData.topConditions && this.analyticsData.topConditions.length > 0) {
-    this.analyticsData.topConditions = this.analyticsData.topConditions.map((condition: any) => ({
-      condition: condition.condition || 'Unknown',
-      patient_count: parseInt(condition.patient_count) || parseInt(condition.patients) || 0
-    }));
+
+  generateAnalyticsHTML(): string {
+    if (!this.analyticsData) return '<p>No analytics data available.</p>';
+    
+    let html = `
+      <h2>System Overview</h2>
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px 0;">
+        <div class="metric-card">
+          <div class="metric-value">${this.analyticsData.totalUsers}</div>
+          <div class="metric-label">Total Users</div>
+          <div>${this.analyticsData.approvedUsers} approved</div>
+        </div>
+        
+        <div class="metric-card">
+          <div class="metric-value">${this.analyticsData.totalScans}</div>
+          <div class="metric-label">QR Scans</div>
+          <div>${this.analyticsData.dailyScans} today</div>
+        </div>
+        
+        <div class="metric-card">
+          <div class="metric-value">${this.analyticsData.approvalRate}%</div>
+          <div class="metric-label">Approval Rate</div>
+        </div>
+        
+        <div class="metric-card">
+          <div class="metric-value">${this.analyticsData.scanGrowthRate}%</div>
+          <div class="metric-label">Scan Growth</div>
+        </div>
+      </div>
+      
+      <h2>Activity Summary (${this.monthStartDate} - ${this.todayDate})</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Activity Type</th>
+            <th>Today (${this.todayDate})</th>
+            <th>This Week (${this.weekStartDate} - ${this.todayDate})</th>
+            <th>This Month (${this.monthStartDate} - ${this.todayDate})</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>QR Scans</td>
+            <td>${this.analyticsData.dailyScans}</td>
+            <td>${this.analyticsData.weeklyScans}</td>
+            <td>${this.analyticsData.monthlyScans}</td>
+          </tr>
+          <tr>
+            <td>User Registrations</td>
+            <td>${this.analyticsData.dailyRegistrations}</td>
+            <td>${this.analyticsData.weeklyRegistrations}</td>
+            <td>${this.analyticsData.monthlyRegistrations}</td>
+          </tr>
+          <tr>
+            <td>Profile Updates</td>
+            <td>${this.analyticsData.dailyUpdates}</td>
+            <td>${this.analyticsData.weeklyUpdates}</td>
+            <td>${this.analyticsData.monthlyUpdates}</td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <h2>Blood Type Distribution</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Blood Type</th>
+            <th>Users</th>
+            <th>Avg Age</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    
+    if (this.analyticsData.demographics && this.analyticsData.demographics.length > 0) {
+      this.analyticsData.demographics.forEach((demo: any) => {
+        html += `
+          <tr>
+            <td>${demo.blood_type || 'Unknown'}</td>
+            <td>${demo.count || 0}</td>
+            <td>${demo.average_age || 'N/A'}</td>
+          </tr>
+        `;
+      });
+    } else {
+      html += `<tr><td colspan="3" style="text-align: center;">No demographic data available</td></tr>`;
+    }
+    
+    html += `
+        </tbody>
+      </table>
+      
+      <h2>Common Medical Conditions</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Condition</th>
+            <th>Patients</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    
+    if (this.analyticsData.topConditions && this.analyticsData.topConditions.length > 0) {
+      this.analyticsData.topConditions.forEach((condition: any) => {
+        html += `
+          <tr>
+            <td>${condition.condition || 'Unknown'}</td>
+            <td>${condition.patient_count || 0}</td>
+          </tr>
+        `;
+      });
+    } else {
+      html += `<tr><td colspan="2" style="text-align: center;">No medical conditions data available</td></tr>`;
+    }
+    
+    html += `
+        </tbody>
+      </table>
+    `;
+    
+    return html;
   }
-  
-  // Calculate daily activity
-  this.calculateDailyActivity();
-}
 
-calculateDailyActivity(): void {
-  // Track today's scans in real-time
-  const todayScans = parseInt(localStorage.getItem('today_scans') || '0');
-  if (todayScans > 0) {
-    this.analyticsData.dailyScans = todayScans;
+  exportAnalyticsToCSV(): void {
+    if (!this.analyticsData) {
+      alert('No analytics data to export.');
+      return;
+    }
+    
+    const csvContent = this.convertAnalyticsToCSV();
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `healthscanqr-analytics-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+    
+    this.logActivity('EXPORT', 'Exported analytics data to CSV');
   }
-  
-  // Update weekly scans based on daily
-  if (this.analyticsData.dailyScans) {
-    this.analyticsData.weeklyScans = this.analyticsData.dailyScans * 5; // Estimate
-  }
-}
 
-getRandomTrend(): string {
-  const trends = ['up', 'down', 'stable'];
-  return trends[Math.floor(Math.random() * trends.length)];
-}
-
-refreshAnalytics(): void {
-  console.log('🔄 Refreshing analytics...');
-  this.loadAnalytics();
-}
-
-generateAnalyticsData(): void {
-  console.log('📊 Generating analytics data');
-  
-  // Get actual dates
-  const today = new Date();
-  const todayDate = today.toISOString().split('T')[0];
-  const todayScans = parseInt(localStorage.getItem('today_scans') || '15');
-  
-  // Calculate week start date (Monday)
-  const weekStart = new Date(today);
-  const dayOfWeek = weekStart.getDay();
-  const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Adjust for Sunday
-  weekStart.setDate(weekStart.getDate() + diffToMonday);
-  const weekStartDate = weekStart.toISOString().split('T')[0];
-  
-  // Calculate month start date
-  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-  const monthStartDate = monthStart.toISOString().split('T')[0];
-  
-  this.analyticsData = {
-    totalUsers: 156,
-    userGrowthRate: 12.5,
-    totalScans: 423,
-    scanGrowthRate: 8.3,
-    approvedUsers: 134,
-    approvalRate: 85.9,
+  convertAnalyticsToCSV(): string {
+    if (!this.analyticsData) return '';
     
-    // Activity data - updated with actual dates
-    dailyScans: todayScans,
-    dailyScansDate: todayDate,
-    weeklyScans: 87,
-    weeklyScansDate: weekStartDate,
-    monthlyScans: 423,
-    monthlyScansDate: monthStartDate,
+    const headers = ['Metric', 'Value', 'Date Range'];
+    const rows = [];
+    const today = new Date().toLocaleDateString();
     
-    dailyRegistrations: 3,
-    dailyRegistrationsDate: todayDate,
-    weeklyRegistrations: 18,
-    weeklyRegistrationsDate: weekStartDate,
-    monthlyRegistrations: 56,
-    monthlyRegistrationsDate: monthStartDate,
+    // Key metrics
+    rows.push(['Total Users', this.analyticsData.totalUsers, today]);
+    rows.push(['Total Scans', this.analyticsData.totalScans, today]);
+    rows.push(['Approved Users', this.analyticsData.approvedUsers, today]);
+    rows.push(['Approval Rate', `${this.analyticsData.approvalRate}%`, today]);
+    rows.push(['Scan Growth', `${this.analyticsData.scanGrowthRate}%`, today]);
     
-    dailyUpdates: 8,
-    dailyUpdatesDate: todayDate,
-    weeklyUpdates: 45,
-    weeklyUpdatesDate: weekStartDate,
-    monthlyUpdates: 192,
-    monthlyUpdatesDate: monthStartDate,
+    // Add empty row
+    rows.push(['', '', '']);
+    rows.push(['Activity Summary', '', '']);
+    rows.push(['Activity Type', `Today (${this.todayDate})`, `This Week (${this.weekStartDate} - ${this.todayDate})`, `This Month (${this.monthStartDate} - ${this.todayDate})`]);
+    rows.push(['QR Scans', this.analyticsData.dailyScans, this.analyticsData.weeklyScans, this.analyticsData.monthlyScans]);
+    rows.push(['User Registrations', this.analyticsData.dailyRegistrations, this.analyticsData.weeklyRegistrations, this.analyticsData.monthlyRegistrations]);
+    rows.push(['Profile Updates', this.analyticsData.dailyUpdates, this.analyticsData.weeklyUpdates, this.analyticsData.monthlyUpdates]);
     
-    scanGrowth: 8.3,
-    registrationGrowth: 12.5,
-    updateGrowth: 15.7,
+    // Add empty row
+    rows.push(['', '', '']);
+    rows.push(['Blood Type Distribution', '', '']);
+    rows.push(['Blood Type', 'Users', 'Avg Age']);
     
     // Demographics
-    demographics: [
-      { blood_type: 'O+', count: 56, average_age: '42', trend: 'up' },
-      { blood_type: 'A+', count: 34, average_age: '38', trend: 'stable' },
-      { blood_type: 'B+', count: 28, average_age: '45', trend: 'down' },
-      { blood_type: 'AB+', count: 12, average_age: '50', trend: 'stable' },
-      { blood_type: 'O-', count: 18, average_age: '35', trend: 'up' },
-      { blood_type: 'A-', count: 8, average_age: '40', trend: 'stable' }
-    ],
+    if (this.analyticsData.demographics && this.analyticsData.demographics.length > 0) {
+      this.analyticsData.demographics.forEach((demo: any) => {
+        rows.push([demo.blood_type, demo.count, demo.average_age || 'N/A']);
+      });
+    } else {
+      rows.push(['No demographic data available', '', '']);
+    }
+    
+    // Add empty row
+    rows.push(['', '', '']);
+    rows.push(['Common Medical Conditions', '', '']);
+    rows.push(['Condition', 'Patients']);
     
     // Top conditions
-    topConditions: [
-      { condition: 'Hypertension', patient_count: 45 },
-      { condition: 'Diabetes', patient_count: 32 },
-      { condition: 'Asthma', patient_count: 28 },
-      { condition: 'Arthritis', patient_count: 22 },
-      { condition: 'Allergies', patient_count: 56 },
-      { condition: 'Migraine', patient_count: 18 }
-    ],
+    if (this.analyticsData.topConditions && this.analyticsData.topConditions.length > 0) {
+      this.analyticsData.topConditions.forEach((condition: any) => {
+        rows.push([condition.condition, condition.patient_count]);
+      });
+    } else {
+      rows.push(['No medical conditions data available', '']);
+    }
     
-    // Recent activity
-    recentActivity: [
-      { date: todayDate, scans: todayScans, registrations: 3, updates: 8 },
-      { date: this.getYesterdayDate(), scans: 12, registrations: 2, updates: 6 },
-      { date: this.getDateDaysAgo(2), scans: 10, registrations: 4, updates: 7 },
-      { date: this.getDateDaysAgo(3), scans: 14, registrations: 1, updates: 5 },
-      { date: this.getDateDaysAgo(4), scans: 9, registrations: 3, updates: 8 }
-    ]
-  };
-}
-
-getYesterdayDate(): string {
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  return yesterday.toISOString().split('T')[0];
-}
-
-getDateDaysAgo(days: number): string {
-  const date = new Date();
-  date.setDate(date.getDate() - days);
-  return date.toISOString().split('T')[0];
-}
-
-formatDisplayDate(dateString: string): string {
-  if (!dateString) return 'N/A';
-  
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  } catch (e) {
-    console.error('Error formatting date for display:', e);
-    return dateString;
+    return [headers, ...rows].map(row => row.map(field => `"${field || ''}"`).join(',')).join('\n');
   }
-}
 
-// ==================== ANALYTICS EXPORT METHODS ====================
+  exportAnalyticsToExcel(): void {
+    // For simplicity, we'll just export as CSV since Excel can open CSV files
+    this.exportAnalyticsToCSV();
+    this.logActivity('EXPORT', 'Exported analytics data to Excel');
+  }
 
-exportAnalyticsToPDF(): void {
-  this.analyticsLoading = true;
-  
-  try {
+  printAnalytics(): void {
     const analyticsContent = this.generateAnalyticsHTML();
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>HealthScanQR Analytics Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; }
+          h1 { color: #4b6cb7; text-align: center; }
+          h2 { color: #333; border-bottom: 2px solid #4b6cb7; padding-bottom: 10px; }
+          table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          th { background-color: #4b6cb7; color: white; padding: 12px; text-align: left; }
+          td { padding: 10px; border-bottom: 1px solid #ddd; }
+          tr:nth-child(even) { background-color: #f8f9fa; }
+          @media print {
+            body { margin: 0; padding: 20px; }
+            button { display: none; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>HealthScanQR Analytics Report</h1>
+        <p>Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
+        <p>Generated by: ${this.adminName}</p>
+        <p>Report Period: ${this.monthStartDate} to ${this.todayDate}</p>
+        ${analyticsContent}
+      </body>
+      </html>
+    `;
     
     const printWindow = window.open('', '_blank');
     if (printWindow) {
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>HealthScanQR Analytics Report</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            h1 { color: #4b6cb7; text-align: center; }
-            h2 { color: #333; border-bottom: 2px solid #4b6cb7; padding-bottom: 10px; }
-            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-            th { background-color: #4b6cb7; color: white; padding: 12px; text-align: left; }
-            td { padding: 10px; border-bottom: 1px solid #ddd; }
-            tr:nth-child(even) { background-color: #f8f9fa; }
-            .metric-card { 
-              background: #f8fafc; 
-              border: 1px solid #e2e8f0; 
-              border-radius: 8px; 
-              padding: 15px; 
-              margin: 10px 0;
-            }
-            .metric-value { font-size: 24px; font-weight: bold; color: #4b6cb7; }
-            .metric-label { color: #64748b; font-size: 14px; }
-            @media print {
-              body { margin: 0; padding: 20px; }
-              button { display: none; }
-            }
-          </style>
-        </head>
-        <body>
-          <h1>HealthScanQR Analytics Report</h1>
-          <p>Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
-          <p>Generated by: ${this.adminName}</p>
-          
-          ${analyticsContent}
-          
-          <br><br>
-          <div style="text-align: center; color: #666; font-size: 12px;">
-            <hr>
-            <p>Confidential - For internal use only</p>
-            <p>© ${new Date().getFullYear()} HealthScanQR. All rights reserved.</p>
-          </div>
-          
-          <script>
-            window.onload = function() {
-              window.print();
-              setTimeout(function() {
-                window.close();
-              }, 1000);
-            };
-          </script>
-        </body>
-        </html>
-      `);
+      printWindow.document.write(printContent);
       printWindow.document.close();
-      
-      this.logActivity('EXPORT', 'Exported analytics report to PDF');
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
     }
-  } catch (error) {
-    console.error('Error generating PDF:', error);
-    alert('Error generating report. Please try the print option instead.');
-  } finally {
-    this.analyticsLoading = false;
-  }
-}
-
-generateAnalyticsHTML(): string {
-  if (!this.analyticsData) return '<p>No analytics data available.</p>';
-  
-  let html = `
-    <h2>System Overview</h2>
-    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px 0;">
-      <div class="metric-card">
-        <div class="metric-value">${this.analyticsData.totalUsers}</div>
-        <div class="metric-label">Total Users</div>
-        <div>${this.analyticsData.approvedUsers} approved</div>
-      </div>
-      
-      <div class="metric-card">
-        <div class="metric-value">${this.analyticsData.totalScans}</div>
-        <div class="metric-label">QR Scans</div>
-        <div>${this.analyticsData.dailyScans} today</div>
-      </div>
-      
-      <div class="metric-card">
-        <div class="metric-value">${this.analyticsData.approvalRate}%</div>
-        <div class="metric-label">Approval Rate</div>
-      </div>
-      
-      <div class="metric-card">
-        <div class="metric-value">${this.analyticsData.scanGrowthRate}%</div>
-        <div class="metric-label">Scan Growth</div>
-      </div>
-    </div>
     
-    <h2>Activity Summary</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Activity Type</th>
-          <th>Today (${this.formatDisplayDate(this.analyticsData.dailyScansDate)})</th>
-          <th>This Week (${this.formatDisplayDate(this.analyticsData.weeklyScansDate)} onwards)</th>
-          <th>This Month (${this.formatDisplayDate(this.analyticsData.monthlyScansDate)} onwards)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>QR Scans</td>
-          <td>${this.analyticsData.dailyScans}</td>
-          <td>${this.analyticsData.weeklyScans}</td>
-          <td>${this.analyticsData.monthlyScans}</td>
-        </tr>
-        <tr>
-          <td>User Registrations</td>
-          <td>${this.analyticsData.dailyRegistrations}</td>
-          <td>${this.analyticsData.weeklyRegistrations}</td>
-          <td>${this.analyticsData.monthlyRegistrations}</td>
-        </tr>
-        <tr>
-          <td>Profile Updates</td>
-          <td>${this.analyticsData.dailyUpdates}</td>
-          <td>${this.analyticsData.weeklyUpdates}</td>
-          <td>${this.analyticsData.monthlyUpdates}</td>
-        </tr>
-      </tbody>
-    </table>
-    
-    <h2>Blood Type Distribution</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Blood Type</th>
-          <th>Users</th>
-          <th>Avg Age</th>
-        </tr>
-      </thead>
-      <tbody>
-  `;
-  
-  if (this.analyticsData.demographics && this.analyticsData.demographics.length > 0) {
-    this.analyticsData.demographics.forEach((demo: any) => {
-      html += `
-        <tr>
-          <td>${demo.blood_type || 'Unknown'}</td>
-          <td>${demo.count || 0}</td>
-          <td>${demo.average_age || 'N/A'}</td>
-        </tr>
-      `;
-    });
-  } else {
-    html += `<tr><td colspan="3" style="text-align: center;">No demographic data available</td></tr>`;
+    this.logActivity('PRINT', 'Printed analytics report');
   }
-  
-  html += `
-      </tbody>
-    </table>
-    
-    <h2>Common Medical Conditions</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Condition</th>
-          <th>Patients</th>
-        </tr>
-      </thead>
-      <tbody>
-  `;
-  
-  if (this.analyticsData.topConditions && this.analyticsData.topConditions.length > 0) {
-    this.analyticsData.topConditions.forEach((condition: any) => {
-      html += `
-        <tr>
-          <td>${condition.condition || 'Unknown'}</td>
-          <td>${condition.patient_count || 0}</td>
-        </tr>
-      `;
-    });
-  } else {
-    html += `<tr><td colspan="2" style="text-align: center;">No medical conditions data available</td></tr>`;
-  }
-  
-  html += `
-      </tbody>
-    </table>
-  `;
-  
-  return html;
-}
-
-exportAnalyticsToCSV(): void {
-  if (!this.analyticsData) {
-    alert('No analytics data to export.');
-    return;
-  }
-  
-  const csvContent = this.convertAnalyticsToCSV();
-  const blob = new Blob([csvContent], { type: 'text/csv' });
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `healthscanqr-analytics-${new Date().toISOString().split('T')[0]}.csv`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
-  
-  this.logActivity('EXPORT', 'Exported analytics data to CSV');
-}
-
-convertAnalyticsToCSV(): string {
-  if (!this.analyticsData) return '';
-  
-  const headers = ['Metric', 'Value', 'Date'];
-  const rows = [];
-  const today = new Date().toLocaleDateString();
-  
-  // Key metrics
-  rows.push(['Total Users', this.analyticsData.totalUsers, today]);
-  rows.push(['Total Scans', this.analyticsData.totalScans, today]);
-  rows.push(['Approved Users', this.analyticsData.approvedUsers, today]);
-  rows.push(['Approval Rate', `${this.analyticsData.approvalRate}%`, today]);
-  rows.push(['Scan Growth', `${this.analyticsData.scanGrowthRate}%`, today]);
-  
-  // Add empty row
-  rows.push(['', '', '']);
-  rows.push(['Activity Summary', '', '']);
-  rows.push(['Activity Type', `Today (${this.formatDisplayDate(this.analyticsData.dailyScansDate)})`, `This Week (${this.formatDisplayDate(this.analyticsData.weeklyScansDate)})`, `This Month (${this.formatDisplayDate(this.analyticsData.monthlyScansDate)})`]);
-  rows.push(['QR Scans', this.analyticsData.dailyScans, this.analyticsData.weeklyScans, this.analyticsData.monthlyScans]);
-  rows.push(['User Registrations', this.analyticsData.dailyRegistrations, this.analyticsData.weeklyRegistrations, this.analyticsData.monthlyRegistrations]);
-  rows.push(['Profile Updates', this.analyticsData.dailyUpdates, this.analyticsData.weeklyUpdates, this.analyticsData.monthlyUpdates]);
-  
-  // Add empty row
-  rows.push(['', '', '']);
-  rows.push(['Blood Type Distribution', '', '']);
-  rows.push(['Blood Type', 'Users', 'Avg Age']);
-  
-  // Demographics
-  if (this.analyticsData.demographics && this.analyticsData.demographics.length > 0) {
-    this.analyticsData.demographics.forEach((demo: any) => {
-      rows.push([demo.blood_type, demo.count, demo.average_age || 'N/A']);
-    });
-  } else {
-    rows.push(['No demographic data available', '', '']);
-  }
-  
-  // Add empty row
-  rows.push(['', '', '']);
-  rows.push(['Common Medical Conditions', '', '']);
-  rows.push(['Condition', 'Patients']);
-  
-  // Top conditions
-  if (this.analyticsData.topConditions && this.analyticsData.topConditions.length > 0) {
-    this.analyticsData.topConditions.forEach((condition: any) => {
-      rows.push([condition.condition, condition.patient_count]);
-    });
-  } else {
-    rows.push(['No medical conditions data available', '']);
-  }
-  
-  return [headers, ...rows].map(row => row.map(field => `"${field || ''}"`).join(',')).join('\n');
-}
-
-exportAnalyticsToExcel(): void {
-  // For simplicity, we'll just export as CSV since Excel can open CSV files
-  this.exportAnalyticsToCSV();
-  this.logActivity('EXPORT', 'Exported analytics data to Excel');
-}
-
-printAnalytics(): void {
-  const analyticsContent = this.generateAnalyticsHTML();
-  const printContent = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>HealthScanQR Analytics Report</title>
-      <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { color: #4b6cb7; text-align: center; }
-        h2 { color: #333; border-bottom: 2px solid #4b6cb7; padding-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th { background-color: #4b6cb7; color: white; padding: 12px; text-align: left; }
-        td { padding: 10px; border-bottom: 1px solid #ddd; }
-        tr:nth-child(even) { background-color: #f8f9fa; }
-        @media print {
-          body { margin: 0; padding: 20px; }
-          button { display: none; }
-        }
-      </style>
-    </head>
-    <body>
-      <h1>HealthScanQR Analytics Report</h1>
-      <p>Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
-      <p>Generated by: ${this.adminName}</p>
-      ${analyticsContent}
-    </body>
-    </html>
-  `;
-  
-  const printWindow = window.open('', '_blank');
-  if (printWindow) {
-    printWindow.document.write(printContent);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
-  }
-  
-  this.logActivity('PRINT', 'Printed analytics report');
-}
 
   // ==================== ACTIVITY LOGS METHODS ====================
 
@@ -1705,40 +1743,17 @@ printAnalytics(): void {
     return (data.user_id || data.full_name) ? data : null;
   }
 
-  formatDateForDisplay(dateString: string): string {
-    if (!dateString) return '';
-    
-    try {
-      const date = new Date(dateString);
-      
-      if (isNaN(date.getTime())) {
-        const parts = dateString.split('-');
-        if (parts.length === 3) {
-          const year = parseInt(parts[0]);
-          const month = parseInt(parts[1]) - 1;
-          const day = parseInt(parts[2]);
-          const newDate = new Date(year, month, day);
-          if (!isNaN(newDate.getTime())) {
-            return this.formatDateAsMDY(newDate);
-          }
-        }
-        return dateString;
-      }
-      
-      return this.formatDateAsMDY(date);
-    } catch (e) {
-      console.error('Error formatting date:', e);
-      return dateString;
+  ensureTimestamp(data: any): any {
+    if (!data.lastUpdated || data.lastUpdated === 'Never') {
+      return {
+        ...data,
+        lastUpdated: new Date().toISOString()
+      };
     }
+    return data;
   }
 
-  private formatDateAsMDY(date: Date): string {
-    const month = (date.getMonth() + 1).toString();
-    const day = date.getDate().toString();
-    const year = date.getFullYear().toString();
-    
-    return `${month}/${day}/${year}`;
-  }
+  // ==================== EDIT METHODS ====================
 
   populateEditForm(data: any): void {
     let dobForForm = data.dob;
@@ -1834,8 +1849,6 @@ printAnalytics(): void {
     const input = document.getElementById('photoUpload') as HTMLInputElement;
     if (input) input.click();
   }
-
-  // ==================== EDIT METHODS ====================
 
   saveChanges(): void {
     if (this.editForm.invalid) {
@@ -1988,16 +2001,6 @@ printAnalytics(): void {
     }
     
     return false;
-  }
-
-  ensureTimestamp(data: any): any {
-    if (!data.lastUpdated || data.lastUpdated === 'Never') {
-      return {
-        ...data,
-        lastUpdated: new Date().toISOString()
-      };
-    }
-    return data;
   }
 
   forceUserDataRefresh(userId: string): void {
